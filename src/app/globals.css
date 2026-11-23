@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --bg-body: #0c0e12;
+  --bg-surface: #13171f;
+  --bg-surface-elevated: #1a1f2a;
+  --bg-surface-hover: #222938;
+  --border-subtle: #1e2430;
+  --border-default: #2a3344;
+  --border-strong: #3d4960;
+  --text-primary: #f0f3f8;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success: #10b981;
+  --warning: #f59e0b;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0c0e12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #232a37;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #354054;
+}
+
+/* Sharp surface container */
+.surface-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.surface-elevated {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-default);
+}
+
+/* ── Accessibility & Contrast Overrides (WCAG 2.2 AA Compliance) ── */
+.text-\[\#5e6b82\] {
+  color: #94a3b8 !important;
+}
+
+.text-\[\#94a1b5\] {
+  color: #cbd5e1 !important;
+}
+
+/* Visible focus indicators for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+

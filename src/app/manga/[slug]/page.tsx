@@ -1,0 +1,251 @@
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { fetchMangaDetails } from "@/lib/anilist";
+import { buildMetadata, generateBookSchema, generateCountdownSchema } from "@/lib/seo";
+import MangaDetailActions from "@/components/MangaDetailActions";
+import MangaDetailTabs from "@/components/MangaDetailTabs";
+import { Star } from "lucide-react";
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const { manga } = await fetchMangaDetails(slug);
+
+  if (!manga) {
+    return buildMetadata({
+      title: "Manga Not Found",
+      path: `/manga/${slug}`,
+      noIndex: true,
+    });
+  }
+
+  const nextChapter = manga.nextAiringChapter?.episodeOrChapter;
+  const description = nextChapter
+    ? `Track ${manga.displayTitle} Chapter ${nextChapter} release countdown. Official simulpub read links on Manga Plus and Viz Media, volumes, and full series details.`
+    : `Read and track ${manga.displayTitle} official releases, volume release dates, chapters, and recommendations on MangaPulse.`;
+
+  return buildMetadata({
+    title: `${manga.displayTitle} — Chapter Countdown, Where to Read & Buy`,
+    description,
+    path: `/manga/${manga.slug}`,
+    image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
+  });
+}
+
+export default async function MangaDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const { manga, recommendations } = await fetchMangaDetails(slug);
+
+  if (!manga) notFound();
+
+  const coverUrl =
+    manga.coverImage.extraLarge ||
+    manga.coverImage.large ||
+    manga.coverImage.medium ||
+    "/placeholder-cover.png";
+
+  const ratingFormatted = manga.averageScore
+    ? (manga.averageScore / 20).toFixed(1)
+    : null;
+
+  const bookSchema = generateBookSchema(manga);
+  const countdownSchema = generateCountdownSchema(manga);
+
+  return (
+    <div className="pb-20 space-y-12">
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bookSchema) }}
+      />
+      {countdownSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(countdownSchema) }}
+        />
+      )}
+
+      {/* Main Header / Overview Area */}
+      <section className="border-b border-[#1e2430] bg-[#0f1217] py-8 px-4 lg:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Cover & Quick Facts */}
+          <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
+            <div className="relative aspect-[3/4.4] w-full max-w-xs mx-auto md:mx-0 rounded-xl overflow-hidden border border-[#2a3344] bg-[#0c0e12] shadow-xl">
+              <Image
+                src={coverUrl}
+                alt={manga.displayTitle}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 320px"
+                className="object-cover"
+              />
+            </div>
+
+            {/* Structured Specifications Sidebar */}
+            <div className="surface-card rounded-xl p-4 border border-[#2a3344] space-y-3 text-xs">
+              <div className="font-mono text-[11px] uppercase text-white font-bold pb-2 border-b border-[#1e2430]">
+                Series Specifications
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-[#94a1b5]">Format</span>
+                <span className="font-semibold text-white">
+                  {manga.countryOfOrigin === "KR" ? "Manhwa (Webtoon)" : "Manga (Print & Digital)"}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-[#94a1b5]">Country</span>
+                <span className="font-semibold text-white">
+                  {manga.countryOfOrigin === "KR" ? "South Korea" : "Japan"}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-[#94a1b5]">Status</span>
+                <span className={`font-semibold ${manga.status === "RELEASING" ? "text-emerald-400" : "text-white"}`}>
+                  {manga.status === "RELEASING" ? "Publishing (Ongoing)" : manga.status}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-[#94a1b5]">Total Chapters</span>
+                <span className="font-mono font-semibold text-white">
+                  {manga.chapters ? `${manga.chapters} Chapters` : "Ongoing"}
+                </span>
+              </div>
+
+              {manga.volumes && (
+                <div className="flex justify-between">
+                  <span className="text-[#94a1b5]">Tankobon Volumes</span>
+                  <span className="font-mono font-semibold text-white">{manga.volumes} Volumes</span>
+                </div>
+              )}
+
+              {manga.startDate?.year && (
+                <div className="flex justify-between">
+                  <span className="text-[#94a1b5]">Serialized Since</span>
+                  <span className="font-mono font-semibold text-white">
+                    {manga.startDate.year}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between">
+                <span className="text-[#94a1b5]">AniList Score</span>
+                <span className="font-mono font-bold text-amber-400">
+                  {ratingFormatted ? `${ratingFormatted} / 5.0` : "—"}
+                </span>
+              </div>
+            </div>
+
+            {/* Alternative Names & Synonyms below Series Specifications */}
+            <div className="surface-card rounded-xl p-4 border border-[#2a3344] space-y-3 text-xs">
+              <div className="font-mono text-[11px] uppercase text-white font-bold pb-2 border-b border-[#1e2430]">
+                Alternative Names
+              </div>
+
+              {manga.title.english && (
+                <div>
+                  <span className="text-[#94a1b5] block text-[10px] uppercase font-mono">English</span>
+                  <span className="text-white font-medium">{manga.title.english}</span>
+                </div>
+              )}
+
+              {manga.title.romaji && (
+                <div>
+                  <span className="text-[#94a1b5] block text-[10px] uppercase font-mono">Romaji</span>
+                  <span className="text-white font-medium">{manga.title.romaji}</span>
+                </div>
+              )}
+
+              {manga.title.native && (
+                <div>
+                  <span className="text-[#94a1b5] block text-[10px] uppercase font-mono">Native</span>
+                  <span className="text-white font-medium">{manga.title.native}</span>
+                </div>
+              )}
+
+              {manga.synonyms && manga.synonyms.length > 0 && (
+                <div>
+                  <span className="text-[#94a1b5] block text-[10px] uppercase font-mono">Synonyms & Aliases</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {manga.synonyms.map((syn, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 rounded bg-[#13171f] border border-[#1e2430] text-[11px] text-[#94a1b5]"
+                      >
+                        {syn}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Title, Countdown, Official Read/Buy, Synopsis */}
+          <div className="md:col-span-8 lg:col-span-9 space-y-6">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-[#1e2430] text-[#94a1b5] border border-[#2a3344]">
+                  {manga.countryOfOrigin === "KR" ? "Korean Webtoon" : "Japanese Manga"}
+                </span>
+                {manga.status === "RELEASING" && (
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Active Simulpub
+                  </span>
+                )}
+                {ratingFormatted && (
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1 font-bold">
+                    <Star className="w-3 h-3 fill-amber-400" />
+                    {ratingFormatted} Rating
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                {manga.displayTitle}
+              </h1>
+
+              {manga.title.romaji && manga.title.romaji !== manga.displayTitle && (
+                <div className="text-xs font-mono text-[#5e6b82]">
+                  Romaji: {manga.title.romaji}
+                  {manga.title.native ? ` • Native: ${manga.title.native}` : ""}
+                </div>
+              )}
+
+              {/* Genre Chips */}
+              <div className="flex flex-wrap gap-1.5 pt-2">
+                {manga.genres.map((genre) => (
+                  <span
+                    key={genre}
+                    className="px-2.5 py-1 rounded bg-[#13171f] border border-[#2a3344] text-[11px] text-[#94a1b5]"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </div>
+
+              {/* User Reading & Collection Actions */}
+              <MangaDetailActions manga={manga} />
+            </div>
+
+            {/* Interactive Section Tabs: Overview | Stats | Reviews */}
+            <MangaDetailTabs
+              manga={manga}
+              coverUrl={coverUrl}
+              recommendations={recommendations}
+            />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

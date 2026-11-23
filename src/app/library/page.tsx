@@ -1,0 +1,506 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import {
+  Bookmark,
+  Layers,
+  Plus,
+  Trash2,
+  Check,
+  Star,
+  BookOpen,
+  FolderPlus,
+  ExternalLink,
+  ChevronRight,
+  LogIn,
+  Eye,
+  Download,
+} from "lucide-react";
+import { LibraryStatus, MangaDisplaySettings } from "@/types/manga";
+import DisplaySettingsBar from "@/components/DisplaySettingsBar";
+import ImportModal from "@/components/ImportModal";
+import { getDisplaySettings, DEFAULT_DISPLAY_SETTINGS } from "@/lib/chapterStore";
+
+export default function LibraryPage() {
+  const {
+    user,
+    isLoggedIn,
+    library,
+    updateLibrary,
+    removeFromLibrary,
+    incrementChapter,
+    collections,
+    createCollection,
+    deleteCollection,
+    setAuthModalOpen,
+    setAuthModalMode,
+    openCollectionPicker,
+    refreshLibrary,
+  } = useAuth();
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<LibraryStatus | "all" | "collections">("all");
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
+  const [newColName, setNewColName] = useState("");
+  const [newColDesc, setNewColDesc] = useState("");
+  const [showCreateCol, setShowCreateCol] = useState(false);
+  const [displaySettings, setDisplaySettings] = useState<MangaDisplaySettings>(DEFAULT_DISPLAY_SETTINGS);
+
+  // Load and listen to display settings
+  useEffect(() => {
+    setDisplaySettings(getDisplaySettings());
+
+    const handler = () => {
+      setDisplaySettings(getDisplaySettings());
+    };
+    window.addEventListener("mangapulse-display-settings-changed", handler);
+    return () => window.removeEventListener("mangapulse-display-settings-changed", handler);
+  }, []);
+
+  // Filter library items
+  const filteredItems = library.filter((item) => {
+    if (activeTab === "all" || activeTab === "collections") return true;
+    return item.status === activeTab;
+  });
+
+  const totalChaptersRead = library.reduce((acc, curr) => acc + curr.progress_chapter, 0);
+
+  const handleCreateCollection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newColName.trim()) return;
+    await createCollection(newColName.trim(), newColDesc.trim() || undefined);
+    setNewColName("");
+    setNewColDesc("");
+    setShowCreateCol(false);
+  };
+
+  const selectedCol = collections.find((c) => c.id === selectedCollectionId);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
+      {/* Header Profile / Stats Banner */}
+      <div className="surface-card rounded-xl p-6 border border-[#2a3344] flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-xl bg-[#0c0e12] border border-[#2a3344] flex items-center justify-center font-bold text-white text-xl">
+            {user?.username ? user.username.substring(0, 2).toUpperCase() : "MP"}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-white">
+                {user?.username ? `${user.username}'s Library` : "Personal Manga Library"}
+              </h1>
+              <button
+            onClick={() => setImportModalOpen(true)}
+            className="px-3.5 py-2.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors border border-[#2a3344]"
+            title="Import from AniList or MyAnimeList XML"
+          >
+            <Download className="w-4 h-4 text-blue-400" />
+            <span>Import</span>
+          </button>
+
+          {!isLoggedIn && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  Guest Mode (Saved Locally)
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-[#94a1b5] mt-1">
+              {isLoggedIn
+                ? `Signed in as ${user?.email}`
+                : "Sign in with Google to sync your library across desktop and mobile devices."}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg text-center min-w-24">
+            <div className="text-base font-mono font-bold text-white">{library.length}</div>
+            <div className="text-[10px] text-[#5e6b82] uppercase font-mono">Tracked</div>
+          </div>
+          <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg text-center min-w-24">
+            <div className="text-base font-mono font-bold text-blue-400">{totalChaptersRead}</div>
+            <div className="text-[10px] text-[#5e6b82] uppercase font-mono">Chapters Read</div>
+          </div>
+
+          <button
+            onClick={() => setImportModalOpen(true)}
+            className="px-3.5 py-2.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors border border-[#2a3344]"
+            title="Import from AniList or MyAnimeList XML"
+          >
+            <Download className="w-4 h-4 text-blue-400" />
+            <span>Import</span>
+          </button>
+
+          {!isLoggedIn && (
+            <button
+              onClick={() => {
+                setAuthModalMode("login");
+                setAuthModalOpen(true);
+              }}
+              className="px-3.5 py-2.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In / Sync</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1e2430] pb-3">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+          {(
+            [
+              { id: "all", label: `All (${library.length})` },
+              { id: "reading", label: `Reading (${library.filter((i) => i.status === "reading").length})` },
+              { id: "plan_to_read", label: `Plan to Read (${library.filter((i) => i.status === "plan_to_read").length})` },
+              { id: "completed", label: `Completed (${library.filter((i) => i.status === "completed").length})` },
+              { id: "dropped", label: `Dropped (${library.filter((i) => i.status === "dropped").length})` },
+              { id: "collections", label: `Custom Collections (${collections.length})` },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSelectedCollectionId(null);
+              }}
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                activeTab === tab.id
+                  ? "bg-[#1a1f2a] text-white border border-[#2a3344]"
+                  : "text-[#94a1b5] hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "collections" && (
+          <button
+            onClick={() => setShowCreateCol(true)}
+            className="px-3 py-1.5 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            <FolderPlus className="w-3.5 h-3.5" />
+            <span>New Collection</span>
+          </button>
+        )}
+      </div>
+
+      {/* Customizable Display Settings Toolbar */}
+      <DisplaySettingsBar />
+
+      {/* View: Collections Tab */}
+      {activeTab === "collections" ? (
+        <div className="space-y-6">
+          {/* Create collection inline modal */}
+          {showCreateCol && (
+            <div className="surface-card rounded-xl p-5 border border-[#2a3344] max-w-md">
+              <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#1e2430]">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider">
+                  Create Custom Collection
+                </h3>
+                <button
+                  onClick={() => setShowCreateCol(false)}
+                  className="text-[#94a1b5] hover:text-white text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+              <form onSubmit={handleCreateCollection} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-[11px] font-mono text-[#94a1b5] mb-1">
+                    Collection Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newColName}
+                    onChange={(e) => setNewColName(e.target.value)}
+                    placeholder="e.g. Masterpiece Arcs, Dark Fantasy, 2026 Must Reads"
+                    className="w-full bg-[#0c0e12] border border-[#2a3344] rounded-lg px-3 py-2 text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-mono text-[#94a1b5] mb-1">
+                    Description (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={newColDesc}
+                    onChange={(e) => setNewColDesc(e.target.value)}
+                    placeholder="Short description of this list..."
+                    className="w-full bg-[#0c0e12] border border-[#2a3344] rounded-lg px-3 py-2 text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs transition-colors"
+                >
+                  Create Collection
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* If a single collection is selected to view */}
+          {selectedCol ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
+                <div>
+                  <button
+                    onClick={() => setSelectedCollectionId(null)}
+                    className="text-xs font-mono text-blue-400 hover:underline mb-1 inline-block"
+                  >
+                    ← Back to All Collections
+                  </button>
+                  <h2 className="text-xl font-bold text-white">{selectedCol.name}</h2>
+                  {selectedCol.description && (
+                    <p className="text-xs text-[#94a1b5] mt-0.5">{selectedCol.description}</p>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => deleteCollection(selectedCol.id)}
+                  className="px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs flex items-center gap-1 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete List</span>
+                </button>
+              </div>
+
+              {selectedCol.items && selectedCol.items.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {selectedCol.items.map((m) => (
+                    <div
+                      key={m.manga_id}
+                      className="surface-card rounded-xl overflow-hidden border border-[#1e2430] p-2.5 flex flex-col justify-between gap-2"
+                    >
+                      <Link href={`/manga/${m.manga_slug}`}>
+                        {displaySettings.showCover && (
+                          <div className="relative aspect-[3/4.2] w-full rounded bg-black overflow-hidden mb-2">
+                            <img
+                              src={m.manga_cover}
+                              alt={m.manga_title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        {displaySettings.showTitle && (
+                          <div className="font-semibold text-xs text-white line-clamp-1 hover:text-blue-400">
+                            {m.manga_title}
+                          </div>
+                        )}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center text-xs text-[#5e6b82]">
+                  This collection is empty. Click &quot;+ List&quot; on any manga card to add titles.
+                </div>
+              )}
+            </div>
+          ) : (
+            /* All Collections Cards Grid */
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {collections.map((col) => (
+                <div
+                  key={col.id}
+                  onClick={() => setSelectedCollectionId(col.id)}
+                  className="surface-card rounded-xl p-5 border border-[#2a3344] hover:border-[#3d4960] transition-colors cursor-pointer flex flex-col justify-between gap-4 group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
+                        {col.name}
+                      </h3>
+                      <span className="font-mono text-[10px] text-[#94a1b5] px-1.5 py-0.5 rounded bg-[#0c0e12] border border-[#1e2430]">
+                        {col.items?.length || 0} Titles
+                      </span>
+                    </div>
+                    {col.description && (
+                      <p className="text-xs text-[#94a1b5] line-clamp-2 leading-relaxed">
+                        {col.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Thumbnail Previews */}
+                  <div className="flex items-center gap-1.5 pt-2 border-t border-[#1e2430]">
+                    {col.items && col.items.length > 0 ? (
+                      col.items.slice(0, 4).map((it) => (
+                        <div
+                          key={it.manga_id}
+                          className="w-9 h-12 rounded bg-black overflow-hidden border border-[#2a3344]"
+                        >
+                          <img
+                            src={it.manga_cover}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-[11px] text-[#5e6b82] font-mono">
+                        No titles added yet
+                      </span>
+                    )}
+                    <span className="ml-auto text-xs font-mono text-[#94a1b5] group-hover:text-white flex items-center">
+                      Open →
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* View: Manga Tracking Grid / Table with customizable fields */
+        <div className="space-y-4">
+          {filteredItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredItems.map((entry) => {
+                const total = entry.total_chapters || 100;
+                const unread = Math.max(0, total - entry.progress_chapter);
+
+                return (
+                  <div
+                    key={entry.manga_id}
+                    className="surface-card rounded-xl p-4 border border-[#2a3344] flex gap-4"
+                  >
+                    {/* Poster Cover (if enabled) */}
+                    {displaySettings.showCover && (
+                      <Link href={`/manga/${entry.manga_slug}`} className="flex-shrink-0">
+                        <div className="w-16 h-24 relative rounded-lg overflow-hidden bg-black border border-[#1e2430]">
+                          <img
+                            src={entry.manga_cover}
+                            alt={entry.manga_title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </Link>
+                    )}
+
+                    {/* Details & Interactive Incrementer */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        {/* Title (if enabled) */}
+                        <div className="flex items-start justify-between gap-1">
+                          {displaySettings.showTitle ? (
+                            <Link
+                              href={`/manga/${entry.manga_slug}`}
+                              className="font-bold text-xs text-white hover:text-blue-400 line-clamp-1 transition-colors"
+                            >
+                              {entry.manga_title}
+                            </Link>
+                          ) : (
+                            <span className="font-mono text-xs text-[#5e6b82]">
+                              Manga #{entry.manga_id}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#0c0e12] border border-[#1e2430] text-[#94a1b5]">
+                            {entry.status.replace(/_/g, " ")}
+                          </span>
+                        </div>
+
+                        {/* Chapter progress with Instant +1 Button */}
+                        <div className="flex items-center justify-between gap-2 mt-2">
+                          <div className="text-xs font-mono text-[#94a1b5]">
+                            Ch. <span className="font-bold text-white">{entry.progress_chapter}</span>
+                            {displaySettings.showLatestChapter && entry.total_chapters ? ` / ${entry.total_chapters}` : ""}
+                          </div>
+
+                          <button
+                            onClick={() => incrementChapter(entry.manga_id)}
+                            className="px-2 py-0.5 rounded bg-[#1a1f2a] hover:bg-[#2563eb] text-[#94a1b5] hover:text-white border border-[#2a3344] text-[11px] font-mono font-semibold transition-colors flex items-center gap-1"
+                            title="Read next chapter (+1)"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>+1 Ch</span>
+                          </button>
+                        </div>
+
+                        {/* Unread count & Score display (if enabled) */}
+                        <div className="flex items-center gap-2 mt-1.5">
+                          {displaySettings.showUnreadCount && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              {unread} unread
+                            </span>
+                          )}
+
+                          {displaySettings.showRating && entry.rating && (
+                            <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400">
+                              <Star className="w-3 h-3 fill-amber-400" />
+                              <span>{entry.rating} / 10</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions Row */}
+                      <div className="flex items-center justify-between pt-2 border-t border-[#1e2430] text-[11px]">
+                        <button
+                          onClick={() =>
+                            openCollectionPicker({
+                              id: entry.manga_id,
+                              slug: entry.manga_slug,
+                              displayTitle: entry.manga_title,
+                              coverImage: { large: entry.manga_cover },
+                              title: { userPreferred: entry.manga_title },
+                              genres: [],
+                              status: "RELEASING",
+                            })
+                          }
+                          className="text-[#94a1b5] hover:text-white flex items-center gap-1 transition-colors"
+                        >
+                          <Layers className="w-3 h-3" />
+                          <span>Collection</span>
+                        </button>
+
+                        <button
+                          onClick={() => removeFromLibrary(entry.manga_id)}
+                          className="text-red-400/80 hover:text-red-400 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="surface-card rounded-xl p-12 text-center border border-[#2a3344] space-y-3">
+              <BookOpen className="w-8 h-8 text-[#5e6b82] mx-auto" />
+              <h3 className="font-bold text-white text-sm">No series in this reading list</h3>
+              <p className="text-xs text-[#94a1b5] max-w-sm mx-auto">
+                Explore trending manga and click &quot;Track&quot; on any title to follow your progress and receive chapter countdown alerts.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/"
+                  className="px-4 py-2 rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold inline-flex items-center gap-1.5"
+                >
+                  <span>Browse Trending Manga</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Import Modal */}
+      <ImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={() => refreshLibrary()}
+      />
+    </div>
+  );
+}
