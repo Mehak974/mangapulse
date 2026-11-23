@@ -23,19 +23,17 @@ export async function POST(request: Request) {
 
     // If Supabase is configured and table exists, record event asynchronously
     if (supabase) {
-      supabase
-        .from("outbound_click_events")
-        .insert({
+      Promise.resolve(
+        supabase.from("outbound_click_events").insert({
           publisher,
           manga_title: mangaTitle || null,
           target_url: targetUrl || null,
           created_at: new Date().toISOString(),
         })
-        .then(() => {})
-        .catch((err) => {
-          // Silent catch so client is never blocked
-          console.debug("Supabase outbound click logging note:", err.message);
-        });
+      ).catch((err: any) => {
+        // Silent catch so client is never blocked
+        console.debug("Supabase outbound click logging note:", err?.message);
+      });
     }
 
     return NextResponse.json({ success: true, count: current + 1 });
