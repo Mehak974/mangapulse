@@ -207,7 +207,7 @@ export default function DonatePage() {
                 <h3 className="font-bold text-base text-white">Buy Us a Coffee</h3>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-black font-mono text-white">$3</span>
-                  <span className="text-xs text-[#5e6b82]">/ one-time</span>
+                  <span className="text-xs text-[#5e6b82]">/ 32-day access</span>
                 </div>
                 <p className="text-xs text-[#94a1b5] mt-2 leading-relaxed">
                   A small tip that directly fuels late-night server maintenance and chapter sync scripts.
@@ -430,44 +430,28 @@ export default function DonatePage() {
                         <Sparkles className="w-3 h-3 text-white fill-white" />
                       </div>
                       <div className="text-[10px] font-mono text-slate-300">Active VIP Patron</div>
-                      <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">Top Supporter</div>
+                      <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">Verified Patron</div>
                     </div>
                   </div>
                 )}
 
-                {[
-                  { name: "AkiraVault", tier: "Founding Patron", favorite: "Berserk", since: "Oct 2024" },
-                  { name: "Mehak", tier: "Manga Patron", favorite: "Omniscient Reader's Viewpoint", since: "Nov 2024" },
-                  { name: "ShadowArchivist", tier: "Manga Patron", favorite: "The Greatest Estate Developer", since: "Nov 2024" },
-                  { name: "ReiChainsaw", tier: "Manga Patron", favorite: "Chainsaw Man", since: "Nov 2024" },
-                  { name: "LevelingKing", tier: "Manga Patron", favorite: "Solo Leveling", since: "Nov 2024" },
-                  { name: "ReturnOfBlossom", tier: "Manga Patron", favorite: "Return of the Blossoming Blade", since: "Nov 2024" },
-                ].map((patron, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-[#0c0e12]/80 border border-[#2a3344] hover:border-slate-300/50 transition-all flex items-center gap-3"
-                  >
-                    <SupporterAvatar
-                      username={patron.name}
-                      isSupporter={true}
-                      tier="legend"
-                      size="md"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-bold text-xs text-white truncate flex items-center justify-between">
-                        <span>{patron.name}</span>
-                        <span className="text-[9px] font-mono text-[#5e6b82]">{patron.since}</span>
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-300 flex items-center gap-1">
-                        <Crown className="w-2.5 h-2.5 text-slate-200" />
-                        <span>{patron.tier}</span>
-                      </div>
-                      <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">
-                        Fave: <span className="text-white/80">{patron.favorite}</span>
-                      </div>
-                    </div>
+                <div className="p-6 rounded-xl bg-[#0c0e12]/60 border border-[#2a3344] sm:col-span-2 lg:col-span-3 text-center max-w-xl mx-auto space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-400 flex items-center justify-center mx-auto text-slate-200">
+                    <Crown className="w-6 h-6" />
                   </div>
-                ))}
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Verified Manga Patron VIP Roster</h4>
+                    <p className="text-xs text-[#94a1b5] mt-1 leading-relaxed">
+                      Supporters who subscribe via Ko-fi and link their email are automatically enshrined here on the official Wall of Fame with their custom anime avatar borders and silver crowns.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleOfficialCheckout(15, "Manga Patron")}
+                    className="px-4 py-2 rounded-xl bg-white text-black font-bold text-xs hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    Claim Your Spot ($15/mo)
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -482,7 +466,7 @@ export default function DonatePage() {
                 </span>
                 <button
                   onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
-                  className="px-3 py-1 rounded-lg bg-amber-500 text-black font-bold text-[11px] hover:scale-105 transition-transform"
+                  className="px-3 py-1 rounded-lg bg-amber-500 text-black font-bold text-[11px] hover:scale-105 transition-transform cursor-pointer"
                 >
                   Join Pro Roster
                 </button>
@@ -513,39 +497,23 @@ export default function DonatePage() {
                   </div>
                 )}
 
-                {[
-                  { name: "StrawHatPuff", tier: "Pro Supporter", favorite: "One Piece", since: "Dec 2024" },
-                  { name: "MakotoRead", tier: "Pro Supporter", favorite: "Jujutsu Kaisen", since: "Jan 2025" },
-                  { name: "KaguraBlade", tier: "Pro Supporter", favorite: "Kagurabachi", since: "Jan 2025" },
-                  { name: "JinWooFan", tier: "Pro Supporter", favorite: "Solo Leveling", since: "Feb 2025" },
-                  { name: "FrierenSpell", tier: "Pro Supporter", favorite: "Frieren: Beyond Journey's End", since: "Feb 2025" },
-                  { name: "KaijuMaster", tier: "Pro Supporter", favorite: "Kaiju No. 8", since: "Mar 2025" },
-                ].map((pro, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-[#0c0e12]/80 border border-[#2a3344] hover:border-amber-400/50 transition-all flex items-center gap-3"
-                  >
-                    <SupporterAvatar
-                      username={pro.name}
-                      isSupporter={true}
-                      tier="supporter"
-                      size="md"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-bold text-xs text-white truncate flex items-center justify-between">
-                        <span>{pro.name}</span>
-                        <span className="text-[9px] font-mono text-[#5e6b82]">{pro.since}</span>
-                      </div>
-                      <div className="text-[10px] font-mono text-amber-400 flex items-center gap-1">
-                        <Zap className="w-2.5 h-2.5" />
-                        <span>{pro.tier}</span>
-                      </div>
-                      <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">
-                        Fave: <span className="text-white/80">{pro.favorite}</span>
-                      </div>
-                    </div>
+                <div className="p-6 rounded-xl bg-[#0c0e12]/60 border border-[#2a3344] sm:col-span-2 lg:col-span-3 text-center max-w-xl mx-auto space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-amber-950/40 border border-amber-500/50 flex items-center justify-center mx-auto text-amber-400">
+                    <Zap className="w-6 h-6" />
                   </div>
-                ))}
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Verified Pro Supporter Roster</h4>
+                    <p className="text-xs text-[#94a1b5] mt-1 leading-relaxed">
+                      Pro Supporters power our countdown servers and unlock full Kenmei-style 4-tab dashboard layouts. Your badge activates automatically upon Ko-fi confirmation.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
+                    className="px-4 py-2 rounded-xl bg-amber-500 text-black font-bold text-xs hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    Join Pro Roster ($5/mo)
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -560,7 +528,7 @@ export default function DonatePage() {
                 </span>
                 <button
                   onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
-                  className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold text-[11px] hover:scale-105 transition-transform"
+                  className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold text-[11px] hover:scale-105 transition-transform cursor-pointer"
                 >
                   Buy a Coffee ($3)
                 </button>
@@ -591,156 +559,95 @@ export default function DonatePage() {
                   </div>
                 )}
 
-                {[
-                  { name: "CoffeeReader99", tier: "Coffee Donator", favorite: "Spy x Family", since: "Jan 2025" },
-                  { name: "MidnightBinge", tier: "Coffee Donator", favorite: "Dandadan", since: "Jan 2025" },
-                  { name: "ChapterChaser", tier: "Coffee Donator", favorite: "Blue Lock", since: "Feb 2025" },
-                  { name: "MangaFuel", tier: "Coffee Donator", favorite: "Tower of God", since: "Feb 2025" },
-                  { name: "SunriseScanner", tier: "Coffee Donator", favorite: "Wind Breaker", since: "Mar 2025" },
-                  { name: "WeeklyDrop", tier: "Coffee Donator", favorite: "Choujin X", since: "Mar 2025" },
-                ].map((coffee, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-[#0c0e12]/80 border border-[#2a3344] hover:border-blue-400/50 transition-all flex items-center gap-3"
-                  >
-                    <SupporterAvatar
-                      username={coffee.name}
-                      isSupporter={true}
-                      tier="coffee"
-                      size="md"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-bold text-xs text-white truncate flex items-center justify-between">
-                        <span>{coffee.name}</span>
-                        <span className="text-[9px] font-mono text-[#5e6b82]">{coffee.since}</span>
-                      </div>
-                      <div className="text-[10px] font-mono text-blue-400 flex items-center gap-1">
-                        <Coffee className="w-2.5 h-2.5" />
-                        <span>{coffee.tier}</span>
-                      </div>
-                      <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">
-                        Fave: <span className="text-white/80">{coffee.favorite}</span>
-                      </div>
-                    </div>
+                <div className="p-6 rounded-xl bg-[#0c0e12]/60 border border-[#2a3344] sm:col-span-2 lg:col-span-3 text-center max-w-xl mx-auto space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-blue-950/40 border border-blue-500/50 flex items-center justify-center mx-auto text-blue-400">
+                    <Coffee className="w-6 h-6" />
                   </div>
-                ))}
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Verified Coffee Donator Roster</h4>
+                    <p className="text-xs text-[#94a1b5] mt-1 leading-relaxed">
+                      Fuel our chapter sync engines with a $3 coffee tip. Unlocks the glowing electric blue profile border, coffee icon, and Reading Status analytics for 32 days.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors cursor-pointer"
+                  >
+                    Tip $3 via Ko-fi
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </section>
 
-        {/* ── Supporter Hall of Fame (Lifetime Top Donors Leaderboard) ── */}
+        {/* ── Supporter Hall of Fame (Lifetime Community Recognition Standards) ── */}
         <section className="p-6 sm:p-8 rounded-2xl bg-[#13171f] border border-[#2a3344] relative shadow-xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#1e2430] mb-6">
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-amber-400" />
               <div>
                 <h3 className="font-bold text-base text-white">
-                  Supporter Hall of Fame • Lifetime Champions
+                  Supporter Hall of Fame • Recognition Standards
                 </h3>
                 <p className="text-xs text-[#94a1b5] mt-0.5">
-                  Honoring the top supporters who contributed the most throughout the entire life of MangaPulse.
+                  Honoring the community champions who support the ongoing development and legal indexing of MangaPulse.
                 </p>
               </div>
             </div>
-            <span className="text-[11px] font-mono text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-              ALL-TIME LEADERBOARD
+            <span className="text-[11px] font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+              100% VERIFIED TIERS
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                rank: 1,
-                name: "AkiraVault",
-                amount: "$240",
-                tier: "Founding Patron",
-                since: "Oct 2024",
-                favorite: "Berserk",
-                medal: "🥇",
-                badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-              },
-              {
-                rank: 2,
-                name: "OdaScholar",
-                amount: "$195",
-                tier: "Manga Patron",
-                since: "Jan 2025",
-                favorite: "One Piece",
-                medal: "🥈",
-                badgeColor: "bg-slate-300/20 text-slate-200 border-slate-300/40",
-              },
-              {
-                rank: 3,
-                name: "ShadowArchivist",
-                amount: "$150",
-                tier: "Manga Patron",
-                since: "Nov 2024",
-                favorite: "The Greatest Estate Developer",
-                medal: "🥉",
-                badgeColor: "bg-amber-700/20 text-amber-500 border-amber-700/40",
-              },
-              {
-                rank: 4,
-                name: "StrawHatPuff",
-                amount: "$95",
-                tier: "Pro Supporter",
-                since: "Feb 2025",
-                favorite: "Chainsaw Man",
-                medal: "#4",
-                badgeColor: "bg-[#161a22] text-[#94a1b5] border-[#2a3344]",
-              },
-              {
-                rank: 5,
-                name: "MakotoRead",
-                amount: "$75",
-                tier: "Pro Supporter",
-                since: "Mar 2025",
-                favorite: "Jujutsu Kaisen",
-                medal: "#5",
-                badgeColor: "bg-[#161a22] text-[#94a1b5] border-[#2a3344]",
-              },
-              {
-                rank: 6,
-                name: "LevelingKing",
-                amount: "$60",
-                tier: "Coffee Champion",
-                since: "Nov 2024",
-                favorite: "Solo Leveling",
-                medal: "#6",
-                badgeColor: "bg-[#161a22] text-[#94a1b5] border-[#2a3344]",
-              },
-            ].map((champ) => (
-              <div
-                key={champ.rank}
-                className="p-4 rounded-xl bg-[#0c0e12] border border-[#2a3344] hover:border-slate-400/40 transition-all flex items-center gap-3.5 relative"
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#141b26] border border-[#2a3344] flex items-center justify-center text-base font-black font-mono flex-shrink-0">
-                  {champ.medal}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="font-bold text-xs text-white truncate">{champ.name}</span>
-                    <span className="font-mono text-xs font-black text-emerald-400">
-                      {champ.amount}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[10px] font-mono text-blue-400 font-semibold">
-                      {champ.tier}
-                    </span>
-                    <span className="text-[#5e6b82] text-[10px]">•</span>
-                    <span className="text-[10px] text-[#5e6b82]">Since {champ.since}</span>
-                  </div>
-
-                  <div className="text-[10px] text-[#94a1b5] truncate mt-1">
-                    Fave: <span className="text-white/80">{champ.favorite}</span>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 rounded-xl bg-[#0c0e12] border border-slate-300/40 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🥇</span>
+                <div>
+                  <h4 className="font-bold text-sm text-white">Manga Patron VIP</h4>
+                  <span className="text-[10px] font-mono text-slate-300">$15 / month</span>
                 </div>
               </div>
-            ))}
+              <p className="text-xs text-[#94a1b5] leading-relaxed">
+                Elite rank for sustained high-volume infrastructure support. Unlocks custom anime illustrated sky themes, metallic silver crown avatar border, and top billing on the Wall of Fame.
+              </p>
+              <div className="text-[11px] font-mono text-slate-300 font-semibold pt-2 border-t border-[#1e2430]">
+                Perks: Custom Themes + VIP Crown Flair
+              </div>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#0c0e12] border border-amber-500/40 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🥈</span>
+                <div>
+                  <h4 className="font-bold text-sm text-white">Pro Supporter</h4>
+                  <span className="text-[10px] font-mono text-amber-400">$5 / month</span>
+                </div>
+              </div>
+              <p className="text-xs text-[#94a1b5] leading-relaxed">
+                Core supporter tier keeping our legal indexing completely ad-free. Unlocks golden amber borders, PRO badges, priority webhook notifications, and Kenmei 4-tab layouts.
+              </p>
+              <div className="text-[11px] font-mono text-amber-400 font-semibold pt-2 border-t border-[#1e2430]">
+                Perks: 4-Tab Dashboard + Golden Badge
+              </div>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#0c0e12] border border-blue-500/40 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🥉</span>
+                <div>
+                  <h4 className="font-bold text-sm text-white">Coffee Champion</h4>
+                  <span className="text-[10px] font-mono text-blue-400">$3 / tip (32 days)</span>
+                </div>
+              </div>
+              <p className="text-xs text-[#94a1b5] leading-relaxed">
+                Voluntary one-time tip fueling late-night maintenance and chapter synchronizers. Unlocks the glowing electric blue profile border, coffee icon, and Reading Status analytics.
+              </p>
+              <div className="text-[11px] font-mono text-blue-400 font-semibold pt-2 border-t border-[#1e2430]">
+                Perks: Coffee Icon + Reading Status
+              </div>
+            </div>
           </div>
         </section>
 

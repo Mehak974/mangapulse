@@ -15,6 +15,9 @@ dist/
 # Reference
 _reference/
 
+# TypeScript
+tsconfig.tsbuildinfo
+
 # System
 .DS_Store
 *.pem

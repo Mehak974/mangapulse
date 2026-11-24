@@ -85,49 +85,85 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "Event already processed (idempotent)" });
     }
 
-    // 4. Scale-Ready User Resolution (No 50-user listUsers limitation)
+    // 4. Scale-Ready User Resolution
     let matchedUserId: string | null = null;
     const payerEmail = (email || "").trim().toLowerCase();
 
     if (payerEmail) {
-      // 4a. Check if any user linked this Ko-fi email in profiles.kofi_email
-      const { data: profileMatch } = await adminSupabase
-        .from("profiles")
-        .select("id")
+      // 4a. Check user_private_settings first, then fallback to profiles
+      const { data: privateMatch } = await adminSupabase
+        .from("user_private_settings")
+        .select("user_id")
         .ilike("kofi_email", payerEmail)
         .maybeSingle();
 
-      if (profileMatch) {
-        matchedUserId = profileMatch.id;
+      if (privateMatch) {
+        matchedUserId = privateMatch.user_id;
       } else {
-        // 4b. Check auth.users by email via SQL function (O(1) lookup across all users)
-        const { data: rpcUserId } = await adminSupabase.rpc("get_user_id_by_email", {
-          user_email: payerEmail,
-        });
+        const { data: profileMatch } = await adminSupabase
+          .from("profiles")
+          .select("id")
+          .ilike("kofi_email", payerEmail)
+          .maybeSingle();
 
-        if (rpcUserId) {
-          matchedUserId = rpcUserId;
+        if (profileMatch) {
+          matchedUserId = profileMatch.id;
+        } else {
+          // 4b. Check auth.users by email via SQL function (restricted to service_role)
+          const { data: rpcUserId } = await adminSupabase.rpc("get_user_id_by_email", {
+            user_email: payerEmail,
+          });
+
+          if (rpcUserId) {
+            matchedUserId = rpcUserId;
+          }
         }
       }
-    }
-
-    // Record event in webhook_events table for audit & deduplication
-    await adminSupabase.from("webhook_events").insert({
-      provider: "kofi",
-      event_id: eventId,
-      payload_hash: crypto.createHash("sha256").update(payloadRaw).digest("hex"),
-    });
-
-    if (!matchedUserId) {
-      return NextResponse.json({
-        success: true,
-        note: "Webhook processed. Payer email not linked to an existing MangaPulse account.",
-      });
     }
 
     // 5. Tier & Anti-Downgrade Entitlement Logic
     const parsedAmount = parseFloat(amount || "0");
     const isSubscription = Boolean(is_subscription_payment || type === "Subscription");
+    const lowerTierName = (tier_name || "").toLowerCase();
+
+    let targetTier: "coffee" | "supporter" | "legend" = "coffee";
+
+    if (isSubscription) {
+      if (lowerTierName.includes("legend") || parsedAmount >= 15) {
+        targetTier = "legend";
+      } else {
+        targetTier = "supporter";
+      }
+    } else {
+      // One-time tip or Shop Order
+      if (parsedAmount >= 15) {
+        targetTier = "legend";
+      } else if (parsedAmount >= 5) {
+        targetTier = "supporter";
+      } else {
+        targetTier = "coffee";
+      }
+    }
+
+    // Unmatched Payer Handling: Store in unclaimed_kofi_events so it is never lost
+    if (!matchedUserId) {
+      await adminSupabase.from("unclaimed_kofi_events").upsert(
+        {
+          event_id: eventId,
+          payer_email: payerEmail,
+          tier: targetTier,
+          amount_cents: Math.round(parsedAmount * 100),
+          payload: data,
+          is_claimed: false,
+        },
+        { onConflict: "event_id" }
+      );
+
+      return NextResponse.json({
+        success: true,
+        note: "Webhook recorded. Payer email not currently linked; stored safely for automatic claiming upon email link.",
+      });
+    }
 
     // Check existing subscription state
     const { data: existingSub } = await adminSupabase
@@ -150,30 +186,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    let targetTier: "coffee" | "supporter" | "legend" = "coffee";
-    const lowerTierName = (tier_name || "").toLowerCase();
-
-    if (isSubscription) {
-      if (lowerTierName.includes("legend") || parsedAmount >= 15) {
-        targetTier = "legend";
-      } else {
-        targetTier = "supporter";
-      }
-    } else {
-      // One-time tip
-      if (parsedAmount >= 15) {
-        targetTier = "legend";
-      } else if (parsedAmount >= 5) {
-        targetTier = "supporter";
-      } else {
-        targetTier = "coffee";
-      }
-    }
-
-    // Subscriptions renew every 32 days; one-time tips grant 30 days of perks (not 365)
+    // Subscriptions and tips grant 32 days of perks per payment period
     const periodEnd = new Date(Date.now() + 32 * 24 * 60 * 60 * 1000).toISOString();
 
-    await adminSupabase.from("subscriptions").upsert(
+    const { error: upsertError } = await adminSupabase.from("subscriptions").upsert(
       {
         user_id: matchedUserId,
         provider: "kofi",
@@ -187,6 +203,28 @@ export async function POST(req: NextRequest) {
       },
       { onConflict: "user_id,provider" }
     );
+
+    if (upsertError) {
+      console.error("Subscription upsert failed:", upsertError.message);
+      return NextResponse.json({ error: "Failed to persist subscription entitlement" }, { status: 500 });
+    }
+
+    // Synchronize to profiles table immediately
+    await adminSupabase
+      .from("profiles")
+      .update({
+        is_supporter: true,
+        supporter_tier: targetTier,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", matchedUserId);
+
+    // Atomically record event in webhook_events table ONLY after updates succeed
+    await adminSupabase.from("webhook_events").insert({
+      provider: "kofi",
+      event_id: eventId,
+      payload_hash: crypto.createHash("sha256").update(payloadRaw).digest("hex"),
+    });
 
     return NextResponse.json({
       success: true,

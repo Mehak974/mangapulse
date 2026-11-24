@@ -377,78 +377,52 @@ export default async function HomePage() {
       </section>
 
       {/* ── Manga Patron Wall of Fame (Community Honors) ── */}
-      <section className="mt-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#10141b] to-[#0c0e12] border border-slate-300/30 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-slate-200/5 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2430] mb-6 relative z-10">
-          <div>
-            <div className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-slate-100" />
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                Manga Patron Wall of Fame
-              </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/10 text-slate-200 border border-white/20">
-                OFFICIAL PATRONS
-              </span>
+      <section className="max-w-7xl mx-auto px-4 lg:px-8">
+        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#10141b] to-[#0c0e12] border border-slate-300/30 relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-slate-200/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2430] mb-6 relative z-10">
+            <div>
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-slate-100" />
+                <h2 className="text-lg font-bold text-white tracking-tight">
+                  Manga Patron Wall of Fame
+                </h2>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/10 text-slate-200 border border-white/20">
+                  OFFICIAL PATRONS
+                </span>
+              </div>
+              <p className="text-xs text-[#94a1b5] mt-1">
+                Honoring our elite champions financing high-speed official chapter countdowns and legal indexing.
+              </p>
             </div>
-            <p className="text-xs text-[#94a1b5] mt-1">
-              Honoring our elite champions financing high-speed official chapter countdowns and legal indexing.
-            </p>
+
+            <Link
+              href="/donate#halls"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-slate-200 to-white text-black text-xs font-black shadow-[0_0_14px_rgba(255,255,255,0.7)] hover:scale-105 transition-transform flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-black" />
+              <span>Join Wall of Fame ($15)</span>
+            </Link>
           </div>
 
-          <Link
-            href="/donate#patrons"
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-slate-200 to-white text-black text-xs font-black shadow-[0_0_14px_rgba(255,255,255,0.7)] hover:scale-105 transition-transform flex items-center gap-1.5 whitespace-nowrap"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-black" />
-            <span>Join Wall of Fame ($15)</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
-          {[
-            {
-              name: "AkiraVault",
-              tier: "Founding Patron",
-              favorite: "Berserk",
-              since: "Oct 2024",
-            },
-            {
-              name: "Mehak",
-              tier: "Manga Patron",
-              favorite: "Omniscient Reader",
-              since: "Nov 2024",
-            },
-            {
-              name: "ShadowArchivist",
-              tier: "Manga Patron",
-              favorite: "Estate Developer",
-              since: "Nov 2024",
-            },
-            {
-              name: "ReiChainsaw",
-              tier: "Manga Patron",
-              favorite: "Chainsaw Man",
-              since: "Nov 2024",
-            },
-          ].map((p) => (
-            <div
-              key={p.name}
-              className="p-4 rounded-xl bg-[#0c0e12] border border-slate-300/40 shadow-sm flex items-center gap-3 group hover:border-white transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-900 border-2 border-slate-200 flex items-center justify-center font-bold text-xs text-white shadow-[0_0_10px_rgba(255,255,255,0.4)] flex-shrink-0">
-                {p.name.substring(0, 2).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <div className="font-bold text-xs text-white truncate flex items-center gap-1">
-                  <span>{p.name}</span>
-                  <Crown className="w-3 h-3 text-slate-300" />
-                </div>
-                <div className="text-[10px] font-mono text-slate-300">{p.tier}</div>
-                <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">Top: {p.favorite}</div>
-              </div>
+          <div className="p-6 rounded-xl bg-[#0c0e12]/60 border border-[#2a3344] text-center max-w-xl mx-auto space-y-3 relative z-10">
+            <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-300/50 flex items-center justify-center mx-auto text-slate-200">
+              <Crown className="w-6 h-6 text-slate-200" />
             </div>
-          ))}
+            <div>
+              <h3 className="font-bold text-white text-sm">Become the First Featured Manga Patron</h3>
+              <p className="text-xs text-[#94a1b5] mt-1 leading-relaxed">
+                Voluntary patrons who support MangaPulse on Ko-fi automatically receive the shiny metallic silver crown border, custom profile themes, and their name inscribed right here on the Wall of Fame.
+              </p>
+            </div>
+            <Link
+              href="/donate"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors"
+            >
+              <span>Explore Patron &amp; Supporter Tiers</span>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

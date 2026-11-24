@@ -144,6 +144,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const syncLocal = () => {
       if (
+        process.env.NODE_ENV !== "production" &&
         typeof window !== "undefined" &&
         (window.location.hostname === "localhost" ||
           window.location.hostname === "127.0.0.1" ||

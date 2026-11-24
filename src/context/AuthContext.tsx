@@ -105,8 +105,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let existingUser = getStoredUser();
 
-    // ponytail: localhost testing override for supporter badge
+    // Dev-only testing override for supporter badge on local environment
     if (
+      process.env.NODE_ENV !== "production" &&
       typeof window !== "undefined" &&
       (window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1" ||
@@ -150,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen to local testing tier switches
     const handleSupporterSync = () => {
       if (
+        process.env.NODE_ENV !== "production" &&
         typeof window !== "undefined" &&
         (window.location.hostname === "localhost" ||
           window.location.hostname === "127.0.0.1" ||

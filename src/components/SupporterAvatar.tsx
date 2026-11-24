@@ -41,10 +41,11 @@ export default function SupporterAvatar({
   const [isLocalhost, setIsLocalhost] = useState(false);
   const [testTier, setTestTier] = useState<string>("legend");
 
-  // ponytail: localhost testing override for supporter badge
+  // Dev-only testing override for supporter badge on local environment
   useEffect(() => {
     const syncLocal = () => {
       if (
+        process.env.NODE_ENV !== "production" &&
         typeof window !== "undefined" &&
         (window.location.hostname === "localhost" ||
           window.location.hostname === "127.0.0.1" ||
