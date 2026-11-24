@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { UserPreferences, UserProfile } from "@/types/manga";
 import { DEFAULT_PREFERENCES } from "@/lib/userStore";
+import SupporterAvatar from "@/components/SupporterAvatar";
 
 type TabId = "profile" | "preferences" | "goals" | "notifications" | "data" | "account";
 
@@ -283,20 +284,14 @@ export default function SettingsPage() {
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-[#0c0e12] border border-[#2a3344]">
                       {/* Live Avatar Preview */}
-                      <div className="w-16 h-16 rounded-xl bg-[#13171f] border-2 border-blue-500 overflow-hidden flex-shrink-0 flex items-center justify-center font-bold text-lg text-white">
-                        {avatarUrl ? (
-                          <img
-                            src={avatarUrl}
-                            alt="Avatar preview"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/placeholder-cover.png";
-                            }}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span>{username ? username.substring(0, 2).toUpperCase() : "MP"}</span>
-                        )}
-                      </div>
+                      <SupporterAvatar
+                        avatarUrl={avatarUrl}
+                        username={username}
+                        isSupporter={user?.is_supporter}
+                        tier={user?.supporter_tier}
+                        size="lg"
+                        rounded="xl"
+                      />
 
                       {/* Upload from Disk & URL */}
                       <div className="flex-1 space-y-2">

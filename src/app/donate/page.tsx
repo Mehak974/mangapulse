@@ -112,12 +112,16 @@ export default function DonatePage() {
 
               <ul className="space-y-2 pt-2 text-xs text-[#c4cfde]">
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Coffee Supporter shoutout</span>
+                  <Check className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Electric blue avatar border with glowing coffee badge</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Permanent good karma</span>
+                  <Check className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Coffee Supporter badge on profile & community</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Permanent good karma & reader appreciation</span>
                 </li>
               </ul>
             </div>
@@ -154,15 +158,19 @@ export default function DonatePage() {
 
               <ul className="space-y-2 pt-2 text-xs text-[#c4cfde]">
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Verified &quot;Pro&quot; badge on profile & forum</span>
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Golden amber avatar border with &quot;PRO&quot; badge</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-blue-400" />
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Verified &quot;Pro&quot; tag on profile & forum</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
                   <span>100% completely ad-free browsing</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-blue-400" />
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
                   <span>Priority countdown webhook notifications</span>
                 </li>
               </ul>
@@ -196,15 +204,19 @@ export default function DonatePage() {
 
               <ul className="space-y-2 pt-2 text-xs text-[#c4cfde]">
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-purple-400" />
-                  <span>All Pro Supporter features</span>
+                  <Check className="w-3.5 h-3.5 text-slate-300" />
+                  <span>Shiny metallic silver border with silver crown</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Gold crown avatar flair on forum</span>
+                  <Check className="w-3.5 h-3.5 text-slate-300" />
+                  <span>All Pro Supporter features included</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-purple-400" />
+                  <Check className="w-3.5 h-3.5 text-slate-300" />
+                  <span>Silver crown flair across forum discussions</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-slate-300" />
                   <span>Permanent listing in Supporter Hall of Fame</span>
                 </li>
               </ul>

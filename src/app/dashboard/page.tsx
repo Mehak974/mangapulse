@@ -24,6 +24,7 @@ import { useAuth } from "@/context/AuthContext";
 import CountdownTimer from "@/components/CountdownTimer";
 import MangaCard from "@/components/MangaCard";
 import { MangaItem, UserLibraryEntry, ActivityItem } from "@/types/manga";
+import SupporterAvatar from "@/components/SupporterAvatar";
 import { fetchPopular, fetchRecommendationsByGenres } from "@/lib/anilist";
 import { getOfficialLinksForManga } from "@/lib/officialLinks";
 import { getUserActivities, logActivity } from "@/lib/userStore";
@@ -295,17 +296,14 @@ export default function DashboardPage() {
       <section className="bg-[#0c0e12] border-b border-[#1e2430] py-8 px-4 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-900 border border-[#2a3344] flex items-center justify-center font-bold text-xl text-white shadow-inner flex-shrink-0">
-              {user?.avatar_url ? (
-                <img
-                  src={user.avatar_url}
-                  alt={user.username}
-                  className="w-full h-full rounded-xl object-cover"
-                />
-              ) : (
-                <span>{user?.username ? user.username.substring(0, 2).toUpperCase() : "MP"}</span>
-              )}
-            </div>
+            <SupporterAvatar
+              avatarUrl={user?.avatar_url}
+              username={user?.username}
+              isSupporter={user?.is_supporter}
+              tier={user?.supporter_tier}
+              size="lg"
+              rounded="xl"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">

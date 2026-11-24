@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserLibraryEntry } from "@/types/manga";
+import SupporterAvatar from "@/components/SupporterAvatar";
 
 export default function ProfilePage() {
   const { user, isLoggedIn, library, collections, updateProfile, setAuthModalOpen, setAuthModalMode } = useAuth();
@@ -308,24 +309,18 @@ export default function ProfilePage() {
         {/* User Identity Details */}
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-16 sm:-mt-20 relative z-20 pb-6 border-b border-[#1e2430]">
           <div className="flex items-end gap-4">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#0c0e12] border-4 border-[#0c0e12] overflow-hidden shadow-2xl flex-shrink-0 relative group">
-              {user?.avatar_url ? (
-                <img
-                  src={user.avatar_url}
-                  alt={username}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder-cover.png";
-                  }}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#1a1f2a] to-[#252f40] flex items-center justify-center font-black text-2xl text-white">
-                  {username.substring(0, 2).toUpperCase()}
-                </div>
-              )}
+            <div className="relative group flex-shrink-0">
+              <SupporterAvatar
+                avatarUrl={user?.avatar_url}
+                username={username}
+                isSupporter={isSupporter}
+                tier={supporterTier}
+                size="xl"
+                rounded="2xl"
+              />
               <button
                 onClick={() => setEditModalOpen(true)}
-                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold"
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center text-white text-[10px] font-bold z-30"
               >
                 Change Photo
               </button>
@@ -403,10 +398,16 @@ export default function ProfilePage() {
             {/* Official Supporter Tag */}
             {isSupporter ? (
               <span
-                className="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] font-mono font-medium flex items-center gap-1.5"
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-medium flex items-center gap-1.5 ${
+                  supporterTier.toLowerCase().includes("coffee")
+                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                    : supporterTier.toLowerCase().includes("legend") || supporterTier.toLowerCase().includes("patron")
+                    ? "bg-slate-200/10 text-slate-200 border border-slate-300/30"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                }`}
                 title={`Active Official Supporter: ${supporterTier}`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>Official Supporter ({supporterTier})</span>
               </span>
             ) : (

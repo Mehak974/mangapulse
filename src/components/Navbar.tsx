@@ -25,6 +25,7 @@ import { searchManga } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
 import { useAuth } from "@/context/AuthContext";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import SupporterAvatar from "@/components/SupporterAvatar";
 
 export default function Navbar() {
   const router = useRouter();
@@ -253,13 +254,15 @@ export default function Navbar() {
               onClick={() => setUserMenuOpen((prev) => !prev)}
               className="flex items-center gap-2 p-1.5 pr-2.5 rounded-lg bg-[#1a1f2a] hover:bg-[#222938] border border-[#2a3344] text-xs text-white transition-colors"
             >
-              <div className="w-6 h-6 rounded bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center overflow-hidden">
-                {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{user?.username ? user.username.substring(0, 1).toUpperCase() : "U"}</span>
-                )}
-              </div>
+              <SupporterAvatar
+                avatarUrl={user?.avatar_url}
+                username={user?.username}
+                isSupporter={user?.is_supporter}
+                tier={user?.supporter_tier}
+                size="xs"
+                rounded="lg"
+                showBadge={false}
+              />
               <span className="font-semibold hidden sm:inline">{user?.displayName || user?.username}</span>
               <ChevronDown className="w-3 h-3 text-[#94a1b5]" />
             </button>

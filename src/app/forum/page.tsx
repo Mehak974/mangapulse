@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import SupporterAvatar from "@/components/SupporterAvatar";
 import {
   ForumThread,
   getForumThreads,
@@ -239,9 +240,12 @@ export default function ForumPage() {
 
                     <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1e2430] text-xs text-[#5e6b82]">
                       <span className="flex items-center gap-1.5 text-white/80 font-medium">
-                        <div className="w-4 h-4 rounded-full bg-neutral-700 flex items-center justify-center text-[10px]">
-                          {thread.author_name.substring(0, 1)}
-                        </div>
+                        <SupporterAvatar
+                          avatarUrl={thread.author_avatar}
+                          username={thread.author_name}
+                          size="xs"
+                          showBadge={false}
+                        />
                         <span>{thread.author_name}</span>
                       </span>
 
@@ -312,9 +316,12 @@ export default function ForumPage() {
                         >
                           <div className="flex items-center justify-between text-[#5e6b82] text-[11px]">
                             <span className="font-bold text-white flex items-center gap-1.5">
-                              <span className="w-3.5 h-3.5 rounded-full bg-blue-600 text-white text-[9px] flex items-center justify-center">
-                                {c.author_name.substring(0, 1)}
-                              </span>
+                              <SupporterAvatar
+                                avatarUrl={c.author_avatar}
+                                username={c.author_name}
+                                size="xs"
+                                showBadge={false}
+                              />
                               <span>{c.author_name}</span>
                             </span>
                             <span className="font-mono">
