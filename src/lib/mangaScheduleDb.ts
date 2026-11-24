@@ -527,6 +527,127 @@ export function getVerifiedScheduleItem(
 }
 
 /**
+ * Centralized progression calculator: advances chapter counts based on elapsed publication cycles.
+ */
+export function calculateProgressedChapters(
+  found: VerifiedSchedule,
+  atDate: Date = new Date()
+): { latestChapter: number; nextChapter: number } {
+  let latestChapter = found.latestChapter;
+  let nextChapter = found.nextChapter;
+
+  if (found.isFinished || found.cadence === "finished") {
+    const total = found.totalChapters || found.latestChapter;
+    return { latestChapter: total, nextChapter: total };
+  }
+
+  if (found.isHiatus || found.cadence === "hiatus") {
+    return { latestChapter: found.latestChapter, nextChapter: found.nextChapter };
+  }
+
+  // Benchmark reference epoch for automated chapter progression (Nov 24, 2024 15:00 UTC)
+  const referenceEpoch = new Date("2024-11-24T15:00:00Z").getTime();
+  const msSinceEpoch = Math.max(0, atDate.getTime() - referenceEpoch);
+
+  if (found.cadence === "weekly") {
+    const weeksElapsed = Math.floor(msSinceEpoch / (7 * 24 * 60 * 60 * 1000));
+    // Account for seasonal magazine breaks (~1 break per 4-5 issues)
+    const estimatedChapters = Math.floor(weeksElapsed * 0.85);
+    if (estimatedChapters > 0) {
+      latestChapter = found.latestChapter + estimatedChapters;
+      nextChapter = latestChapter + 1;
+    }
+  } else if (found.cadence === "biweekly") {
+    const biweeksElapsed = Math.floor(msSinceEpoch / (14 * 24 * 60 * 60 * 1000));
+    if (biweeksElapsed > 0) {
+      latestChapter = found.latestChapter + biweeksElapsed;
+      nextChapter = latestChapter + 1;
+    }
+  } else if (found.cadence === "monthly") {
+    const monthsElapsed = (atDate.getUTCFullYear() - 2024) * 12 + (atDate.getUTCMonth() - 10);
+    if (monthsElapsed > 0) {
+      latestChapter = found.latestChapter + monthsElapsed;
+      nextChapter = latestChapter + 1;
+    }
+  }
+
+  return { latestChapter, nextChapter };
+}
+
+export interface ScheduledDropItem {
+  id: number;
+  title: string;
+  slug: string;
+  latestChapter: number;
+  nextChapter: number;
+  magazine: string;
+  publisher: string;
+  cadence: string;
+  dropHourUTC: number;
+  dropDayOfWeek: number;
+}
+
+/**
+ * Returns all active verified series scheduled to drop on a given calendar date.
+ */
+export function getScheduledDropsForDate(date: Date = new Date()): ScheduledDropItem[] {
+  const currentUTCDay = date.getUTCDay();
+  const currentUTCDate = date.getUTCDate();
+  const drops: ScheduledDropItem[] = [];
+  const referenceEpoch = new Date("2024-11-24T15:00:00Z").getTime();
+
+  for (const item of VERIFIED_SCHEDULES) {
+    if (!item.id || item.isFinished || item.isHiatus || item.cadence === "finished" || item.cadence === "hiatus") {
+      continue;
+    }
+
+    let isDroppingToday = false;
+    if (item.cadence === "monthly" && item.monthlyDay) {
+      if (item.monthlyDay === currentUTCDate) {
+        isDroppingToday = true;
+      }
+    } else if (item.cadence === "weekly") {
+      if (item.dropDayOfWeek === currentUTCDay) {
+        isDroppingToday = true;
+      }
+    } else if (item.cadence === "biweekly") {
+      if (item.dropDayOfWeek === currentUTCDay) {
+        const weeksElapsed = Math.floor(Math.max(0, date.getTime() - referenceEpoch) / (7 * 24 * 60 * 60 * 1000));
+        if (weeksElapsed % 2 === 0) {
+          isDroppingToday = true;
+        }
+      }
+    }
+
+    if (isDroppingToday) {
+      const { latestChapter, nextChapter } = calculateProgressedChapters(item, date);
+      const rawTitle = item.titleMatch?.[0] || `Manga #${item.id}`;
+      const title = rawTitle
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+      const baseSlug = rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const slug = `${baseSlug}-${item.id}`;
+
+      drops.push({
+        id: item.id,
+        title,
+        slug,
+        latestChapter,
+        nextChapter,
+        magazine: item.magazine,
+        publisher: item.publisher,
+        cadence: item.cadence,
+        dropHourUTC: item.dropHourUTC,
+        dropDayOfWeek: item.dropDayOfWeek,
+      });
+    }
+  }
+
+  return drops;
+}
+
+/**
  * Resolves verified schedule and accurate chapter metadata for any manga item.
  */
 export function getVerifiedSchedule(
@@ -559,11 +680,12 @@ export function getVerifiedSchedule(
   // If found in verified DB
   if (found) {
     if (found.isFinished || found.cadence === "finished") {
+      const total = found.totalChapters || found.latestChapter;
       return {
         isFinished: true,
         isHiatus: false,
-        latestChapter: found.latestChapter,
-        nextChapter: found.latestChapter,
+        latestChapter: total,
+        nextChapter: total,
         targetTimestamp: null,
         magazine: found.magazine,
         cadenceText: "Completed Series",
@@ -584,11 +706,13 @@ export function getVerifiedSchedule(
       };
     }
 
-    // Calculate real target timestamp
+    // Calculate real target timestamp and self-advancing chapters
     const now = new Date();
     const currentUTCDay = now.getUTCDay();
     const currentUTCHour = now.getUTCHours();
     let targetDate = new Date(now);
+
+    const { latestChapter, nextChapter } = calculateProgressedChapters(found, now);
 
     if (found.cadence === "monthly" && found.monthlyDay) {
       // Monthly drop (e.g. 20th of the month)
@@ -622,8 +746,8 @@ export function getVerifiedSchedule(
     return {
       isFinished: false,
       isHiatus: false,
-      latestChapter: found.latestChapter,
-      nextChapter: found.nextChapter,
+      latestChapter,
+      nextChapter,
       targetTimestamp,
       magazine: found.magazine,
       cadenceText: cadenceLabels[found.cadence] || "Official Release",

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/release-bot",
+      "schedule": "0 15 * * *"
+    }
+  ]
+}
