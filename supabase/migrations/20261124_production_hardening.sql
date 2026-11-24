@@ -9,19 +9,19 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_supporter BOOLEAN DEFAULT false NOT NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_tier TEXT DEFAULT 'none' NOT NULL;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kofi_email TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false NOT NULL;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_kofi_email 
-    ON public.profiles(LOWER(kofi_email)) 
-    WHERE kofi_email IS NOT NULL;
-
--- Helper to safely look up auth.users by email without page limits
+-- Helper to safely look up auth.users by email without page limits (Requires confirmed email)
 CREATE OR REPLACE FUNCTION public.get_user_id_by_email(user_email TEXT)
 RETURNS UUID AS $$
 DECLARE
     matched_id UUID;
 BEGIN
-    SELECT id INTO matched_id FROM auth.users WHERE LOWER(email) = LOWER(user_email) LIMIT 1;
+    SELECT id INTO matched_id 
+    FROM auth.users 
+    WHERE LOWER(email) = LOWER(user_email)
+      AND email_confirmed_at IS NOT NULL
+    LIMIT 1;
     RETURN matched_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -186,7 +186,7 @@ CREATE TRIGGER tr_sync_subscription
 
 -- 8. Idempotent RLS Policies (Safe drop before create)
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
-CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (is_private = false OR auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);

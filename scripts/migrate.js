@@ -38,12 +38,19 @@ async function migrate() {
     await client.query(sql);
     console.log("Main schema applied successfully! All tables, RLS policies, and indexes created.");
 
-    const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20261124_production_hardening.sql');
-    if (fs.existsSync(migrationPath)) {
-      console.log("Applying production hardening migration...");
-      const migrationSql = fs.readFileSync(migrationPath, 'utf8');
-      await client.query(migrationSql);
-      console.log("Production hardening migration applied successfully!");
+    const migrationsDir = path.join(__dirname, '..', 'supabase', 'migrations');
+    if (fs.existsSync(migrationsDir)) {
+      const migrationFiles = fs.readdirSync(migrationsDir)
+        .filter(f => f.endsWith('.sql'))
+        .sort();
+
+      for (const file of migrationFiles) {
+        console.log(`Applying migration: ${file}...`);
+        const migrationPath = path.join(migrationsDir, file);
+        const migrationSql = fs.readFileSync(migrationPath, 'utf8');
+        await client.query(migrationSql);
+        console.log(`Migration ${file} applied successfully!`);
+      }
     }
   } catch (err) {
     console.error("Migration error:", err);

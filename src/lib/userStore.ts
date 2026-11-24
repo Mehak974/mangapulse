@@ -222,25 +222,58 @@ export async function updateUserProfile(updates: Partial<UserProfile>): Promise<
       ...(current.preferences || {}),
       ...(updates.preferences || {}),
     },
+    is_private: updates.is_private !== undefined ? updates.is_private : current.is_private,
+    kofi_email: updates.kofi_email !== undefined ? updates.kofi_email : current.kofi_email,
   };
 
   setStoredUser(merged);
 
   if (supabase && current.id && current.id !== "guest" && !current.id.startsWith("usr-")) {
     try {
+      // 1. Update public profile (Zero kofi_email leakage)
       await supabase.from("profiles").upsert({
         id: current.id,
         username: merged.username,
         display_name: merged.displayName || null,
         avatar_url: merged.avatar_url || null,
         bio: merged.bio || null,
-        kofi_email: merged.kofi_email || null,
+        is_private: merged.is_private ?? false,
         preferences: merged.preferences,
         reading_goal: merged.reading_goal || 15,
         updated_at: new Date().toISOString(),
       });
+
+      // 2. Update private settings table for sensitive kofi_email with unique check
+      if (updates.kofi_email !== undefined) {
+        const cleanEmail = updates.kofi_email ? updates.kofi_email.trim().toLowerCase() : null;
+        const { error: privErr } = await supabase.from("user_private_settings").upsert({
+          user_id: current.id,
+          kofi_email: cleanEmail,
+          updated_at: new Date().toISOString(),
+        });
+
+        if (privErr) {
+          if (privErr.code === "23505" || privErr.message?.includes("unique")) {
+            throw new Error("This Ko-fi email is already linked to another MangaPulse account.");
+          }
+          throw privErr;
+        }
+
+        // 3. Atomically claim any pending unclaimed payments for this linked email
+        if (cleanEmail) {
+          try {
+            await supabase.rpc("claim_unclaimed_kofi_payments", {
+              target_user_id: current.id,
+              user_email: cleanEmail,
+            });
+          } catch (claimErr) {
+            console.warn("Unclaimed payment check completed:", claimErr);
+          }
+        }
+      }
     } catch (err) {
       console.warn("Failed to sync profile update to Supabase:", err);
+      throw err;
     }
   }
 

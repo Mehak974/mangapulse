@@ -69,10 +69,11 @@ export default function DonatePage() {
     setIsSavingKofi(true);
     try {
       await updateProfile({ kofi_email: kofiEmailInput.trim().toLowerCase() });
-      setKofiSaveStatus("Ko-fi email linked! Incoming tips will automatically credit to this account.");
+      setKofiSaveStatus("Ko-fi email linked! Incoming tips and any pending payments have been credited.");
       setTimeout(() => setKofiSaveStatus(null), 5000);
-    } catch {
-      setKofiSaveStatus("Failed to link email. Please check your connection.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to link email. Please check your connection.";
+      setKofiSaveStatus(msg);
     } finally {
       setIsSavingKofi(false);
     }

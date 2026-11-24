@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     bio TEXT,
     is_supporter BOOLEAN DEFAULT false NOT NULL,
     supporter_tier TEXT DEFAULT 'none' NOT NULL,
-    kofi_email TEXT,
+    is_private BOOLEAN DEFAULT false NOT NULL,
     notifications_enabled BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -27,10 +27,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_supporter BOOLEAN DEFAULT false NOT NULL;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_tier TEXT DEFAULT 'none' NOT NULL;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kofi_email TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false NOT NULL;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_profiles_kofi_email 
-    ON public.profiles(LOWER(kofi_email)) 
+-- Private user settings table (Sensitive data like Ko-fi email kept completely separate from public profiles)
+CREATE TABLE IF NOT EXISTS public.user_private_settings (
+    user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    kofi_email TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_private_settings_kofi_email 
+    ON public.user_private_settings(LOWER(kofi_email)) 
     WHERE kofi_email IS NOT NULL;
 
 -- Trigger to automatically create profile on auth.users signup with collision protection
@@ -284,15 +291,22 @@ ALTER TABLE public.forum_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.forum_threads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.outbound_click_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_private_settings ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
-CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (is_private = false OR auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can view own private settings" ON public.user_private_settings;
+CREATE POLICY "Users can view own private settings" ON public.user_private_settings FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own private settings" ON public.user_private_settings;
+CREATE POLICY "Users can update own private settings" ON public.user_private_settings FOR ALL USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can view own subscription" ON public.subscriptions;
 CREATE POLICY "Users can view own subscription" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);

@@ -245,6 +245,7 @@ export default function ProfilePage() {
     setIsPrivate(next);
     localStorage.setItem("mangapulse_profile_private", next ? "true" : "false");
     await updateProfile({
+      is_private: next,
       preferences: {
         ...DEFAULT_PREFERENCES,
         ...(user?.preferences || {}),

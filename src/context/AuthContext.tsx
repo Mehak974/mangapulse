@@ -182,19 +182,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { subscription } } = client.auth.onAuthStateChange(
         async (event, session) => {
           if (session?.user) {
-            // Fetch verified server-side profile to enforce real supporter status
+            // Fetch verified server-side profile to enforce real supporter status & private settings
             let isSupporter = false;
             let supporterTier = "none";
             let bioText: string | null = null;
             let dbUsername: string | null = null;
             let dbAvatar: string | null = null;
+            let isPrivateProfile = false;
+            let linkedKofiEmail: string | null = null;
 
             try {
-              const { data: profile } = await client
-                .from("profiles")
-                .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier")
-                .eq("id", session.user.id)
-                .single();
+              const [{ data: profile }, { data: privSettings }] = await Promise.all([
+                client
+                  .from("profiles")
+                  .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier, is_private")
+                  .eq("id", session.user.id)
+                  .single(),
+                client
+                  .from("user_private_settings")
+                  .select("kofi_email")
+                  .eq("user_id", session.user.id)
+                  .maybeSingle(),
+              ]);
 
               if (profile) {
                 isSupporter = Boolean(profile.is_supporter);
@@ -202,6 +211,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 bioText = profile.bio || null;
                 dbUsername = profile.username || null;
                 dbAvatar = profile.avatar_url || null;
+                isPrivateProfile = Boolean(profile.is_private);
+              }
+
+              if (privSettings?.kofi_email) {
+                linkedKofiEmail = privSettings.kofi_email;
+              }
+
+              // Auto-claim any pending payments if confirmed email matches
+              if (session.user.email_confirmed_at && session.user.email) {
+                await client.rpc("claim_unclaimed_kofi_payments", {
+                  target_user_id: session.user.id,
+                  user_email: session.user.email.toLowerCase(),
+                });
               }
             } catch (err) {
               console.warn("Could not fetch server profile:", err);
@@ -216,6 +238,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               bio: bioText,
               is_supporter: isSupporter,
               supporter_tier: supporterTier,
+              is_private: isPrivateProfile,
+              kofi_email: linkedKofiEmail,
               created_at: session.user.created_at,
             };
             setUser(u);

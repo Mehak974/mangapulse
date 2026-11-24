@@ -55,6 +55,15 @@ export async function POST(req: NextRequest) {
       tier_name,
     } = data;
 
+    // 1b. Strict Event-Type Filter (Supports Ko-fi Shop Order items, Subscriptions, and Direct Donations)
+    const ALLOWED_TYPES = ["Donation", "Subscription", "Shop Order"];
+    if (type && !ALLOWED_TYPES.includes(type)) {
+      return NextResponse.json({
+        success: true,
+        message: `Ignored unhandled event type: ${type}`,
+      });
+    }
+
     const eventId = kofi_transaction_id || message_id;
     if (!eventId) {
       return NextResponse.json({ error: "Missing event identifier" }, { status: 400 });
@@ -85,38 +94,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "Event already processed (idempotent)" });
     }
 
-    // 4. Scale-Ready User Resolution
+    // 4. User Resolution (Exact matching without wildcard leaks)
     let matchedUserId: string | null = null;
     const payerEmail = (email || "").trim().toLowerCase();
 
     if (payerEmail) {
-      // 4a. Check user_private_settings first, then fallback to profiles
+      // 4a. Check user_private_settings with exact .eq match (Zero anonymous leakage)
       const { data: privateMatch } = await adminSupabase
         .from("user_private_settings")
         .select("user_id")
-        .ilike("kofi_email", payerEmail)
+        .eq("kofi_email", payerEmail)
         .maybeSingle();
 
       if (privateMatch) {
         matchedUserId = privateMatch.user_id;
       } else {
-        const { data: profileMatch } = await adminSupabase
-          .from("profiles")
-          .select("id")
-          .ilike("kofi_email", payerEmail)
-          .maybeSingle();
+        // 4b. Check auth.users by email (Strictly requires email_confirmed_at IS NOT NULL)
+        const { data: rpcUserId } = await adminSupabase.rpc("get_user_id_by_email", {
+          user_email: payerEmail,
+        });
 
-        if (profileMatch) {
-          matchedUserId = profileMatch.id;
-        } else {
-          // 4b. Check auth.users by email via SQL function (restricted to service_role)
-          const { data: rpcUserId } = await adminSupabase.rpc("get_user_id_by_email", {
-            user_email: payerEmail,
-          });
-
-          if (rpcUserId) {
-            matchedUserId = rpcUserId;
-          }
+        if (rpcUserId) {
+          matchedUserId = rpcUserId;
         }
       }
     }
@@ -157,6 +156,17 @@ export async function POST(req: NextRequest) {
           is_claimed: false,
         },
         { onConflict: "event_id" }
+      );
+
+      // Record dedup event so duplicate retries are recognized
+      await adminSupabase.from("webhook_events").upsert(
+        {
+          provider: "kofi",
+          event_id: eventId,
+          payload_hash: crypto.createHash("sha256").update(payloadRaw).digest("hex"),
+          processed_at: new Date().toISOString(),
+        },
+        { onConflict: "provider,event_id" }
       );
 
       return NextResponse.json({
@@ -209,22 +219,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to persist subscription entitlement" }, { status: 500 });
     }
 
-    // Synchronize to profiles table immediately
-    await adminSupabase
-      .from("profiles")
-      .update({
-        is_supporter: true,
-        supporter_tier: targetTier,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", matchedUserId);
-
-    // Atomically record event in webhook_events table ONLY after updates succeed
-    await adminSupabase.from("webhook_events").insert({
-      provider: "kofi",
-      event_id: eventId,
-      payload_hash: crypto.createHash("sha256").update(payloadRaw).digest("hex"),
-    });
+    // Atomically record event in webhook_events table ONLY after subscription upsert succeeds
+    // (Note: PostgreSQL DB trigger tr_sync_subscription automatically updates profiles.is_supporter & tier)
+    await adminSupabase.from("webhook_events").upsert(
+      {
+        provider: "kofi",
+        event_id: eventId,
+        payload_hash: crypto.createHash("sha256").update(payloadRaw).digest("hex"),
+        processed_at: new Date().toISOString(),
+      },
+      { onConflict: "provider,event_id" }
+    );
 
     return NextResponse.json({
       success: true,
