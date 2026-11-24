@@ -14,6 +14,7 @@ import {
   ChevronRight,
   RotateCcw,
   BookOpen,
+  SlidersHorizontal,
 } from "lucide-react";
 import MangaCard from "@/components/MangaCard";
 import { MangaItem } from "@/types/manga";
@@ -76,6 +77,15 @@ export default function TrendingPage() {
   const [selectedSort, setSelectedSort] = useState("TRENDING_DESC");
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  const activeFilterCount =
+    (search ? 1 : 0) +
+    (selectedGenre !== "All" ? 1 : 0) +
+    (selectedFormat !== "All" ? 1 : 0) +
+    (selectedStatus !== "All" ? 1 : 0) +
+    (selectedCountry !== "All" ? 1 : 0) +
+    (selectedSort !== "TRENDING_DESC" ? 1 : 0);
 
   const [items, setItems] = useState<MangaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,8 +162,27 @@ export default function TrendingPage() {
             </p>
           </div>
 
-          {/* View Mode Toggle */}
+          {/* View Mode & Mobile Filter Toggle */}
           <div className="flex items-center gap-2 self-start md:self-auto">
+            {/* Mobile Filter Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters((prev) => !prev)}
+              className={`sm:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
+                showMobileFilters || activeFilterCount > 0
+                  ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                  : "bg-[#13171f] text-[#94a1b5] hover:text-white border-[#1e2430]"
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-white text-blue-600 text-[10px] font-black flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
             <div className="flex items-center bg-[#13171f] p-1 rounded-lg border border-[#1e2430]">
               <button
                 onClick={() => setViewMode("grid")}
@@ -177,8 +206,8 @@ export default function TrendingPage() {
           </div>
         </div>
 
-        {/* Clean Filter Controls Bar */}
-        <div className="max-w-7xl mx-auto mt-6">
+        {/* Clean Filter Controls Bar (collapsible on mobile, always visible on sm+) */}
+        <div className={`max-w-7xl mx-auto mt-4 sm:mt-6 ${showMobileFilters ? "block" : "hidden sm:block"}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {/* Search Input */}
             <div className="relative">

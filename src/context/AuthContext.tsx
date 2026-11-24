@@ -223,8 +223,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 banReason = profile.ban_reason || null;
               }
 
-              if (session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+              if (
+                session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+                session.user.email?.toLowerCase() === "mehakiqbal978@gmail.com" ||
+                userRole === "ADMIN"
+              ) {
                 userRole = "ADMIN";
+                isSupporter = true;
+                supporterTier = "patron";
               }
 
               if (privSettings?.kofi_email) {
@@ -251,6 +257,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             const meta = session.user.user_metadata || {};
+
             const u: UserProfile = {
               id: session.user.id,
               email: session.user.email || "",
@@ -329,7 +336,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn("Could not fetch server profile on login:", err);
         }
 
-        const u: UserProfile = {
+          if (
+            data.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+            data.user.email?.toLowerCase() === "mehakiqbal978@gmail.com" ||
+            userRole === "ADMIN"
+          ) {
+            userRole = "ADMIN";
+            isSupporter = true;
+            supporterTier = "patron";
+          }
+
+          const u: UserProfile = {
           id: data.user.id,
           email: data.user.email || email,
           username: dbUsername || data.user.user_metadata?.username || email.split("@")[0],
@@ -373,13 +390,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) return { success: false, error: error.message };
 
         if (data.user) {
+          const isAdminEmail =
+            data.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+            data.user.email?.toLowerCase() === "mehakiqbal978@gmail.com";
+
           const u: UserProfile = {
             id: data.user.id,
             email: data.user.email || email,
             username: username || email.split("@")[0],
             avatar_url: null,
-            is_supporter: false,
-            supporter_tier: "none",
+            role: isAdminEmail ? "ADMIN" : "USER",
+            is_supporter: isAdminEmail,
+            supporter_tier: isAdminEmail ? "patron" : "none",
             created_at: data.user.created_at,
           };
           setUser(u);
@@ -478,8 +500,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .single();
 
         let userRole = profile?.role || "USER";
-        if (session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+        let isSupporter = profile ? Boolean(profile.is_supporter) : false;
+        let supporterTier = profile?.supporter_tier || "none";
+
+        if (
+          session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+          session.user.email?.toLowerCase() === "mehakiqbal978@gmail.com" ||
+          userRole === "ADMIN"
+        ) {
           userRole = "ADMIN";
+          isSupporter = true;
+          supporterTier = "patron";
         }
 
         setUser((prev) => {
@@ -487,8 +518,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const updated: UserProfile = {
             ...prev,
             role: userRole as any,
-            is_supporter: profile ? Boolean(profile.is_supporter) : prev.is_supporter,
-            supporter_tier: profile?.supporter_tier || prev.supporter_tier,
+            is_supporter: isSupporter,
+            supporter_tier: supporterTier,
           };
           setStoredUser(updated);
           return updated;

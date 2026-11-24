@@ -109,7 +109,7 @@ export default function DonatePage() {
           </h1>
 
           {/* Link Ko-fi Payer Email Hero Section */}
-          <div className="max-w-xl mx-auto mt-6 p-5 rounded-2xl bg-[#13171f] border border-[#2a3344] text-left shadow-xl">
+          <div className="max-w-xl mx-auto mt-3 sm:mt-5 p-3.5 sm:p-5 rounded-2xl bg-[#13171f] border border-[#2a3344] text-left shadow-xl">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
@@ -121,7 +121,7 @@ export default function DonatePage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#94a1b5] mb-3 leading-relaxed">
+            <p className="hidden sm:block text-xs text-[#94a1b5] mb-3 leading-relaxed">
               If your Ko-fi or PayPal email differs from your MangaPulse account, link it here. Our verified webhook matches incoming tips to unlock your custom badges and VIP perks automatically.
             </p>
 
@@ -165,7 +165,7 @@ export default function DonatePage() {
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-4 lg:px-8 mt-12 space-y-12">
+      <div className="max-w-5xl mx-auto px-4 lg:px-8 mt-6 sm:mt-10 space-y-6 sm:space-y-10">
         {/* Checkout Alert */}
         {checkoutNotice && (
           <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-center justify-between animate-in fade-in">
@@ -179,35 +179,16 @@ export default function DonatePage() {
           </div>
         )}
 
-        {/* ── Payment Security Guarantee ── */}
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-300">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-            <div>
-              <span className="font-bold text-white block">100% Secure Checkout • Debit Cards, Credit Cards, PayPal & Stripe</span>
-              <span className="text-[#94a1b5] text-[11px]">
-                MangaPulse never handles or stores credit cards or banking data. All transactions are securely processed off-site via Patreon & Ko-fi with full buyer protection.
-              </span>
-            </div>
-          </div>
-          <Link
-            href="/terms"
-            className="text-[11px] font-mono text-emerald-400 hover:underline whitespace-nowrap"
-          >
-            Read Terms &rarr;
-          </Link>
-        </div>
-
-        {/* ── Pay with Debit Card Banner ── */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#13171f] via-[#1a2130] to-[#13171f] border border-blue-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl">
-          <div className="space-y-1.5 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider border border-blue-500/30">
-              <CreditCard className="w-3 h-3" />
+        {/* ── Pay with Debit Card Banner (Compact) ── */}
+        <div className="surface-card p-3 sm:p-4 rounded-xl border border-[#2a3344] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+          <div className="space-y-0.5 max-w-lg">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-mono text-[9px] font-bold uppercase tracking-wider border border-blue-500/20">
+              <CreditCard className="w-2.5 h-2.5" />
               <span>Direct Card Checkout</span>
             </div>
-            <h2 className="text-lg font-bold text-white">Pay with Debit Card</h2>
+            <h2 className="text-sm sm:text-base font-bold text-white">Pay with Debit Card</h2>
             <p className="text-xs text-[#94a1b5] leading-relaxed">
-              Prefer paying directly with your Debit Card, Credit Card, Apple Pay, or Google Pay? You can join directly through our official Patreon portal.
+              Prefer paying directly with Debit Card, Apple Pay, or Google Pay? Join directly through our official Patreon portal.
             </p>
           </div>
 
@@ -215,11 +196,11 @@ export default function DonatePage() {
             href={PATREON_JOIN_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full md:w-auto py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-blue-500/20 whitespace-nowrap cursor-pointer hover:scale-[1.02]"
+            className="w-full sm:w-auto py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow cursor-pointer flex-shrink-0"
           >
-            <CreditCard className="w-4 h-4" />
-            <span>Pay with Debit Card (Patreon)</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <CreditCard className="w-3.5 h-3.5 text-white" />
+            <span className="text-white">Pay with Debit Card (Patreon)</span>
+            <ExternalLink className="w-3 h-3 text-white/80" />
           </a>
         </div>
 
@@ -397,8 +378,27 @@ export default function DonatePage() {
           </div>
         </div>
 
+        {/* ── Payment Security Guarantee (Moved below plans) ── */}
+        <div className="p-3.5 sm:p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-emerald-300 shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <div>
+              <span className="font-bold text-white block">100% Secure Checkout • Debit Cards, Credit Cards, PayPal &amp; Stripe</span>
+              <span className="text-[#94a1b5] text-[11px]">
+                MangaPulse never handles or stores credit cards or banking data. All transactions are securely processed off-site via Patreon &amp; Ko-fi with full buyer protection.
+              </span>
+            </div>
+          </div>
+          <Link
+            href="/terms"
+            className="text-[11px] font-mono text-emerald-400 hover:underline whitespace-nowrap"
+          >
+            Read Terms &rarr;
+          </Link>
+        </div>
+
         {/* ── 3 HALLS OF FAME: Patron, Pro, Coffee ── */}
-        <section id="halls" className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#0e1219] to-[#13171f] border border-[#2a3344] relative overflow-hidden shadow-2xl">
+        <section id="halls" className="p-5 sm:p-7 rounded-2xl bg-[#13171f] border border-[#2a3344] relative overflow-hidden shadow-2xl">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-2">
@@ -458,16 +458,16 @@ export default function DonatePage() {
           {/* HALL 1: MANGA PATRONS ($15) */}
           {activeHall === "patron" && (
             <div className="space-y-4 animate-in fade-in">
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-700/50 flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-mono flex items-center gap-1.5">
-                  <Crown className="w-4 h-4 text-slate-100" />
-                  <strong>Manga Patron VIP Roster:</strong> Shiny metallic silver border &amp; silver crown.
+              <div className="py-2 px-3 rounded-lg bg-slate-900/60 border border-slate-700/50 flex items-center justify-between gap-2 text-xs">
+                <span className="text-slate-300 font-mono flex items-center gap-1.5 text-[11px] truncate">
+                  <Crown className="w-3.5 h-3.5 text-slate-100 flex-shrink-0" />
+                  <span className="truncate"><strong>Patron VIP:</strong> Silver border &amp; crown</span>
                 </span>
                 <button
                   onClick={() => handleOfficialCheckout(15, "Manga Patron")}
-                  className="px-3 py-1 rounded-lg bg-white text-black font-bold text-[11px] hover:scale-105 transition-transform"
+                  className="px-2.5 py-1 rounded-lg bg-white text-black font-bold text-[10px] whitespace-nowrap hover:scale-105 transition-transform flex-shrink-0 cursor-pointer"
                 >
-                  Join Patron Roster
+                  Join VIP
                 </button>
               </div>
 
@@ -520,16 +520,16 @@ export default function DonatePage() {
           {/* HALL 2: PRO SUPPORTERS ($5) */}
           {activeHall === "pro" && (
             <div className="space-y-4 animate-in fade-in">
-              <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 flex items-center justify-between text-xs">
-                <span className="text-amber-300 font-mono flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-amber-400" />
-                  <strong>Pro Supporter Roster:</strong> Golden amber border &amp; PRO badge.
+              <div className="py-2 px-3 rounded-lg bg-amber-950/30 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+                <span className="text-amber-300 font-mono flex items-center gap-1.5 text-[11px] truncate">
+                  <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                  <span className="truncate"><strong>Pro Roster:</strong> Amber border &amp; PRO badge</span>
                 </span>
                 <button
                   onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
-                  className="px-3 py-1 rounded-lg bg-amber-500 text-black font-bold text-[11px] hover:scale-105 transition-transform cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-amber-500 text-black font-bold text-[10px] whitespace-nowrap hover:scale-105 transition-transform flex-shrink-0 cursor-pointer"
                 >
-                  Join Pro Roster
+                  Join Pro
                 </button>
               </div>
 
@@ -582,16 +582,16 @@ export default function DonatePage() {
           {/* HALL 3: COFFEE DONATORS ($3) */}
           {activeHall === "coffee" && (
             <div className="space-y-4 animate-in fade-in">
-              <div className="p-3 rounded-xl bg-blue-950/30 border border-blue-500/30 flex items-center justify-between text-xs">
-                <span className="text-blue-300 font-mono flex items-center gap-1.5">
-                  <Coffee className="w-4 h-4 text-blue-400" />
-                  <strong>Coffee Donator Roster:</strong> Electric blue border &amp; coffee badge.
+              <div className="py-2 px-3 rounded-lg bg-blue-950/30 border border-blue-500/30 flex items-center justify-between gap-2 text-xs">
+                <span className="text-blue-300 font-mono flex items-center gap-1.5 text-[11px] truncate">
+                  <Coffee className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                  <span className="truncate"><strong>Coffee Roster:</strong> Blue border &amp; cup</span>
                 </span>
                 <button
                   onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
-                  className="px-3 py-1 rounded-lg bg-blue-600 text-white font-bold text-[11px] hover:scale-105 transition-transform cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-[10px] whitespace-nowrap hover:scale-105 transition-transform flex-shrink-0 cursor-pointer"
                 >
-                  Buy a Coffee ($3)
+                  Tip $3
                 </button>
               </div>
 
