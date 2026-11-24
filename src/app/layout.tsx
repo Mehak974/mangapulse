@@ -88,6 +88,13 @@ export default function RootLayout({
           }}
         />
 
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4938022536946038"
+          crossOrigin="anonymous"
+        />
+
         {/* Google Tag Manager */}
         <script
           async

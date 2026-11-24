@@ -193,7 +193,7 @@ export default function PerkLockModal({
               onClick={onClose}
               className="text-[#94a1b5] hover:text-white underline underline-offset-4 text-[11px] transition-colors"
             >
-              Compare all supporter tiers &rarr;
+              Compare membership &amp; upgrade tiers &rarr;
             </Link>
 
             <button

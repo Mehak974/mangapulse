@@ -420,7 +420,7 @@ export default async function HomePage() {
               href="/donate"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors"
             >
-              <span>Explore Patron &amp; Supporter Tiers</span>
+              <span>Upgrade Membership</span>
             </Link>
           </div>
         </div>

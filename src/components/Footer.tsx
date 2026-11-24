@@ -53,8 +53,8 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/donate" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors text-rose-400">
-                Support MangaPulse (Donate)
+              <Link href="/donate" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors text-amber-400">
+                Upgrade to Supporter
               </Link>
             </li>
           </ul>

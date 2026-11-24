@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutDashboard, Flame, Bookmark, Heart, User } from "lucide-react";
+import { Home, LayoutDashboard, Flame, Bookmark, Sparkles, User } from "lucide-react";
 
 export default function MobileNav() {
   const pathname = usePathname();
@@ -13,7 +13,7 @@ export default function MobileNav() {
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Trending", href: "/trending", icon: Flame },
     { label: "Library", href: "/library", icon: Bookmark },
-    { label: "Donate", href: "/donate", icon: Heart, isDonate: true },
+    { label: "Upgrade", href: "/donate", icon: Sparkles, isDonate: true },
     { label: "Profile", href: "/profile", icon: User },
   ];
 

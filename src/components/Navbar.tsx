@@ -20,6 +20,7 @@ import {
   Compass,
   MessageSquare,
   Heart,
+  Sparkles,
   Sun,
   Moon,
 } from "lucide-react";
@@ -144,7 +145,7 @@ export default function Navbar() {
             { href: "/trending", label: "Trending" },
             { href: "/forum", label: "Forum" },
             { href: "/library", label: "Library" },
-            { href: "/donate", label: "Donate", isDonate: true },
+            { href: "/donate", label: "Upgrade", isDonate: true },
           ].map((link) => {
             const isDonate = link.isDonate;
             const isActive =
@@ -365,10 +366,10 @@ export default function Navbar() {
                 <Link
                   href="/donate"
                   onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white hover:bg-[#1a1f2a] transition-colors text-rose-300"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white hover:bg-[#1a1f2a] transition-colors text-amber-300 font-semibold"
                 >
-                  <Heart className="w-3.5 h-3.5 text-rose-400" />
-                  <span>Support MangaPulse</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Upgrade Membership</span>
                 </Link>
 
                 <div className="my-1 border-t border-[#1e2430]" />
