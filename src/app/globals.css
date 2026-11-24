@@ -37,23 +37,32 @@ html.light body {
   color: var(--text-primary) !important;
 }
 
+/* Backgrounds in Light Mode */
 html.light .bg-\[\#0c0e12\],
-html.light .bg-\[\#07090e\] {
+html.light .bg-\[\#07090e\],
+html.light .bg-\[\#0e121a\] {
   background-color: #f8fafc !important;
 }
 
+html.light .bg-\[\#0c0e12\]\/80,
+html.light .bg-\[\#0c0e12\]\/90,
 html.light .bg-\[\#0c0e12\]\/95 {
   background-color: rgba(248, 250, 252, 0.95) !important;
 }
 
-html.light .bg-\[\#13171f\] {
+html.light .bg-\[\#13171f\],
+html.light .bg-\[\#13171f\]\/80,
+html.light .bg-\[\#13171f\]\/90 {
   background-color: #ffffff !important;
 }
 
-html.light .bg-\[\#1a1f2a\] {
+html.light .bg-\[\#1a1f2a\],
+html.light .bg-\[\#1e2430\],
+html.light .bg-\[\#232a37\] {
   background-color: #f1f5f9 !important;
 }
 
+/* Borders in Light Mode */
 html.light .border-\[\#1e2430\] {
   border-color: #e2e8f0 !important;
 }
@@ -66,22 +75,108 @@ html.light .border-\[\#3d4960\] {
   border-color: #94a3b8 !important;
 }
 
+/* Base Text Colors in Light Mode */
 html.light .text-white,
-html.light .text-\[\#f0f3f8\] {
+html.light .text-\[\#f0f3f8\],
+html.light .text-white\/90,
+html.light .text-white\/80,
+html.light .text-white\/70,
+html.light .text-white\/60 {
   color: #0f172a !important;
 }
 
-html.light .text-\[\#cbd5e1\] {
+html.light .text-\[\#cbd5e1\],
+html.light .text-\[\#c4cfde\] {
   color: #334155 !important;
 }
 
 html.light .text-\[\#94a1b5\],
 html.light .text-\[\#94a3b8\] {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 html.light .text-\[\#5e6b82\] {
   color: #64748b !important;
+}
+
+/* Protect text on solid buttons/badges so they stay crisp white */
+html.light .bg-blue-600,
+html.light .bg-blue-600 *,
+html.light .bg-blue-500,
+html.light .bg-blue-500 *,
+html.light .bg-red-600,
+html.light .bg-red-600 *,
+html.light .bg-emerald-600,
+html.light .bg-emerald-600 *,
+html.light .bg-purple-600,
+html.light .bg-purple-600 *,
+html.light button.bg-blue-600,
+html.light button.bg-red-600,
+html.light a.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+/* High contrast accent links and badges in Light Mode */
+html.light .text-blue-400 {
+  color: #2563eb !important;
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300 {
+  color: #b45309 !important;
+}
+
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+html.light .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+html.light .text-red-400 {
+  color: #dc2626 !important;
+}
+
+/* Light Mode Input & Form elements */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light Mode Badges & Soft Tints */
+html.light .bg-blue-500\/10,
+html.light .bg-blue-500\/20,
+html.light .bg-blue-600\/20 {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/20,
+html.light .bg-emerald-600\/20 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html.light .bg-red-500\/10,
+html.light .bg-red-500\/20 {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
 }
 
 body {

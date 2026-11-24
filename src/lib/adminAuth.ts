@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { query, queryOne } from "@/lib/serverDb";
+import { pool, query, queryOne } from "@/lib/serverDb";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey =
@@ -68,16 +68,39 @@ export async function verifyAdminRequest(
       };
     }
 
-    // 2. Query user profile role & banned status directly from Postgres
-    const profile = await queryOne<{
+    // 2. Query user profile role & banned status directly from Postgres (or Supabase client fallback)
+    let profile: {
       id: string;
       username: string;
       role: string;
       is_banned: boolean;
-    }>(
-      `SELECT id, username, role, is_banned FROM public.profiles WHERE id = $1 LIMIT 1;`,
-      [user.id]
-    );
+    } | null = null;
+
+    if (pool) {
+      profile = await queryOne<{
+        id: string;
+        username: string;
+        role: string;
+        is_banned: boolean;
+      }>(
+        `SELECT id, username, role, is_banned FROM public.profiles WHERE id = $1 LIMIT 1;`,
+        [user.id]
+      );
+    } else {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, username, role, is_banned")
+        .eq("id", user.id)
+        .single();
+      if (data) {
+        profile = {
+          id: data.id,
+          username: data.username,
+          role: data.role,
+          is_banned: Boolean(data.is_banned),
+        };
+      }
+    }
 
     if (!profile) {
       return {
@@ -145,11 +168,22 @@ export async function recordAuditLog(
   ipAddress: string = "127.0.0.1"
 ): Promise<void> {
   try {
-    await query(
-      `INSERT INTO public.audit_logs (admin_id, action, target_id, details, ip_address)
-       VALUES ($1, $2, $3, $4, $5);`,
-      [adminId, action, targetId, details ? JSON.stringify(details) : null, ipAddress]
-    );
+    if (pool) {
+      await query(
+        `INSERT INTO public.audit_logs (admin_id, action, target_id, details, ip_address)
+         VALUES ($1, $2, $3, $4, $5);`,
+        [adminId, action, targetId, details ? JSON.stringify(details) : null, ipAddress]
+      );
+    } else {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      await supabase.from("audit_logs").insert({
+        admin_id: adminId,
+        action,
+        target_id: targetId,
+        details: details || null,
+        ip_address: ipAddress,
+      });
+    }
   } catch (err) {
     console.error("Failed to record audit log:", err);
   }

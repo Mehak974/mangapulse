@@ -5,7 +5,10 @@ declare global {
   var __pgPool: Pool | undefined;
 }
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.SUPABASE_DB_URL;
 
 export const pool: Pool | null = connectionString
   ? (globalThis.__pgPool ??= new Pool({

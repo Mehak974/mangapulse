@@ -3,7 +3,7 @@
  * Protocol spec: https://www.indexnow.org/documentation
  */
 
-export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "c839f8216ba44621a162e08e64593a21";
+export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "40069cbafd524aad8b8122fa03974357";
 export const INDEXNOW_HOST = process.env.INDEXNOW_HOST || "www.mangapulse.co";
 
 export interface IndexNowResult {

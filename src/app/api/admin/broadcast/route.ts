@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest, recordAuditLog } from "@/lib/adminAuth";
-import { query, queryOne } from "@/lib/serverDb";
+import { pool, query, queryOne } from "@/lib/serverDb";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -10,18 +11,39 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   try {
-    const active = await queryOne<{
-      id: string;
-      message: string;
-      level: string;
-      is_active: boolean;
-      updated_at: string;
-    }>(
-      `SELECT id, message, level, is_active, updated_at 
-       FROM public.sitewide_broadcasts 
-       WHERE is_active = true 
-       ORDER BY updated_at DESC LIMIT 1;`
-    );
+    let active = null;
+
+    if (pool) {
+      active = await queryOne<{
+        id: string;
+        message: string;
+        level: string;
+        is_active: boolean;
+        updated_at: string;
+      }>(
+        `SELECT id, message, level, is_active, updated_at 
+         FROM public.sitewide_broadcasts 
+         WHERE is_active = true 
+         ORDER BY updated_at DESC LIMIT 1;`
+      );
+    } else {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey =
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+        "";
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const { data } = await supabase
+          .from("sitewide_broadcasts")
+          .select("id, message, level, is_active, updated_at")
+          .eq("is_active", true)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        active = data;
+      }
+    }
 
     return NextResponse.json({ broadcast: active || null });
   } catch (err: any) {

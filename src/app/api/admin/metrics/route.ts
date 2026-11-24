@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/adminAuth";
-import { query, queryOne } from "@/lib/serverDb";
+import { pool, query, queryOne } from "@/lib/serverDb";
 import { VERIFIED_SCHEDULES } from "@/lib/mangaScheduleDb";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,46 @@ export async function GET(req: NextRequest) {
   if (errorResponse) return errorResponse;
 
   try {
+    if (!pool) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey =
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+        "";
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        const [{ count: usersCount }, { data: activeBroadcast }, { count: delistedCount }] =
+          await Promise.all([
+            supabase.from("profiles").select("*", { count: "exact", head: true }),
+            supabase
+              .from("sitewide_broadcasts")
+              .select("id, message, level, is_active, updated_at")
+              .eq("is_active", true)
+              .order("updated_at", { ascending: false })
+              .limit(1)
+              .maybeSingle(),
+            supabase.from("manga_overrides").select("*", { count: "exact", head: true }).eq("is_delisted", true),
+          ]);
+
+        const activeCountdowns = VERIFIED_SCHEDULES.length - (delistedCount || 0);
+
+        return NextResponse.json({
+          metrics: {
+            totalUsers: usersCount || 1,
+            todayActive: 1,
+            activeCountdowns: Math.max(0, activeCountdowns),
+            pendingReports: 0,
+            delistedCount: delistedCount || 0,
+          },
+          activeBroadcast: activeBroadcast || null,
+          admin: {
+            username: admin?.username,
+            role: admin?.role,
+          },
+        });
+      }
+    }
+
     const [
       usersCountRes,
       todayActiveRes,

@@ -228,10 +228,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Section 2: Complete Weekly Release Schedule Calendar */}
-      <WeeklyScheduleSection schedule={WEEKLY_SCHEDULE} />
-
-      {/* Section 3: Popular & Trending Series (Dense Grid) */}
+      {/* Section 2: Popular & Trending Series (Dense Grid) */}
       <section id="trending" className="max-w-7xl mx-auto px-4 lg:px-8 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
           <div className="flex items-center gap-2">
@@ -251,6 +248,9 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Section 3: Complete Weekly Release Schedule Calendar */}
+      <WeeklyScheduleSection schedule={WEEKLY_SCHEDULE} />
 
       {/* Section 4: All-Time Top 10 Ranked Table */}
       <section id="top-rated" className="max-w-7xl mx-auto px-4 lg:px-8 space-y-4">

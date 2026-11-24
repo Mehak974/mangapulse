@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest, recordAuditLog } from "@/lib/adminAuth";
-import { query, queryOne } from "@/lib/serverDb";
+import { pool, query, queryOne } from "@/lib/serverDb";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,32 @@ export async function GET(req: NextRequest) {
     const filter = searchParams.get("filter")?.trim() || "all";
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
     const offset = Math.max(0, parseInt(searchParams.get("offset") || "0", 10));
+
+    if (!pool) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey =
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+        "";
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        let q = supabase
+          .from("profiles")
+          .select(
+            "id, username, display_name, role, is_supporter, supporter_tier, created_at, last_login_at, last_login_ip, last_user_agent, signup_ip, auth_provider, is_banned, is_shadow_banned, ban_reason, banned_at"
+          )
+          .order("created_at", { ascending: false })
+          .limit(limit);
+
+        if (search) q = q.ilike("username", `%${search}%`);
+        if (filter === "banned") q = q.eq("is_banned", true);
+        else if (filter === "staff") q = q.in("role", ["ADMIN", "MODERATOR"]);
+        else if (filter === "supporter") q = q.eq("is_supporter", true);
+
+        const { data } = await q;
+        return NextResponse.json({ users: data || [] });
+      }
+    }
 
     let whereConditions: string[] = ["1=1"];
     const params: any[] = [];
