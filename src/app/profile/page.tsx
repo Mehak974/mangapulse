@@ -429,12 +429,18 @@ export default function ProfilePage() {
                   supporterTier.toLowerCase().includes("coffee")
                     ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                     : supporterTier.toLowerCase().includes("legend") || supporterTier.toLowerCase().includes("patron")
-                    ? "bg-slate-200/10 text-slate-200 border border-slate-300/30"
+                    ? "bg-slate-200/15 text-slate-100 border border-slate-200/60 shadow-[0_0_14px_rgba(255,255,255,0.45)] animate-patron-border"
                     : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                 }`}
                 title={`Active Official Supporter: ${supporterTier}`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles
+                  className={`w-3.5 h-3.5 ${
+                    supporterTier.toLowerCase().includes("legend") || supporterTier.toLowerCase().includes("patron")
+                      ? "text-white fill-white drop-shadow-[0_0_8px_#ffffff] animate-patron-sparkle-1"
+                      : ""
+                  }`}
+                />
                 <span>Official Supporter ({supporterTier})</span>
               </span>
             ) : (

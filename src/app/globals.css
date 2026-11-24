@@ -75,3 +75,66 @@ textarea:focus-visible {
   outline-offset: 2px !important;
 }
 
+/* Manga Patron Luxury Sparkle & Shimmer Animations */
+@keyframes patron-spin-halo {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes patron-sparkle-twinkle {
+  0%, 100% { transform: scale(0.65) rotate(0deg); opacity: 0.35; filter: drop-shadow(0 0 2px #fff); }
+  50% { transform: scale(1.2) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 8px #ffffff); }
+}
+
+@keyframes patron-sparkle-float {
+  0%, 100% { transform: translateY(0px) scale(0.85); opacity: 0.5; }
+  50% { transform: translateY(-4px) scale(1.15); opacity: 1; filter: drop-shadow(0 0 7px #ffffff); }
+}
+
+@keyframes patron-crown-gleam {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)); }
+  50% { transform: translateY(-3px) scale(1.05); filter: drop-shadow(0 0 18px rgba(255, 255, 255, 1)); }
+}
+
+@keyframes patron-border-pulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(226, 232, 240, 0.8), 0 0 32px rgba(255, 255, 255, 0.45), inset 0 0 8px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(255, 255, 255, 1), 0 0 45px rgba(203, 213, 225, 0.75), inset 0 0 16px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes patron-light-sweep {
+  0% { transform: translateX(-150%) rotate(45deg); }
+  35%, 100% { transform: translateX(250%) rotate(45deg); }
+}
+
+.animate-patron-halo {
+  animation: patron-spin-halo 6s linear infinite;
+}
+
+.animate-patron-sparkle-1 {
+  animation: patron-sparkle-twinkle 2.2s ease-in-out infinite;
+}
+
+.animate-patron-sparkle-2 {
+  animation: patron-sparkle-twinkle 2.6s ease-in-out infinite 0.7s;
+}
+
+.animate-patron-sparkle-3 {
+  animation: patron-sparkle-float 2s ease-in-out infinite 1.2s;
+}
+
+.animate-patron-crown {
+  animation: patron-crown-gleam 3s ease-in-out infinite;
+}
+
+.animate-patron-border {
+  animation: patron-border-pulse 3s ease-in-out infinite;
+}
+
+.animate-patron-sweep {
+  animation: patron-light-sweep 4.5s ease-in-out infinite;
+}
+
