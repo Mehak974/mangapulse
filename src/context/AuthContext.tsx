@@ -101,7 +101,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initial load from storage and Supabase session
   useEffect(() => {
-    const existingUser = getStoredUser();
+    let existingUser = getStoredUser();
+
+    // ponytail: localhost testing override for coffee supporter badge
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname.endsWith(".localhost"))
+    ) {
+      if (!existingUser) {
+        existingUser = {
+          id: "local_tester",
+          email: "tester@localhost",
+          username: "LocalTester",
+          displayName: "Local Tester",
+          created_at: new Date().toISOString(),
+          is_supporter: true,
+          supporter_tier: "coffee",
+        };
+      } else if (!existingUser.is_supporter || !existingUser.supporter_tier) {
+        existingUser.is_supporter = true;
+        existingUser.supporter_tier = "coffee";
+      }
+      setStoredUser(existingUser);
+    }
+
     if (existingUser) setUser(existingUser);
 
     async function loadAll() {

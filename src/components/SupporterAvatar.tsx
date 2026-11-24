@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Coffee, Crown } from "lucide-react";
 
 export type SupporterTierType = "coffee" | "supporter" | "legend" | "pro" | "patron" | string | null | undefined;
@@ -38,8 +38,23 @@ export default function SupporterAvatar({
   alt,
 }: SupporterAvatarProps) {
   const [imgError, setImgError] = useState(false);
+  const [isLocalhost, setIsLocalhost] = useState(false);
 
-  const activeTier = isSupporter ? normalizeTier(tier) : null;
+  // ponytail: localhost testing override for coffee supporter badge
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname.endsWith(".localhost"))
+    ) {
+      setIsLocalhost(true);
+    }
+  }, []);
+
+  const effectiveIsSupporter = isSupporter || isLocalhost;
+  const effectiveTier = isLocalhost && (!tier || tier === "none") ? "coffee" : tier;
+  const activeTier = effectiveIsSupporter ? normalizeTier(effectiveTier) : null;
   const initial = username ? username.trim().substring(0, 2).toUpperCase() : "MP";
 
   // Size configurations

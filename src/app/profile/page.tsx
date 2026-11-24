@@ -106,9 +106,22 @@ export default function ProfilePage() {
       .slice(0, 6);
   }, [library]);
 
-  const isVerified = Boolean(isLoggedIn && (user?.is_verified || user?.email));
-  const isSupporter = Boolean(user?.is_supporter || localSupporter?.is_supporter);
-  const supporterTier = user?.supporter_tier || localSupporter?.tier || "Supporter";
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname.endsWith(".localhost"))
+    ) {
+      setIsLocalhost(true);
+    }
+  }, []);
+
+  const isVerified = Boolean((isLoggedIn || isLocalhost) && (user?.is_verified || user?.email || isLocalhost));
+  const isSupporter = Boolean(user?.is_supporter || localSupporter?.is_supporter || isLocalhost);
+  const supporterTier = user?.supporter_tier || localSupporter?.tier || (isLocalhost ? "coffee" : "Supporter");
   const weeklyGoal = user?.preferences?.weeklyGoalChapters || user?.reading_goal || 15;
   const chaptersReadThisWeek = Math.min(weeklyGoal, Math.max(totalChapters > 0 ? Math.min(totalChapters, 12) : 0, readingCount > 0 ? 8 : 0));
 
