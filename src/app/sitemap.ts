@@ -1,9 +1,10 @@
 import { MetadataRoute } from "next";
 import { fetchPopular, getFallbackMangaList, slugify } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
+import { SITE_URL } from "@/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mangapulse.co";
+  const baseUrl = SITE_URL;
   const now = new Date();
 
   const urlMap = new Map<string, MetadataRoute.Sitemap[number]>();

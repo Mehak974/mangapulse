@@ -3,7 +3,16 @@ import { MangaItem } from "@/types/manga";
 
 export const SITE_NAME = "MangaPulse";
 export const SITE_TAGLINE = "100% Legal Manga Tracker, Release Countdown & Official Hub";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mangapulse.co";
+
+function resolveSiteUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mangapulse.co";
+  if (envUrl.includes("localhost") || envUrl.includes("127.0.0.1")) {
+    return envUrl;
+  }
+  return envUrl.replace(/^https?:\/\/mangapulse\.co/, "https://www.mangapulse.co");
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 interface MetadataOptions {
   title: string;
