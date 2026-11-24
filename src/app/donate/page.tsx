@@ -18,6 +18,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import SupporterAvatar from "@/components/SupporterAvatar";
 
 export default function DonatePage() {
   const { user, isLoggedIn, updateProfile, setAuthModalOpen } = useAuth();
@@ -280,6 +281,126 @@ export default function DonatePage() {
               <span>{kofiSaveStatus}</span>
             </div>
           )}
+        </section>
+
+        {/* 👑 Manga Patron Hall of Fame */}
+        <section id="patrons" className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#0e1219] to-[#13171f] border-2 border-slate-300/40 relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 relative z-10">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-slate-100" />
+                <h3 className="font-bold text-base text-white tracking-tight">
+                  Manga Patron Hall of Fame
+                </h3>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/10 text-slate-100 border border-white/20">
+                  VIP ROSTER
+                </span>
+              </div>
+              <p className="text-xs text-[#94a1b5]">
+                Permanent recognition honoring the elite manga champions financing high-speed database scaling and legal indexing.
+              </p>
+            </div>
+
+            <button
+              onClick={() => handleOfficialCheckout(15, "Manga Patron")}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-slate-200 to-white text-black text-xs font-black shadow-[0_0_14px_rgba(255,255,255,0.7)] hover:scale-105 transition-transform flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <Crown className="w-3.5 h-3.5 text-black" />
+              <span>Claim Your Spot ($15)</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+            {/* If logged in user is patron, showcase them first */}
+            {user?.is_supporter && (user.supporter_tier?.toLowerCase().includes("legend") || user.supporter_tier?.toLowerCase().includes("patron")) && (
+              <div className="p-4 rounded-xl bg-[#0c0e12] border-2 border-slate-200/80 shadow-[0_0_18px_rgba(255,255,255,0.25)] flex items-center gap-3 relative overflow-hidden">
+                <div className="absolute top-1 right-2 text-[9px] font-mono font-bold text-slate-200 uppercase tracking-wider">
+                  ★ YOU
+                </div>
+                <SupporterAvatar
+                  avatarUrl={user.avatar_url}
+                  username={user.displayName || user.username}
+                  isSupporter={true}
+                  tier="legend"
+                  size="md"
+                />
+                <div className="min-w-0">
+                  <div className="font-bold text-xs text-white truncate flex items-center gap-1">
+                    <span>{user.displayName || user.username}</span>
+                    <Sparkles className="w-3 h-3 text-white fill-white" />
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-300">Active VIP Patron</div>
+                  <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">Top Supporter</div>
+                </div>
+              </div>
+            )}
+
+            {[
+              {
+                name: "AkiraVault",
+                tier: "Founding Patron",
+                favorite: "Berserk",
+                since: "Oct 2024",
+              },
+              {
+                name: "Mehak",
+                tier: "Manga Patron",
+                favorite: "Omniscient Reader's Viewpoint",
+                since: "Nov 2024",
+              },
+              {
+                name: "ShadowArchivist",
+                tier: "Manga Patron",
+                favorite: "The Greatest Estate Developer",
+                since: "Nov 2024",
+              },
+              {
+                name: "ReiChainsaw",
+                tier: "Manga Patron",
+                favorite: "Chainsaw Man",
+                since: "Nov 2024",
+              },
+              {
+                name: "LevelingKing",
+                tier: "Manga Patron",
+                favorite: "Solo Leveling",
+                since: "Nov 2024",
+              },
+              {
+                name: "ReturnOfBlossom",
+                tier: "Manga Patron",
+                favorite: "Return of the Blossoming Blade",
+                since: "Nov 2024",
+              },
+            ].map((patron, idx) => (
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-[#0c0e12]/80 border border-[#2a3344] hover:border-slate-300/50 transition-all flex items-center gap-3"
+              >
+                <SupporterAvatar
+                  username={patron.name}
+                  isSupporter={true}
+                  tier="legend"
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-xs text-white truncate flex items-center justify-between">
+                    <span>{patron.name}</span>
+                    <span className="text-[9px] font-mono text-[#5e6b82]">{patron.since}</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-300 flex items-center gap-1">
+                    <Crown className="w-2.5 h-2.5 text-slate-200" />
+                    <span>{patron.tier}</span>
+                  </div>
+                  <div className="text-[10px] text-[#94a1b5] truncate mt-0.5">
+                    Fave: <span className="text-white/80">{patron.favorite}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Transparent Cost Breakdown */}
