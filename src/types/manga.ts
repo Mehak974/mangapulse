@@ -78,6 +78,7 @@ export interface UserProfile {
   is_verified?: boolean;
   is_supporter?: boolean;
   supporter_tier?: string | null;
+  kofi_email?: string | null;
 }
 
 export interface ActivityItem {

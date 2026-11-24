@@ -1,57 +1,109 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import crypto from "crypto";
+
+export const dynamic = "force-dynamic";
 
 // In-memory counter for traffic stats aggregated by publisher
 const outboundClickStats = new Map<string, number>();
 
+// Sliding window rate limiter (max 30 requests per minute per IP)
+const rateLimitMap = new Map<string, number[]>();
+
 export async function POST(request: Request) {
   try {
+    const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    const now = Date.now();
+
+    // 1. In-memory Rate Limiting
+    const clientHistory = rateLimitMap.get(clientIp) || [];
+    const recentRequests = clientHistory.filter((timestamp) => now - timestamp < 60000);
+
+    if (recentRequests.length >= 30) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Maximum 30 click tracking events per minute." },
+        { status: 429 }
+      );
+    }
+
+    recentRequests.push(now);
+    rateLimitMap.set(clientIp, recentRequests);
+
+    // Housekeeping: prevent memory bloat
+    if (rateLimitMap.size > 1000) {
+      for (const [ip, history] of rateLimitMap.entries()) {
+        if (history.every((t) => now - t >= 60000)) {
+          rateLimitMap.delete(ip);
+        }
+      }
+    }
+
+    // 2. Strict Input Validation
     const body = await request.json();
     const { publisher, mangaTitle, targetUrl } = body;
 
-    if (!publisher) {
-      return NextResponse.json({ error: "Missing publisher" }, { status: 400 });
+    if (typeof publisher !== "string" || publisher.trim().length === 0 || publisher.length > 60) {
+      return NextResponse.json({ error: "Invalid publisher identifier (1-60 chars required)" }, { status: 400 });
     }
 
-    // Increment in-memory counter
-    const current = outboundClickStats.get(publisher) || 0;
-    outboundClickStats.set(publisher, current + 1);
+    if (mangaTitle && (typeof mangaTitle !== "string" || mangaTitle.length > 150)) {
+      return NextResponse.json({ error: "Invalid mangaTitle (max 150 chars)" }, { status: 400 });
+    }
 
-    console.log(
-      `[Outbound Click] -> Publisher: "${publisher}" | Manga: "${mangaTitle || "Unknown"}" | Total for publisher: ${current + 1}`
-    );
+    if (targetUrl && (typeof targetUrl !== "string" || targetUrl.length > 500)) {
+      return NextResponse.json({ error: "Invalid targetUrl (max 500 chars)" }, { status: 400 });
+    }
 
-    // If Supabase is configured and table exists, record event asynchronously
+    const cleanPublisher = publisher.trim();
+    const cleanTitle = mangaTitle ? mangaTitle.trim() : null;
+    const cleanUrl = targetUrl ? targetUrl.trim() : null;
+
+    // Increment aggregated in-memory counter
+    const current = outboundClickStats.get(cleanPublisher) || 0;
+    outboundClickStats.set(cleanPublisher, current + 1);
+
+    // Asynchronously record event in Supabase table
     if (supabase) {
       Promise.resolve(
         supabase.from("outbound_click_events").insert({
-          publisher,
-          manga_title: mangaTitle || null,
-          target_url: targetUrl || null,
+          publisher: cleanPublisher,
+          manga_title: cleanTitle,
+          target_url: cleanUrl,
           created_at: new Date().toISOString(),
         })
-      ).catch((err: any) => {
-        // Silent catch so client is never blocked
-        console.debug("Supabase outbound click logging note:", err?.message);
-      });
+      ).catch(() => {});
     }
 
     return NextResponse.json({ success: true, count: current + 1 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
   const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const bearerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
-  const key = url.searchParams.get("key");
 
-  // Require secret authorization to view internal publisher click-through statistics
-  if (cronSecret && bearerToken !== cronSecret && key !== cronSecret) {
-    return NextResponse.json({ error: "Unauthorized. Provide valid key to view telemetry." }, { status: 401 });
+  // Fail Closed Security Check
+  if (!cronSecret) {
+    return NextResponse.json(
+      { error: "Telemetry query disabled: CRON_SECRET is not configured on the server." },
+      { status: 500 }
+    );
+  }
+
+  const authHeader = request.headers.get("authorization");
+  const bearerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : "";
+
+  // Constant-time token verification
+  if (
+    bearerToken.length !== cronSecret.length ||
+    !crypto.timingSafeEqual(Buffer.from(bearerToken), Buffer.from(cronSecret))
+  ) {
+    return NextResponse.json(
+      { error: "Unauthorized. Valid Bearer token required in Authorization header." },
+      { status: 401 }
+    );
   }
 
   // Read aggregated stats

@@ -101,14 +101,18 @@ export function getOfficialLinksForManga(manga: Partial<MangaItem>): OfficialLin
   }
 
   // 4. Amazon (Physical Volumes & Kindle Official Manga + Affiliate)
-  const amazonTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || "mangapulse-20";
+  const amazonTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG;
+  const amazonUrl = amazonTag
+    ? `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks&tag=${amazonTag}`
+    : `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks`;
+
   links.push({
     name: "Amazon Books & Kindle",
-    url: `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks&tag=${amazonTag}`,
+    url: amazonUrl,
     badge: "Paperback & Kindle",
     type: "purchase",
     icon: "amazon",
-    isAffiliate: true,
+    isAffiliate: Boolean(amazonTag),
   });
 
   return links;

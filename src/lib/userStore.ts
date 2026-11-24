@@ -151,6 +151,7 @@ export async function updateUserProfile(updates: Partial<UserProfile>): Promise<
         display_name: merged.displayName || null,
         avatar_url: merged.avatar_url || null,
         bio: merged.bio || null,
+        kofi_email: merged.kofi_email || null,
         preferences: merged.preferences,
         reading_goal: merged.reading_goal || 15,
         updated_at: new Date().toISOString(),

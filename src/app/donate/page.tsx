@@ -20,24 +20,41 @@ import {
 import { useAuth } from "@/context/AuthContext";
 
 export default function DonatePage() {
-  const { user, isLoggedIn, setAuthModalOpen } = useAuth();
+  const { user, isLoggedIn, updateProfile, setAuthModalOpen } = useAuth();
   const [selectedTier, setSelectedTier] = useState<number>(5);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
 
+  const [kofiEmailInput, setKofiEmailInput] = useState<string>(user?.kofi_email || "");
+  const [kofiSaveStatus, setKofiSaveStatus] = useState<string | null>(null);
+  const [isSavingKofi, setIsSavingKofi] = useState(false);
+
   const handleOfficialCheckout = (amount: number, tierName: string) => {
-    // Construct verified Ko-fi redirect URL passing authenticated user memo
-    const kofiBase = "https://ko-fi.com/mangapulse";
-    const memo = user ? `user_id:${user.id}|email:${user.email}` : "";
-    const checkoutUrl = memo ? `${kofiBase}?memo=${encodeURIComponent(memo)}` : kofiBase;
+    // Clean official redirect (zero user tokens or emails in URL)
+    const checkoutUrl = "https://ko-fi.com/mangapulse";
 
     setCheckoutNotice(
-      `Redirecting to secure payment for ${tierName}. Once received, your supporter perks sync automatically via our verified webhook.`
+      `Opening Ko-fi for ${tierName}. Once confirmed, your perks sync automatically to your account.`
     );
 
     setTimeout(() => {
       window.open(checkoutUrl, "_blank", "noopener,noreferrer");
-    }, 800);
+    }, 400);
+  };
+
+  const handleSaveKofiEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!kofiEmailInput.trim()) return;
+    setIsSavingKofi(true);
+    try {
+      await updateProfile({ kofi_email: kofiEmailInput.trim().toLowerCase() });
+      setKofiSaveStatus("Ko-fi email linked! Incoming tips will automatically credit to this account.");
+      setTimeout(() => setKofiSaveStatus(null), 5000);
+    } catch {
+      setKofiSaveStatus("Failed to link email. Please check your connection.");
+    } finally {
+      setIsSavingKofi(false);
+    }
   };
 
   return (
@@ -202,6 +219,56 @@ export default function DonatePage() {
             </button>
           </div>
         </div>
+
+        {/* Link Ko-fi Payer Email */}
+        <section className="p-6 rounded-2xl bg-[#13171f] border border-[#1e2430]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 className="font-bold text-sm text-white uppercase font-mono tracking-wider">
+                Link Your Ko-fi Payer Email
+              </h3>
+              <p className="text-xs text-[#94a1b5] mt-1">
+                If your Ko-fi account or PayPal email differs from your MangaPulse email, link it here. Our verified webhook will match incoming tips and activate your perks automatically.
+              </p>
+            </div>
+          </div>
+
+          {user ? (
+            <form onSubmit={handleSaveKofiEmail} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                placeholder="your-kofi-paypal@example.com"
+                value={kofiEmailInput}
+                onChange={(e) => setKofiEmailInput(e.target.value)}
+                className="flex-1 bg-[#0c0e12] border border-[#2a3344] focus:border-blue-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#5e6b82] outline-none"
+              />
+              <button
+                type="submit"
+                disabled={isSavingKofi}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs transition-colors whitespace-nowrap"
+              >
+                {isSavingKofi ? "Linking..." : "Link Ko-fi Email"}
+              </button>
+            </form>
+          ) : (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#0c0e12] border border-[#1e2430] text-xs text-[#94a1b5]">
+              <span>Sign in to link your Ko-fi email and auto-sync supporter badges.</span>
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="font-bold text-blue-400 hover:underline"
+              >
+                Sign In
+              </button>
+            </div>
+          )}
+
+          {kofiSaveStatus && (
+            <div className="mt-3 text-xs text-emerald-400 flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" />
+              <span>{kofiSaveStatus}</span>
+            </div>
+          )}
+        </section>
 
         {/* Transparent Cost Breakdown */}
         <section className="p-6 rounded-2xl bg-[#13171f] border border-[#1e2430]">

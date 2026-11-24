@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getScheduledDropsForDate, ScheduledDropItem } from "@/lib/mangaScheduleDb";
+import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
 /**
  * MangaPulse Release Bot Cron Endpoint
  * Automatically triggered by Vercel Cron daily at 15:00 UTC (Shonen Jump drop hour).
- * Formats rich embeds and dispatches instant drop notifications to Discord / Webhooks.
+ * - Fails closed: Rejects requests unless valid CRON_SECRET is provided via Authorization Bearer
+ * - Prunes expired supporter subscriptions
+ * - Formats rich embeds and dispatches instant drop notifications to Discord Webhook
  */
 export async function GET(req: NextRequest) {
   return handleReleaseBot(req);
@@ -17,24 +21,55 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleReleaseBot(req: NextRequest) {
-  const url = new URL(req.url);
   const cronSecret = process.env.CRON_SECRET;
 
-  // 1. Secret authorization check (if configured)
-  if (cronSecret) {
-    const authHeader = req.headers.get("authorization");
-    const bearerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
-    const queryKey = url.searchParams.get("key");
+  // 1. Fail Closed Security Check
+  if (!cronSecret) {
+    return NextResponse.json(
+      { error: "Cron execution disabled: CRON_SECRET is not configured on the server." },
+      { status: 500 }
+    );
+  }
 
-    if (bearerToken !== cronSecret && queryKey !== cronSecret) {
-      return NextResponse.json(
-        { error: "Unauthorized. Provide valid CRON_SECRET via Authorization header or ?key= param." },
-        { status: 401 }
-      );
+  const authHeader = req.headers.get("authorization");
+  const bearerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : "";
+
+  if (
+    bearerToken.length !== cronSecret.length ||
+    !crypto.timingSafeEqual(Buffer.from(bearerToken), Buffer.from(cronSecret))
+  ) {
+    return NextResponse.json(
+      { error: "Unauthorized. Valid Bearer token required in Authorization header." },
+      { status: 401 }
+    );
+  }
+
+  // 2. Automated Subscription Expiry Cleanup
+  let expiredCount = 0;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (supabaseUrl && serviceRoleKey) {
+    try {
+      const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
+      const nowIso = new Date().toISOString();
+      const { data: expiredRows, error: expireError } = await adminSupabase
+        .from("subscriptions")
+        .update({ status: "canceled", updated_at: nowIso })
+        .eq("status", "active")
+        .lt("current_period_end", nowIso)
+        .select("id");
+
+      if (!expireError && expiredRows) {
+        expiredCount = expiredRows.length;
+      }
+    } catch (err) {
+      console.warn("Subscription expiry pruning exception:", err);
     }
   }
 
-  // 2. Parse target date (defaults to current UTC date)
+  // 3. Parse target date (defaults to current UTC date)
+  const url = new URL(req.url);
   let checkDate = new Date();
   const targetDateParam = url.searchParams.get("date");
   if (targetDateParam) {
@@ -44,7 +79,7 @@ async function handleReleaseBot(req: NextRequest) {
     }
   }
 
-  // 3. Find today's drops
+  // 4. Find today's drops
   const drops = getScheduledDropsForDate(checkDate);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mangapulse.vercel.app";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -56,40 +91,26 @@ async function handleReleaseBot(req: NextRequest) {
       timestamp: new Date().toISOString(),
       dateChecked: checkDate.toISOString(),
       dropsCount: 0,
+      expiredSubscriptionsPruned: expiredCount,
       dispatched: false,
       message: "No scheduled manga drops for this calendar date.",
     });
   }
 
-  // 4. Build Discord Webhook Embeds
-  // Discord allows up to 10 embeds per webhook post
+  // 5. Build Discord Webhook Embeds (up to 10 embeds per Discord webhook call)
   const embeds = drops.slice(0, 10).map((drop) => {
     const mangaUrl = `${siteUrl}/manga/${drop.slug}`;
     return {
       title: `${drop.title} — Chapter ${drop.latestChapter}`,
       url: mangaUrl,
       description: `New chapter released via **${drop.publisher}**.\nSerialization: **${drop.magazine}** (${drop.cadence} simulpub).`,
-      color: 0x2563eb, // MangaPulse Electric Blue #2563eb
+      color: 0x2563eb,
       fields: [
-        {
-          name: "Next Drop",
-          value: `Chapter ${drop.nextChapter}`,
-          inline: true,
-        },
-        {
-          name: "Cadence",
-          value: drop.cadence.toUpperCase(),
-          inline: true,
-        },
-        {
-          name: "Official Tracking",
-          value: `[View Live Countdown & Legal Links](${mangaUrl})`,
-          inline: false,
-        },
+        { name: "Next Drop", value: `Chapter ${drop.nextChapter}`, inline: true },
+        { name: "Cadence", value: drop.cadence.toUpperCase(), inline: true },
+        { name: "Official Tracking", value: `[View Live Countdown & Legal Links](${mangaUrl})`, inline: false },
       ],
-      footer: {
-        text: "MangaPulse • 100% Legal Manga Tracker & Release Directory",
-      },
+      footer: { text: "MangaPulse • 100% Legal Manga Tracker & Release Directory" },
       timestamp: new Date().toISOString(),
     };
   });
@@ -101,7 +122,7 @@ async function handleReleaseBot(req: NextRequest) {
     embeds,
   };
 
-  // 5. Dispatch or return dry-run
+  // 6. Dispatch or return dry-run
   if (!isDryRun && webhookUrl) {
     try {
       const response = await fetch(webhookUrl, {
@@ -127,6 +148,7 @@ async function handleReleaseBot(req: NextRequest) {
         timestamp: new Date().toISOString(),
         dateChecked: checkDate.toISOString(),
         dropsCount: drops.length,
+        expiredSubscriptionsPruned: expiredCount,
         dispatched: true,
         message: `Successfully broadcasted ${drops.length} manga drop alerts to Discord webhook.`,
         drops,
@@ -134,11 +156,7 @@ async function handleReleaseBot(req: NextRequest) {
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to dispatch Discord webhook",
-          details: errorMsg,
-        },
+        { success: false, error: "Failed to dispatch Discord webhook", details: errorMsg },
         { status: 500 }
       );
     }
@@ -150,9 +168,10 @@ async function handleReleaseBot(req: NextRequest) {
     timestamp: new Date().toISOString(),
     dateChecked: checkDate.toISOString(),
     dropsCount: drops.length,
+    expiredSubscriptionsPruned: expiredCount,
     dispatched: false,
     dryRun: true,
-    note: webhookUrl ? "Dry run executed (dryRun=true flag passed)." : "DISCORD_WEBHOOK_URL is not set. Set it in .env.local to enable real dispatch.",
+    note: webhookUrl ? "Dry run executed." : "DISCORD_WEBHOOK_URL is not set.",
     drops,
     samplePayload: discordPayload,
   });
