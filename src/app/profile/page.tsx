@@ -107,7 +107,7 @@ export default function ProfilePage() {
   }, [library]);
 
   const [isLocalhost, setIsLocalhost] = useState(false);
-  const [activeTestTier, setActiveTestTier] = useState<string>("supporter");
+  const [activeTestTier, setActiveTestTier] = useState<string>("legend");
 
   useEffect(() => {
     const syncLocal = () => {
@@ -118,7 +118,7 @@ export default function ProfilePage() {
           window.location.hostname.endsWith(".localhost"))
       ) {
         setIsLocalhost(true);
-        const stored = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        const stored = localStorage.getItem("mangapulse_test_tier") || "legend";
         setActiveTestTier(stored);
       }
     };

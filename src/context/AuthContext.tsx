@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.location.hostname === "127.0.0.1" ||
         window.location.hostname.endsWith(".localhost"))
     ) {
-      const testTier = localStorage.getItem("mangapulse_test_tier") || "supporter";
+      const testTier = localStorage.getItem("mangapulse_test_tier") || "legend";
       if (!existingUser) {
         existingUser = {
           id: "local_tester",
@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           window.location.hostname === "127.0.0.1" ||
           window.location.hostname.endsWith(".localhost"))
       ) {
-        const testTier = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        const testTier = localStorage.getItem("mangapulse_test_tier") || "legend";
         setUser((prev) => (prev ? { ...prev, is_supporter: true, supporter_tier: testTier } : prev));
       }
     };

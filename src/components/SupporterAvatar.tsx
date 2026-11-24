@@ -39,7 +39,7 @@ export default function SupporterAvatar({
 }: SupporterAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const [isLocalhost, setIsLocalhost] = useState(false);
-  const [testTier, setTestTier] = useState<string>("supporter");
+  const [testTier, setTestTier] = useState<string>("legend");
 
   // ponytail: localhost testing override for supporter badge
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function SupporterAvatar({
           window.location.hostname.endsWith(".localhost"))
       ) {
         setIsLocalhost(true);
-        const stored = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        const stored = localStorage.getItem("mangapulse_test_tier") || "legend";
         setTestTier(stored);
       }
     };
@@ -61,7 +61,7 @@ export default function SupporterAvatar({
   }, []);
 
   const effectiveIsSupporter = isSupporter || isLocalhost;
-  const effectiveTier = isLocalhost && (!tier || tier === "none" || tier === "coffee") ? testTier : tier;
+  const effectiveTier = isLocalhost && (!tier || tier === "none" || tier === "coffee" || tier === "supporter") ? testTier : tier;
   const activeTier = effectiveIsSupporter ? normalizeTier(effectiveTier) : null;
   const initial = username ? username.trim().substring(0, 2).toUpperCase() : "MP";
 
