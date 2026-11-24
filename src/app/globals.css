@@ -242,6 +242,48 @@ html.light .bg-red-500\/20 {
   border-color: #fecaca !important;
 }
 
+/* ── Light Mode Footer & Bottom Nav Overrides ── */
+html.light footer,
+html.light .site-footer,
+html.light .bg-\[\#08090c\],
+html.light [class*="bg-[#08090c]"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+html.light footer .text-white,
+html.light .site-footer .text-white {
+  color: #0f172a !important;
+}
+
+html.light footer a,
+html.light .site-footer a {
+  color: #475569 !important;
+}
+
+html.light footer a:hover,
+html.light .site-footer a:hover {
+  color: #2563eb !important;
+}
+
+html.light footer .border-\[\#1e2430\],
+html.light .site-footer .border-\[\#1e2430\] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light footer span.bg-white,
+html.light .site-footer span.bg-white {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html.light nav.fixed.bottom-0,
+html.light nav[class*="fixed bottom-0"] {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+}
+
 body {
   background-color: var(--bg-body);
   color: var(--text-primary);

@@ -59,8 +59,10 @@ export default function AdminLayout({
       return;
     }
 
-    // Owner email always has master ADMIN privileges
-    const isOwner = targetEmail === "mehakiqbal974@gmail.com";
+    // Owner emails always have master ADMIN privileges
+    const isOwner =
+      targetEmail === "mehakiqbal974@gmail.com" ||
+      targetEmail === "mehakiqbal978@gmail.com";
     if (user?.role === "ADMIN" || isOwner) {
       setIsAdmin(true);
       setLiveRole("ADMIN");
@@ -127,7 +129,9 @@ export default function AdminLayout({
           .eq("id", authUser.id)
           .single();
 
-        const isOwner = authUser.email?.toLowerCase() === "mehakiqbal974@gmail.com";
+        const isOwner =
+          authUser.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+          authUser.email?.toLowerCase() === "mehakiqbal978@gmail.com";
         if (profile?.role === "ADMIN" || isOwner) {
           setIsAdmin(true);
           setLiveRole("ADMIN");

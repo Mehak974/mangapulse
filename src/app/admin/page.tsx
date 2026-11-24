@@ -107,14 +107,43 @@ export default function AdminDashboardPage() {
   };
 
   const getAuthToken = async (): Promise<string> => {
-    if (!supabase) return "";
-    let { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) {
-      await new Promise((r) => setTimeout(r, 300));
-      const retry = await supabase.auth.getSession();
-      session = retry.data.session;
+    // 1. Direct synchronous check from active session
+    if (supabase) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) return session.access_token;
+      } catch (_) {}
     }
-    return session?.access_token || "";
+
+    // 2. Direct browser localStorage fallback (instant, avoids hydration lag)
+    if (typeof window !== "undefined") {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("sb-") || key.includes("supabase")) && key.endsWith("-auth-token")) {
+            const raw = localStorage.getItem(key);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed?.access_token) return parsed.access_token;
+              if (parsed?.currentSession?.access_token) return parsed.currentSession.access_token;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    // 3. Sequential retry loop for async session recovery
+    if (supabase) {
+      for (const delay of [200, 400, 700]) {
+        await new Promise((r) => setTimeout(r, delay));
+        try {
+          const retry = await supabase.auth.getSession();
+          if (retry.data.session?.access_token) return retry.data.session.access_token;
+        } catch (_) {}
+      }
+    }
+
+    return "";
   };
 
   // ── Fetch Metrics ──

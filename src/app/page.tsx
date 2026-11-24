@@ -251,42 +251,51 @@ export default async function HomePage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#0c0e12] border-b border-[#1e2430] text-[#94a1b5] font-mono uppercase text-[10px]">
                 <tr>
-                  <th className="py-3 px-4 w-12 text-center">#</th>
-                  <th className="py-3 px-4">Title & Author</th>
-                  <th className="py-3 px-4 w-28">Score</th>
-                  <th className="py-3 px-4 w-24">Year</th>
-                  <th className="py-3 px-4 w-28">Length</th>
-                  <th className="py-3 px-4 w-28 text-right">Official Links</th>
+                  <th className="py-3 px-3 sm:px-4 w-10 sm:w-12 text-center whitespace-nowrap">#</th>
+                  <th className="py-3 px-3 sm:px-4">Title &amp; Author</th>
+                  <th className="py-3 px-3 sm:px-4 w-20 sm:w-28 whitespace-nowrap">Score</th>
+                  <th className="py-3 px-4 w-24 hidden sm:table-cell whitespace-nowrap">Year</th>
+                  <th className="py-3 px-4 w-28 hidden md:table-cell whitespace-nowrap">Length</th>
+                  <th className="py-3 px-3 sm:px-4 w-24 sm:w-28 text-right whitespace-nowrap">Official Links</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e2430]">
                 {ALL_TIME_TOP.map((entry) => (
                   <tr key={entry.rank} className="hover:bg-[#1a1f2a] transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-center text-[#94a1b5]">
+                    <td className="py-3 px-3 sm:px-4 font-mono font-bold text-center text-[#94a1b5]">
                       {entry.rank}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-3 sm:px-4 min-w-[130px]">
                       <Link
                         href={`/manga/${entry.slug}`}
-                        className="font-bold text-white hover:text-blue-400 transition-colors"
+                        className="font-bold text-white hover:text-blue-400 transition-colors line-clamp-1 sm:line-clamp-none"
                       >
                         {entry.title}
                       </Link>
-                      <div className="text-[11px] text-[#5e6b82]">{entry.author}</div>
+                      <div className="text-[11px] text-[#5e6b82] sm:hidden truncate">
+                        {entry.author} • {entry.year} • {entry.ch} Ch
+                      </div>
+                      <div className="text-[11px] text-[#5e6b82] hidden sm:block">
+                        {entry.author}
+                      </div>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-amber-400">
+                    <td className="py-3 px-3 sm:px-4 font-mono font-bold text-amber-500 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         {entry.score}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono text-[#94a1b5]">{entry.year}</td>
-                    <td className="py-3 px-4 font-mono text-[#94a1b5]">{entry.ch} Chapters</td>
-                    <td className="py-3 px-4 text-right">
+                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden sm:table-cell whitespace-nowrap">
+                      {entry.year}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden md:table-cell whitespace-nowrap">
+                      {entry.ch} Chapters
+                    </td>
+                    <td className="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
                       <Link
                         href={`/manga/${entry.slug}`}
                         aria-label={`Official reading directory and links for ${entry.title}`}
-                        className="text-xs font-semibold text-blue-400 hover:underline py-1.5 inline-flex items-center min-h-[32px]"
+                        className="text-xs font-semibold text-blue-400 hover:underline py-1.5 inline-flex items-center whitespace-nowrap min-h-[32px]"
                       >
                         Directory →
                       </Link>

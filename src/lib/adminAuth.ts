@@ -102,11 +102,15 @@ export async function verifyAdminRequest(
       }
     }
 
+    const isOwnerEmail =
+      user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+      user.email?.toLowerCase() === "mehakiqbal978@gmail.com";
+
     if (!profile) {
-      if (user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+      if (isOwnerEmail) {
         profile = {
           id: user.id,
-          username: "Mehak Iqbal",
+          username: user.email?.split("@")[0] || "Admin",
           role: "ADMIN",
           is_banned: false,
         };
@@ -122,7 +126,7 @@ export async function verifyAdminRequest(
     }
 
     // Owner email always has master ADMIN role
-    if (user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+    if (isOwnerEmail) {
       profile.role = "ADMIN";
     }
 
