@@ -378,8 +378,8 @@ export default function ForumPage() {
 
       {/* New Discussion Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-lg bg-[#13171f] border border-[#2a3344] rounded-xl p-6 shadow-2xl text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="relative w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg bg-[#13171f] border border-[#2a3344] rounded-xl p-4 sm:p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-blue-400" />

@@ -168,14 +168,14 @@ export default function TrendingPage() {
             <button
               type="button"
               onClick={() => setShowMobileFilters((prev) => !prev)}
-              className={`sm:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
+              className={`md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
                 showMobileFilters || activeFilterCount > 0
                   ? "bg-blue-600 text-white border-blue-500 shadow-sm"
                   : "bg-[#13171f] text-[#94a1b5] hover:text-white border-[#1e2430]"
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filters</span>
+              <span>{showMobileFilters ? "Hide Filters" : "Filters"}</span>
               {activeFilterCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-white text-blue-600 text-[10px] font-black flex items-center justify-center">
                   {activeFilterCount}
@@ -206,8 +206,8 @@ export default function TrendingPage() {
           </div>
         </div>
 
-        {/* Clean Filter Controls Bar (collapsible on mobile, always visible on sm+) */}
-        <div className={`max-w-7xl mx-auto mt-4 sm:mt-6 ${showMobileFilters ? "block" : "hidden sm:block"}`}>
+        {/* Clean Filter Controls Bar (collapsible on mobile, always visible on md+) */}
+        <div className={`max-w-7xl mx-auto mt-4 sm:mt-6 ${showMobileFilters ? "block" : "hidden md:block"}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {/* Search Input */}
             <div className="relative">

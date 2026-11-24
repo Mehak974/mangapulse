@@ -247,51 +247,51 @@ export default async function HomePage() {
         </div>
 
         <div className="surface-card rounded-xl border border-[#2a3344] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto no-scrollbar">
+            <table className="w-full text-left text-xs min-w-[340px] sm:min-w-[480px]">
               <thead className="bg-[#0c0e12] border-b border-[#1e2430] text-[#94a1b5] font-mono uppercase text-[10px]">
                 <tr>
-                  <th className="py-3 px-3 sm:px-4 w-10 sm:w-12 text-center whitespace-nowrap">#</th>
-                  <th className="py-3 px-3 sm:px-4">Title &amp; Author</th>
-                  <th className="py-3 px-3 sm:px-4 w-20 sm:w-28 whitespace-nowrap">Score</th>
-                  <th className="py-3 px-4 w-24 hidden sm:table-cell whitespace-nowrap">Year</th>
-                  <th className="py-3 px-4 w-28 hidden md:table-cell whitespace-nowrap">Length</th>
-                  <th className="py-3 px-3 sm:px-4 w-24 sm:w-28 text-right whitespace-nowrap">Official Links</th>
+                  <th className="py-3 px-2 sm:px-4 w-8 sm:w-12 text-center whitespace-nowrap">#</th>
+                  <th className="py-3 px-2 sm:px-4">Title &amp; Author</th>
+                  <th className="py-3 px-2 sm:px-4 w-16 sm:w-24 whitespace-nowrap">Score</th>
+                  <th className="py-3 px-4 w-20 hidden md:table-cell whitespace-nowrap">Year</th>
+                  <th className="py-3 px-4 w-24 hidden lg:table-cell whitespace-nowrap">Length</th>
+                  <th className="py-3 px-2 sm:px-4 w-24 sm:w-28 text-right whitespace-nowrap pr-3 sm:pr-4">Official Links</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e2430]">
                 {ALL_TIME_TOP.map((entry) => (
                   <tr key={entry.rank} className="hover:bg-[#1a1f2a] transition-colors">
-                    <td className="py-3 px-3 sm:px-4 font-mono font-bold text-center text-[#94a1b5]">
+                    <td className="py-3 px-2 sm:px-4 font-mono font-bold text-center text-[#94a1b5]">
                       {entry.rank}
                     </td>
-                    <td className="py-3 px-3 sm:px-4 min-w-[130px]">
+                    <td className="py-3 px-2 sm:px-4 min-w-[120px]">
                       <Link
                         href={`/manga/${entry.slug}`}
-                        className="font-bold text-white hover:text-blue-400 transition-colors line-clamp-1 sm:line-clamp-none"
+                        className="font-bold text-white hover:text-blue-400 transition-colors line-clamp-1"
                       >
                         {entry.title}
                       </Link>
-                      <div className="text-[11px] text-[#5e6b82] sm:hidden truncate">
+                      <div className="text-[11px] text-[#5e6b82] md:hidden truncate">
                         {entry.author} • {entry.year} • {entry.ch} Ch
                       </div>
-                      <div className="text-[11px] text-[#5e6b82] hidden sm:block">
+                      <div className="text-[11px] text-[#5e6b82] hidden md:block">
                         {entry.author}
                       </div>
                     </td>
-                    <td className="py-3 px-3 sm:px-4 font-mono font-bold text-amber-500 whitespace-nowrap">
+                    <td className="py-3 px-2 sm:px-4 font-mono font-bold text-amber-500 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         {entry.score}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden sm:table-cell whitespace-nowrap">
+                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden md:table-cell whitespace-nowrap">
                       {entry.year}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden md:table-cell whitespace-nowrap">
+                    <td className="py-3 px-4 font-mono text-[#94a1b5] hidden lg:table-cell whitespace-nowrap">
                       {entry.ch} Chapters
                     </td>
-                    <td className="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
+                    <td className="py-3 px-2 sm:px-4 text-right whitespace-nowrap pr-3 sm:pr-4">
                       <Link
                         href={`/manga/${entry.slug}`}
                         aria-label={`Official reading directory and links for ${entry.title}`}

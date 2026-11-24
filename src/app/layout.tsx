@@ -142,7 +142,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col antialiased bg-[#0c0e12] text-[#f0f3f8] selection:bg-blue-600/30 selection:text-white">
+      <body className="min-h-screen flex flex-col antialiased bg-[#0c0e12] text-[#f0f3f8] selection:bg-blue-600/30 selection:text-white max-w-[100vw] overflow-x-hidden">
         {/* Google Tag Manager (noscript fallback) */}
         <noscript>
           <iframe
@@ -155,7 +155,7 @@ export default function RootLayout({
         <AuthProvider>
           <BroadcastBanner />
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 min-w-0 max-w-full overflow-x-hidden">{children}</main>
           <MobileNav />
           <Footer />
           <AuthModal />

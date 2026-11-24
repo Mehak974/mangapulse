@@ -535,7 +535,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-w-0 pb-24">
+    <div className="min-w-0 pb-24 overflow-x-hidden max-w-full">
       {/* ── Top Header Banner with Dynamic Theme ── */}
       <div
         className={`h-48 sm:h-64 w-full relative overflow-hidden transition-all duration-500 ${THEMES[profileTheme].bannerStyle}`}
@@ -581,34 +581,6 @@ export default function ProfilePage() {
 
       {/* ── Main Container ── */}
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        {/* Private Warning Banner for Profile Owner */}
-        {isPrivate && (
-          <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-300">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-400 flex-shrink-0" />
-              <span>
-                <strong>Private Profile Mode:</strong> Your reading activity and library are hidden from other visitors.
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPreviewAsGuest(true)}
-                className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold border border-amber-500/40 cursor-pointer"
-              >
-                Preview as Guest
-              </button>
-              <button
-                type="button"
-                onClick={handleTogglePrivacy}
-                className="px-2.5 py-1 rounded-lg bg-[#0c0e12] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] cursor-pointer"
-              >
-                Make Public
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* User Identity Details & Action Buttons */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 -mt-16 sm:-mt-20 relative z-30 pb-6 border-b border-[#1e2430]">
           <div className="flex items-end gap-4">
@@ -662,11 +634,11 @@ export default function ProfilePage() {
           </div>
 
           {/* Action Buttons Toolbar right in the Identity Row (100% Clickable, Guaranteed Accessibility) */}
-          <div className="flex items-center gap-2 flex-wrap relative z-30 pointer-events-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap relative z-30 pointer-events-auto mt-2 md:mt-0">
             {user?.role === "ADMIN" && (
               <Link
                 href="/admin"
-                className="px-3 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-semibold border border-blue-500/40 flex items-center gap-1.5 transition-colors shadow-sm"
+                className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-semibold border border-blue-500/40 flex items-center gap-1.5 transition-colors shadow-sm"
               >
                 <Shield className="w-3.5 h-3.5 text-blue-400" />
                 <span>Admin Panel</span>
@@ -677,7 +649,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setThemeModalOpen(true)}
-              className="px-3 py-2 rounded-lg bg-[#13171f] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#13171f] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
               title="Change Profile Theme"
             >
               <Palette className="w-3.5 h-3.5 text-purple-400" />
@@ -688,7 +660,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={handleTogglePrivacy}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-semibold border flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer ${
                 isPrivate
                   ? "bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30"
                   : "bg-[#13171f] hover:bg-[#1a1f2a] text-[#94a1b5] hover:text-white border-[#2a3344]"
@@ -712,7 +684,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={handleShare}
-              className="px-3.5 py-2 rounded-lg bg-[#13171f] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-[#13171f] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
               title="Copy public profile URL"
             >
               {copied ? (
@@ -732,7 +704,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setEditModalOpen(true)}
-              className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-md cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-md cursor-pointer whitespace-nowrap"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
@@ -740,30 +712,58 @@ export default function ProfilePage() {
           </div>
         </div>
 
-          {/* Profile Tags */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {isVerified ? (
-              <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-mono font-medium flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Verified Reader</span>
+        {/* Private Warning Banner for Profile Owner (safely below Identity Row) */}
+        {isPrivate && (
+          <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-300">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>
+                <strong>Private Profile Mode:</strong> Your reading activity and library are hidden from other visitors.
               </span>
-            ) : (
+            </div>
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setAuthModalMode("login");
-                  setAuthModalOpen(true);
-                }}
-                className="px-2.5 py-1 rounded-md bg-[#161a22] text-[#94a1b5] border border-[#2a3344] text-[11px] font-mono font-medium flex items-center gap-1.5 cursor-pointer"
+                onClick={() => setPreviewAsGuest(true)}
+                className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold border border-amber-500/40 cursor-pointer"
               >
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                <span>Unverified</span>
+                Preview as Guest
               </button>
-            )}
+              <button
+                type="button"
+                onClick={handleTogglePrivacy}
+                className="px-2.5 py-1 rounded-lg bg-[#0c0e12] hover:bg-[#1a1f2a] text-white text-xs font-semibold border border-[#2a3344] cursor-pointer"
+              >
+                Make Public
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Tags */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3 -mx-4 px-4 sm:mx-0 sm:px-0 whitespace-nowrap">
+          {isVerified ? (
+            <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-mono font-medium flex items-center gap-1.5 flex-shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Verified Reader</span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setAuthModalMode("login");
+                setAuthModalOpen(true);
+              }}
+              className="px-2.5 py-1 rounded-md bg-[#161a22] text-[#94a1b5] border border-[#2a3344] text-[11px] font-mono font-medium flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              <span>Unverified</span>
+            </button>
+          )}
 
             {isSupporter ? (
               <span
-                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-medium flex items-center gap-1.5 ${
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-medium flex items-center gap-1.5 flex-shrink-0 ${
                   isMangaPatron
                     ? "bg-slate-200/15 text-slate-100 border border-slate-200/60 shadow-[0_0_14px_rgba(255,255,255,0.45)] animate-patron-border"
                     : isProSupporter
@@ -785,7 +785,7 @@ export default function ProfilePage() {
             ) : (
               <Link
                 href="/donate"
-                className="px-2.5 py-1 rounded-md bg-[#161a22] text-[#94a1b5] hover:text-white border border-[#2a3344] text-[11px] font-mono font-medium flex items-center gap-1.5"
+                className="px-2.5 py-1 rounded-md bg-[#161a22] text-[#94a1b5] hover:text-white border border-[#2a3344] text-[11px] font-mono font-medium flex items-center gap-1.5 flex-shrink-0"
               >
                 <Lock className="w-3 h-3 text-[#5e6b82]" />
                 <span>Official Supporter (Unlock)</span>
@@ -795,7 +795,7 @@ export default function ProfilePage() {
             {isMangaPatron && (
               <Link
                 href="/donate#patrons"
-                className="px-2.5 py-1 rounded-md bg-gradient-to-r from-slate-200/20 to-white/20 text-white border border-slate-200/40 text-[11px] font-mono font-semibold flex items-center gap-1 hover:border-white transition-colors"
+                className="px-2.5 py-1 rounded-md bg-gradient-to-r from-slate-200/20 to-white/20 text-white border border-slate-200/40 text-[11px] font-mono font-semibold flex items-center gap-1 hover:border-white transition-colors flex-shrink-0"
               >
                 <Crown className="w-3 h-3 text-slate-200" />
                 <span>Wall of Fame</span>
@@ -885,11 +885,11 @@ export default function ProfilePage() {
              ============================================================== */
           <>
             {/* Kenmei-Style Pill Tabs Navigation */}
-            <div className="flex items-center gap-2 mt-6 mb-8 border-b border-[#1e2430] pb-4">
+            <div className="flex items-center gap-2 mt-6 mb-8 border-b border-[#1e2430] pb-4 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 whitespace-nowrap">
               <button
                 type="button"
                 onClick={() => setActiveTab("overview")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer flex-shrink-0 ${
                   activeTab === "overview"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                     : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#2a3344]"
@@ -902,7 +902,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("library")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer flex-shrink-0 ${
                   activeTab === "library"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                     : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#2a3344]"
@@ -918,7 +918,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("statistics")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer flex-shrink-0 ${
                   activeTab === "statistics"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                     : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#2a3344]"
@@ -931,7 +931,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("achievements")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 cursor-pointer flex-shrink-0 ${
                   activeTab === "achievements"
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                     : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#2a3344]"
@@ -1979,8 +1979,8 @@ export default function ProfilePage() {
 
       {/* ── Custom Theme Selection Modal (Manga Patron Exclusive) ── */}
       {themeModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-6 shadow-2xl text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="relative w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-4 sm:p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
               <div className="flex items-center gap-2">
                 <Palette className="w-4 h-4 text-purple-400" />
@@ -2071,8 +2071,8 @@ export default function ProfilePage() {
 
       {/* ── Favourites Picker Modal ── */}
       {favoritesModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-6 shadow-2xl text-white max-h-[85vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="relative w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-4 sm:p-6 shadow-2xl text-white max-h-[85vh] flex flex-col min-w-0 overflow-hidden">
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
               <div className="flex items-center gap-2">
                 <Heart className="w-4 h-4 text-rose-400" />
@@ -2153,8 +2153,8 @@ export default function ProfilePage() {
 
       {/* ── Edit Profile Modal ── */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="relative w-full max-w-[calc(100vw-1.5rem)] sm:max-w-lg bg-[#13171f] border border-[#2a3344] rounded-2xl p-4 sm:p-6 shadow-2xl text-white max-h-[90vh] overflow-y-auto overflow-x-hidden min-w-0">
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
               <div className="flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-blue-400" />
@@ -2171,7 +2171,7 @@ export default function ProfilePage() {
             <form onSubmit={handleSaveProfile} className="space-y-4 mt-4 text-xs">
               <div>
                 <label className="block text-[#94a1b5] font-semibold mb-2">Profile Avatar</label>
-                <div className="flex items-center gap-3 p-3 bg-[#0c0e12] rounded-xl border border-[#2a3344]">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-[#0c0e12] rounded-xl border border-[#2a3344] min-w-0 overflow-hidden">
                   <div className="w-14 h-14 rounded-xl bg-[#13171f] border border-[#2a3344] overflow-hidden flex items-center justify-center font-bold text-white flex-shrink-0">
                     {editAvatarUrl ? (
                       <img
@@ -2187,7 +2187,7 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  <div className="flex-1 space-y-1.5">
+                  <div className="flex-1 space-y-1.5 min-w-0 w-full overflow-hidden">
                     <label className="px-3 py-1.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold border border-[#2a3344] transition-colors cursor-pointer inline-flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5 text-blue-400" />
                       <span>Upload from Device</span>
@@ -2213,55 +2213,55 @@ export default function ProfilePage() {
                       value={editAvatarUrl}
                       onChange={(e) => setEditAvatarUrl(e.target.value)}
                       placeholder="Or paste direct image URL..."
-                      className="w-full px-2.5 py-1.5 rounded bg-[#13171f] border border-[#2a3344] text-[11px] text-white font-mono placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                      className="w-full min-w-0 px-2.5 py-1.5 rounded bg-[#13171f] border border-[#2a3344] text-[11px] text-white font-mono placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 truncate"
                     />
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
+                <div className="min-w-0">
                   <label className="block text-[#94a1b5] font-semibold mb-1">Display Name</label>
                   <input
                     type="text"
                     value={editDisplayName}
                     onChange={(e) => setEditDisplayName(e.target.value)}
                     placeholder="e.g. Alex Tracker"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                    className="w-full min-w-0 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="block text-[#94a1b5] font-semibold mb-1">Username (@handle)</label>
                   <input
                     type="text"
                     value={editUsername}
                     onChange={(e) => setEditUsername(e.target.value)}
                     placeholder="e.g. reader99"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 font-mono"
+                    className="w-full min-w-0 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 font-mono"
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label className="block text-[#94a1b5] font-semibold mb-1">Location</label>
                 <input
                   type="text"
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
                   placeholder="e.g. Tokyo, Japan / Los Angeles, CA"
-                  className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                  className="w-full min-w-0 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label className="block text-[#94a1b5] font-semibold mb-1">About / Bio</label>
                 <textarea
                   rows={3}
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
                   placeholder="Share your favorite genres or ongoing reads..."
-                  className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
+                  className="w-full min-w-0 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
                 />
               </div>
 
@@ -2276,7 +2276,7 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
                 >
                   {savingProfile ? "Saving..." : "Save Changes"}
                 </button>

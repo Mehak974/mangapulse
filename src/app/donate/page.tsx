@@ -180,7 +180,7 @@ export default function DonatePage() {
         )}
 
         {/* ── Pay with Debit Card Banner (Compact) ── */}
-        <div className="surface-card p-3 sm:p-4 rounded-xl border border-[#2a3344] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+        <div className="surface-card bg-[#13171f] p-3 sm:p-4 rounded-xl border border-[#2a3344] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
           <div className="space-y-0.5 max-w-lg">
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-mono text-[9px] font-bold uppercase tracking-wider border border-blue-500/20">
               <CreditCard className="w-2.5 h-2.5" />
