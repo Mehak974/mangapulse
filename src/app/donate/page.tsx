@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Trophy,
   Medal,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import SupporterAvatar from "@/components/SupporterAvatar";
@@ -174,6 +175,25 @@ export default function DonatePage() {
             </button>
           </div>
         )}
+
+        {/* ── Payment Security Guarantee ── */}
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-300">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <div>
+              <span className="font-bold text-white block">100% Secure Ko-fi Checkout • Zero Financial Risk</span>
+              <span className="text-[#94a1b5] text-[11px]">
+                MangaPulse never takes, handles, or stores credit cards or banking data. All transactions are processed off-site via Ko-fi (PayPal / Stripe) with full buyer protection.
+              </span>
+            </div>
+          </div>
+          <Link
+            href="/terms"
+            className="text-[11px] font-mono text-emerald-400 hover:underline whitespace-nowrap"
+          >
+            Read Terms &rarr;
+          </Link>
+        </div>
 
         {/* ── 3 Supporter Tiers ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { FileText, ArrowLeft } from "lucide-react";
+import { FileText, ArrowLeft, ShieldCheck, Lock } from "lucide-react";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
@@ -24,13 +24,24 @@ export default function TermsOfServicePage() {
         <p className="text-xs text-[#5e6b82]">Last Updated: November 24, 2026</p>
       </div>
 
+      {/* Payment Security Notice Callout */}
+      <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <strong className="text-white text-sm block">Zero Payment Card Data Collected on MangaPulse</strong>
+          <p className="leading-relaxed text-[#c4cfde]">
+            MangaPulse <strong>never</strong> asks for, handles, or stores credit cards, debit cards, or banking information on our website. All voluntary memberships and supporter donations are conducted securely off-site via <strong>Ko-fi</strong> (powered by Stripe &amp; PayPal), ensuring zero risk of payment fraud or credential theft.
+          </p>
+        </div>
+      </div>
+
       <section className="space-y-4 text-sm leading-relaxed">
         <h2 className="text-lg font-bold text-white">1. Nature of the Service (100% Legal Directory)</h2>
         <p>
           MangaPulse operates strictly as an informational index, release schedule tracker, and curated legal directory. MangaPulse <strong>does not host, store, translate, scan, or distribute copyrighted comic images, raw manga files, or scanlations</strong> on its servers.
         </p>
 
-        <h2 className="text-lg font-bold text-white">2. User Accounts & Responsibilities</h2>
+        <h2 className="text-lg font-bold text-white">2. User Accounts &amp; Responsibilities</h2>
         <p>
           When creating an account, you agree to provide accurate information and maintain the security of your login credentials. You are responsible for all activities that occur under your account.
         </p>
@@ -54,6 +65,25 @@ export default function TermsOfServicePage() {
         <p>
           MangaPulse provides release countdowns and schedules on an &quot;as is&quot; and &quot;as available&quot; basis. While we strive for 100% accuracy via verified publication calendars, publisher schedules may occasionally shift due to sudden creator hiatuses, editorial holiday breaks, or natural disasters.
         </p>
+
+        <h2 className="text-lg font-bold text-white">6. Voluntary Contributions &amp; Payment Security (100% Ko-fi Processed)</h2>
+        <p>
+          MangaPulse is a community-funded project supported by reader tips. To safeguard our users and maintain the highest security standards:
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className="text-white">Zero Financial Information Stored on MangaPulse:</strong> We do not collect, process, or store credit cards, debit cards, bank details, or CVVs on our website or database. No payment forms exist on MangaPulse.
+          </li>
+          <li>
+            <strong className="text-white">100% Handled Through Ko-fi:</strong> All transactions (Coffee tips, Pro Supporter memberships, and Manga Patron subscriptions) are executed exclusively through official <strong>Ko-fi</strong> checkout pages, backed by PCI-DSS compliant global processors (PayPal and Stripe).
+          </li>
+          <li>
+            <strong className="text-white">Zero Scam or Fraud Exposure:</strong> Because your financial details are never entered on or transmitted through MangaPulse, there is zero risk of card skimming, scamming, or financial data leaks from our platform.
+          </li>
+          <li>
+            <strong className="text-white">Webhook Syncing &amp; Perks:</strong> Supporter badges and profile perks are synchronized automatically via Ko-fi webhooks to verified accounts based on your linked Ko-fi payer email.
+          </li>
+        </ul>
       </section>
     </div>
   );

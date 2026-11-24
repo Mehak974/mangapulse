@@ -50,6 +50,7 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc pl-5 space-y-2">
           <li><strong className="text-white">AniList GraphQL API:</strong> Used to fetch public catalog metadata (titles, synopsis, genres). No user personal data is sent to AniList.</li>
           <li><strong className="text-white">Supabase:</strong> Provides encrypted database hosting and authentication services compliant with SOC 2 Type II standards.</li>
+          <li><strong className="text-white">Ko-fi (Payment Processing):</strong> All donations and memberships are processed off-site by Ko-fi. MangaPulse never collects, sees, or stores your credit card or financial credentials. Only non-sensitive webhook confirmation metadata (such as supporter tier and payer email for badge matching) is received.</li>
           <li><strong className="text-white">Outbound Links:</strong> Our directory links directly to official publishers (MANGA Plus by Shueisha, Viz Media, Kodansha). Once you click an outbound link, you are governed by the respective publisher's privacy policy.</li>
         </ul>
 
