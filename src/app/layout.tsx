@@ -9,6 +9,7 @@ import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const viewport: Viewport = {
   themeColor: "#0c0e12",
@@ -129,6 +130,7 @@ export default function RootLayout({
           <CollectionPickerModal />
           <PWAInstallPrompt />
           <Analytics />
+          <SpeedInsights />
         </AuthProvider>
       </body>
     </html>
