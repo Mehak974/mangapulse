@@ -48,6 +48,7 @@ import { useAuth } from "@/context/AuthContext";
 import { UserLibraryEntry, ActivityItem } from "@/types/manga";
 import SupporterAvatar from "@/components/SupporterAvatar";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
+import PerkLockModal, { SupporterTierLevel } from "@/components/PerkLockModal";
 import { getUserActivities, DEFAULT_PREFERENCES } from "@/lib/userStore";
 
 type ProfileTab = "overview" | "library" | "statistics" | "achievements";
@@ -131,6 +132,48 @@ export default function ProfilePage() {
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
+
+  // Supporter Perk Lock Modal & Toast State
+  const [perkModalOpen, setPerkModalOpen] = useState(false);
+  const [perkModalConfig, setPerkModalConfig] = useState<{
+    tier?: SupporterTierLevel;
+    featureName?: string;
+    message?: string;
+    highlights?: string[];
+    ctaUrl?: string;
+    ctaText?: string;
+  }>({
+    tier: "legend",
+    featureName: "Custom Theme Selection",
+    message: "Custom Theme selection is a Manga Patron ($15) exclusive perk!",
+  });
+
+  const triggerPerkModal = (config?: {
+    tier?: SupporterTierLevel;
+    featureName?: string;
+    message?: string;
+    highlights?: string[];
+    ctaUrl?: string;
+    ctaText?: string;
+  }) => {
+    setPerkModalConfig({
+      tier: config?.tier || "legend",
+      featureName: config?.featureName || "Custom Theme Selection",
+      message: config?.message || "Custom Theme selection is a Manga Patron ($15) exclusive perk!",
+      highlights: config?.highlights,
+      ctaUrl: config?.ctaUrl,
+      ctaText: config?.ctaText,
+    });
+    setPerkModalOpen(true);
+  };
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((cur) => (cur === msg ? null : cur));
+    }, 3500);
+  };
 
   // Library Tab Filter State
   const [librarySearch, setLibrarySearch] = useState("");
@@ -222,7 +265,7 @@ export default function ProfilePage() {
       next = favoriteIds.filter((id) => id !== mangaId);
     } else {
       if (favoriteIds.length >= 6) {
-        alert("You can spotlight up to 6 favorite manga on your profile.");
+        showToast("You can spotlight up to 6 favorite manga on your profile.");
         return;
       }
       next = [...favoriteIds, mangaId];
@@ -1372,11 +1415,11 @@ export default function ProfilePage() {
                   activities={activities}
                   isLocked={!isMangaPatron}
                   onUnlockClick={() => {
-                    if (isLocalhost) {
-                      handleSwitchLocalTier("legend");
-                    } else {
-                      window.location.href = "/donate";
-                    }
+                    triggerPerkModal({
+                      tier: "legend",
+                      featureName: "Activity History Heatmap",
+                      message: "Activity history heatmaps and reading streak analytics are a Manga Patron ($15) exclusive perk!",
+                    });
                   }}
                 />
 
@@ -1420,8 +1463,11 @@ export default function ProfilePage() {
                         </p>
                         <button
                           onClick={() => {
-                            if (isLocalhost) handleSwitchLocalTier("legend");
-                            else window.location.href = "/donate";
+                            triggerPerkModal({
+                              tier: "legend",
+                              featureName: "Standout Taste Analytics",
+                              message: "Standout taste analytics and cross-community genre affinities are a Manga Patron ($15) exclusive perk!",
+                            });
                           }}
                           className="mt-3 px-3 py-1.5 rounded-xl bg-white text-black font-extrabold text-[11px] shadow-sm hover:scale-105 transition-transform cursor-pointer"
                         >
@@ -1473,8 +1519,11 @@ export default function ProfilePage() {
                         </p>
                         <button
                           onClick={() => {
-                            if (isLocalhost) handleSwitchLocalTier("legend");
-                            else window.location.href = "/donate";
+                            triggerPerkModal({
+                              tier: "legend",
+                              featureName: "Reading Velocity Insights",
+                              message: "Reading velocity intelligence and drop day habits are a Manga Patron ($15) exclusive perk!",
+                            });
                           }}
                           className="mt-3 px-3 py-1.5 rounded-xl bg-white text-black font-extrabold text-[11px] shadow-sm hover:scale-105 transition-transform cursor-pointer"
                         >
@@ -1949,7 +1998,17 @@ export default function ProfilePage() {
                       if (isMangaPatron) {
                         handleSelectTheme(tKey);
                       } else {
-                        alert("Custom Theme selection is a Manga Patron ($15) exclusive perk!");
+                        triggerPerkModal({
+                          tier: "legend",
+                          featureName: "Custom Theme Selection",
+                          message: "Custom Theme selection is a Manga Patron ($15) exclusive perk!",
+                          highlights: [
+                            "Full access to luxury anime illustrated profile skies & themes",
+                            "Shiny metallic animated silver crown avatar border",
+                            "Permanent inscription on the Manga Patron Wall of Fame",
+                            "Unlock Reading Status, Content Types & Standout Analytics",
+                          ],
+                        });
                       }
                     }}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
@@ -1980,10 +2039,13 @@ export default function ProfilePage() {
                 <span className="text-xs text-slate-300">Upgrade to unlock all custom themes</span>
                 <button
                   onClick={() => {
-                    if (isLocalhost) handleSwitchLocalTier("legend");
-                    else window.location.href = "/donate";
+                    triggerPerkModal({
+                      tier: "legend",
+                      featureName: "Custom Theme Selection",
+                      message: "Custom Theme selection is a Manga Patron ($15) exclusive perk!",
+                    });
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-white text-black font-extrabold text-xs cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-white text-black font-extrabold text-xs cursor-pointer hover:bg-slate-200 transition-colors"
                 >
                   Join Patron
                 </button>
@@ -2207,6 +2269,37 @@ export default function ProfilePage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* ── Supporter Perk Lock Modal ── */}
+      <PerkLockModal
+        isOpen={perkModalOpen}
+        onClose={() => setPerkModalOpen(false)}
+        tier={perkModalConfig.tier}
+        featureName={perkModalConfig.featureName}
+        message={perkModalConfig.message}
+        highlights={perkModalConfig.highlights}
+        ctaUrl={perkModalConfig.ctaUrl}
+        ctaText={perkModalConfig.ctaText}
+        onDevSimulate={
+          process.env.NODE_ENV !== "production"
+            ? () => handleSwitchLocalTier(perkModalConfig.tier || "legend")
+            : undefined
+        }
+      />
+
+      {/* ── Toast Notification Pill ── */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#13171f] border border-[#2a3344] shadow-2xl text-white text-xs animate-in slide-in-from-bottom-3 duration-200">
+          <Sparkles className="w-4 h-4 text-purple-400 flex-shrink-0" />
+          <span>{toastMessage}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="p-1 text-[#94a1b5] hover:text-white"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>
