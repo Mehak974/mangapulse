@@ -88,6 +88,21 @@ export default function RootLayout({
           }}
         />
 
+        {/* Google Tag Manager */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtm.js?id=GTM-5MN6TQ2G"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+            `,
+          }}
+        />
+
         {/* Mangareader Analytics */}
         <script
           defer
@@ -120,6 +135,15 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-[#0c0e12] text-[#f0f3f8] selection:bg-blue-600/30 selection:text-white">
+        {/* Google Tag Manager (noscript fallback) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-5MN6TQ2G"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
