@@ -34,9 +34,24 @@ export default function DonatePage() {
   // Active Hall of Fame Tab: "patron" | "pro" | "coffee"
   const [activeHall, setActiveHall] = useState<"patron" | "pro" | "coffee">("patron");
 
+  // Official Ko-fi Direct Checkout Links per tier
+  const KOFI_TIER_CHECKOUT: Record<string, string> = {
+    coffee: "https://ko-fi.com/summary/fac3feec-8f73-4a5f-a269-1a7ecadd17dc",
+    pro: "https://ko-fi.com/summary/a77a77c8-7d0b-4d88-a702-0868a1d89f40",
+    patron: "https://ko-fi.com/summary/1a4fc898-513d-4a7e-9f04-5f25aa1c00f8",
+  };
+
   const handleOfficialCheckout = (amount: number, tierName: string) => {
-    // Clean official redirect (zero user tokens or emails in URL)
-    const checkoutUrl = "https://ko-fi.com/mangapulse";
+    let checkoutUrl = "https://ko-fi.com/mangapulse";
+    const lower = tierName.toLowerCase();
+
+    if (lower.includes("patron") || amount >= 15) {
+      checkoutUrl = KOFI_TIER_CHECKOUT.patron;
+    } else if (lower.includes("pro") || amount === 5) {
+      checkoutUrl = KOFI_TIER_CHECKOUT.pro;
+    } else if (lower.includes("coffee") || amount === 3) {
+      checkoutUrl = KOFI_TIER_CHECKOUT.coffee;
+    }
 
     setCheckoutNotice(
       `Opening Ko-fi for ${tierName}. Once confirmed, your perks sync automatically to your account.`
