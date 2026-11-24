@@ -3,7 +3,7 @@ import { MangaItem } from "@/types/manga";
 
 export const SITE_NAME = "MangaPulse";
 export const SITE_TAGLINE = "100% Legal Manga Tracker, Release Countdown & Official Hub";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mangapulse.com";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mangapulse.co";
 
 interface MetadataOptions {
   title: string;
