@@ -119,17 +119,18 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full bg-[#0c0e12]/95 backdrop-blur-md border-b border-[#1e2430] px-4 lg:px-8 py-2.5">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
-          <div className="w-8 h-8 rounded-lg bg-white text-black font-black text-sm flex items-center justify-center tracking-tighter">
+        {/* Brand Logo & Beta Version Tag */}
+        <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+          <div className="w-8 h-8 rounded-lg bg-white text-black font-black text-sm flex items-center justify-center tracking-tighter shadow-sm">
             MP
           </div>
           <div className="flex items-center gap-2">
             <span className="font-bold text-base tracking-tight text-white group-hover:text-neutral-300 transition-colors">
               MANGAPULSE
             </span>
-            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-[#1e2430] text-[#94a1b5] border border-[#2a3344] hidden sm:inline-block">
-              INDEX
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-300 border border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.25)] flex items-center gap-1.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+              <span>beta version</span>
             </span>
           </div>
         </Link>
