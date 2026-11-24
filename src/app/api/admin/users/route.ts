@@ -63,34 +63,63 @@ export async function GET(req: NextRequest) {
 
     const whereClause = whereConditions.join(" AND ");
 
-    const users = await query(
-      `SELECT 
-        p.id,
-        u.email,
-        p.username,
-        p.display_name,
-        p.role,
-        p.is_supporter,
-        p.supporter_tier,
-        p.created_at,
-        p.last_login_at,
-        p.last_login_ip,
-        p.last_user_agent,
-        p.signup_ip,
-        p.auth_provider,
-        p.is_banned,
-        p.is_shadow_banned,
-        p.ban_reason,
-        p.banned_at
-       FROM public.profiles p
-       JOIN auth.users u ON p.id = u.id
-       WHERE ${whereClause}
-       ORDER BY p.last_login_at DESC NULLS LAST, p.created_at DESC
-       LIMIT $${params.length + 1} OFFSET $${params.length + 2};`,
-      [...params, limit, offset]
-    );
+    try {
+      const users = await query(
+        `SELECT 
+          p.id,
+          u.email,
+          p.username,
+          p.display_name,
+          p.role,
+          p.is_supporter,
+          p.supporter_tier,
+          p.created_at,
+          p.last_login_at,
+          p.last_login_ip,
+          p.last_user_agent,
+          p.signup_ip,
+          p.auth_provider,
+          p.is_banned,
+          p.is_shadow_banned,
+          p.ban_reason,
+          p.banned_at
+         FROM public.profiles p
+         LEFT JOIN auth.users u ON p.id = u.id
+         WHERE ${whereClause}
+         ORDER BY p.last_login_at DESC NULLS LAST, p.created_at DESC
+         LIMIT $${params.length + 1} OFFSET $${params.length + 2};`,
+        [...params, limit, offset]
+      );
 
-    return NextResponse.json({ users });
+      return NextResponse.json({ users });
+    } catch (queryErr) {
+      console.warn("Direct query failed in /api/admin/users, falling back to Supabase client:", queryErr);
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+      const supabaseKey =
+        process.env.SUPABASE_SERVICE_ROLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+        "";
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        let q = supabase
+          .from("profiles")
+          .select(
+            "id, username, display_name, role, is_supporter, supporter_tier, created_at, last_login_at, last_login_ip, last_user_agent, signup_ip, auth_provider, is_banned, is_shadow_banned, ban_reason, banned_at"
+          )
+          .order("created_at", { ascending: false })
+          .limit(limit);
+
+        if (search) q = q.ilike("username", `%${search}%`);
+        if (filter === "banned") q = q.eq("is_banned", true);
+        else if (filter === "staff") q = q.in("role", ["ADMIN", "MODERATOR"]);
+        else if (filter === "supporter") q = q.eq("is_supporter", true);
+
+        const { data } = await q;
+        return NextResponse.json({ users: data || [] });
+      }
+      return NextResponse.json({ users: [] });
+    }
   } catch (err: any) {
     console.error("Error fetching users list:", err);
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });

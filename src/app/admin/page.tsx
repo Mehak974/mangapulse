@@ -108,7 +108,12 @@ export default function AdminDashboardPage() {
 
   const getAuthToken = async (): Promise<string> => {
     if (!supabase) return "";
-    const { data: { session } } = await supabase.auth.getSession();
+    let { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      await new Promise((r) => setTimeout(r, 300));
+      const retry = await supabase.auth.getSession();
+      session = retry.data.session;
+    }
     return session?.access_token || "";
   };
 
@@ -117,12 +122,14 @@ export default function AdminDashboardPage() {
     try {
       const token = await getAuthToken();
       const res = await fetch("/api/admin/metrics", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (res.ok) {
         const data = await res.json();
-        setMetrics(data.metrics);
-        if (data.activeBroadcast) {
+        if (data?.metrics) {
+          setMetrics(data.metrics);
+        }
+        if (data?.activeBroadcast) {
           setActiveBroadcast(data.activeBroadcast);
           setBroadcastMessage(data.activeBroadcast.message);
           setBroadcastLevel(data.activeBroadcast.level);
@@ -208,14 +215,34 @@ export default function AdminDashboardPage() {
     }
   }, []);
 
-  // Initial Load
+  // Initial Load & Session Sync
   useEffect(() => {
+    let active = true;
+
     async function init() {
       setLoading(true);
       await Promise.all([fetchMetrics(), fetchUsers()]);
-      setLoading(false);
+      if (active) setLoading(false);
     }
+
     init();
+
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.access_token && active) {
+          fetchMetrics();
+          fetchUsers();
+        }
+      });
+      return () => {
+        active = false;
+        subscription.unsubscribe();
+      };
+    }
+
+    return () => {
+      active = false;
+    };
   }, [fetchMetrics, fetchUsers]);
 
   // Tab change handler

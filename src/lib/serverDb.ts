@@ -14,9 +14,9 @@ export const pool: Pool | null = connectionString
   ? (globalThis.__pgPool ??= new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
+      max: 3,
+      idleTimeoutMillis: 5000,
+      connectionTimeoutMillis: 5000,
     }))
   : null;
 

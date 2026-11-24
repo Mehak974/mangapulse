@@ -92,9 +92,19 @@ export default function Footer() {
         {/* Legal & Compliance */}
         <div className="space-y-2">
           <div className="font-mono text-[11px] uppercase text-white font-bold tracking-wider">
-            Legal & Policy
+            Company & Legal
           </div>
           <ul className="space-y-1 text-xs">
+            <li>
+              <Link href="/about" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
+                About MangaPulse
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
+                Contact & Support
+              </Link>
+            </li>
             <li>
               <Link href="/dmca" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
                 Zero Image Hosting (DMCA)

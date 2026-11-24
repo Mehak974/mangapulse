@@ -25,9 +25,9 @@ export default function PrivacyPolicyPage() {
       </div>
 
       <section className="space-y-4 text-sm leading-relaxed">
-        <h2 className="text-lg font-bold text-white">1. Core Philosophy: Zero Invasive Tracking</h2>
+        <h2 className="text-lg font-bold text-white">1. Core Philosophy: Privacy First & Transparency</h2>
         <p>
-          MangaPulse is designed to respect user privacy. We do not sell, rent, or monetize your personal data. We do not run third-party behavioral advertising trackers, cryptocurrency miners, or fingerprinting scripts.
+          MangaPulse is designed to respect user privacy. We do not sell or rent your personal reading data. We do not host cryptocurrency miners or invasive fingerprinting scripts. We operate a legal manga release index and library tracker with full transparency regarding data storage, cookies, and partner services.
         </p>
 
         <h2 className="text-lg font-bold text-white">2. Information We Collect</h2>
@@ -54,14 +54,51 @@ export default function PrivacyPolicyPage() {
           <li><strong className="text-white">Outbound Links:</strong> Our directory links directly to official publishers (MANGA Plus by Shueisha, Viz Media, Kodansha). Once you click an outbound link, you are governed by the respective publisher's privacy policy.</li>
         </ul>
 
-        <h2 className="text-lg font-bold text-white">4. Cookies and Local Storage</h2>
+        <h2 className="text-lg font-bold text-white">4. Cookies and Advertising Partners</h2>
         <p>
-          We use strictly necessary functional session cookies and local storage tokens to keep you logged in and preserve your tracker filters. We do not use third-party tracking or advertising cookies.
+          We use strictly necessary functional session cookies and local storage tokens to keep you logged in and preserve your tracker filters and theme preferences.
+        </p>
+        <p>
+          <strong className="text-white">Google Advertising & Third-Party Cookies:</strong> Third-party vendors, including Google, use cookies to serve ads based on a user&apos;s prior visits to this website or other websites. Google&apos;s use of advertising cookies enables it and its partners to serve ads to our users based on their visit to MangaPulse and/or other sites on the Internet.
+        </p>
+        <p>
+          Users may opt out of personalized advertising by visiting{" "}
+          <a
+            href="https://www.google.com/settings/ads"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline font-medium"
+          >
+            Google Ads Settings
+          </a>
+          . Alternatively, you can opt out of a third-party vendor&apos;s use of cookies for personalized advertising by visiting{" "}
+          <a
+            href="https://www.aboutads.info/choices/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline font-medium"
+          >
+            aboutads.info
+          </a>
+          .
         </p>
 
         <h2 className="text-lg font-bold text-white">5. Your Data Rights (GDPR & CCPA)</h2>
         <p>
-          You have the right to access, export, or permanently delete your account and all associated reading history at any time through your Profile Settings or by contacting us.
+          You have the right to access, export, or permanently delete your account and all associated reading history at any time through your Profile Settings or by contacting us at{" "}
+          <a href="mailto:support@mangapulse.co" className="text-blue-400 hover:text-blue-300 underline">
+            support@mangapulse.co
+          </a>
+          .
+        </p>
+
+        <h2 className="text-lg font-bold text-white">6. Contacting Us</h2>
+        <p>
+          If you have any questions regarding this Privacy Policy or your personal data, you may contact our data protection team via our{" "}
+          <Link href="/contact" className="text-blue-400 hover:text-blue-300 underline">
+            Contact & Support Page
+          </Link>{" "}
+          or by emailing <strong className="text-white">contact@mangapulse.co</strong>.
         </p>
       </section>
     </div>
