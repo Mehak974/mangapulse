@@ -15,7 +15,7 @@ interface MangaCardProps {
 }
 
 export default function MangaCard({ manga, showCountdown = true }: MangaCardProps) {
-  const { openCollectionPicker } = useAuth();
+  const { openCollectionPicker, library, isLoggedIn } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const coverUrl =
     manga.coverImage.extraLarge ||
@@ -26,6 +26,15 @@ export default function MangaCard({ manga, showCountdown = true }: MangaCardProp
   const ratingFormatted = manga.averageScore
     ? (manga.averageScore / 20).toFixed(1)
     : null;
+
+  const libraryEntry = isLoggedIn && library ? library.find((e) => e.manga_id === manga.id) : null;
+  const chaptersRead = libraryEntry ? libraryEntry.progress_chapter || 0 : 0;
+  const totalChapters = manga.chapters || 0;
+  const progressPercent = totalChapters > 0
+    ? Math.min(100, Math.round((chaptersRead / totalChapters) * 100))
+    : chaptersRead > 0
+    ? 100
+    : 0;
 
   return (
     <>
@@ -86,6 +95,25 @@ export default function MangaCard({ manga, showCountdown = true }: MangaCardProp
             </button>
           </div>
         </div>
+
+        {/* Small reading progress bar below cover for tracked library entries */}
+        {isLoggedIn && libraryEntry && (
+          <div
+            className="w-full bg-[#1e2430] h-1.5 relative overflow-hidden"
+            title={`Reading Progress: Chapter ${chaptersRead}${totalChapters ? ` of ${totalChapters}` : ""} (${libraryEntry.status.replace(/_/g, " ")})`}
+          >
+            <div
+              className={`h-full transition-all duration-300 ${
+                libraryEntry.status === "completed"
+                  ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                  : "bg-gradient-to-r from-blue-600 to-cyan-400"
+              }`}
+              style={{
+                width: `${libraryEntry.status === "completed" ? 100 : Math.max(6, progressPercent)}%`,
+              }}
+            />
+          </div>
+        )}
 
         {/* Content details */}
         <div className="p-3 flex flex-col flex-1 justify-between gap-1.5">

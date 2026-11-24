@@ -17,6 +17,73 @@
   --warning: #f59e0b;
 }
 
+/* ── Light Mode Color Scheme Overrides ── */
+html.light {
+  --bg-body: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-surface-hover: #e2e8f0;
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: var(--bg-body) !important;
+  color: var(--text-primary) !important;
+}
+
+html.light .bg-\[\#0c0e12\],
+html.light .bg-\[\#07090e\] {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-\[\#0c0e12\]\/95 {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+
+html.light .bg-\[\#13171f\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-\[\#1a1f2a\] {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .border-\[\#1e2430\] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-\[\#2a3344\] {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .border-\[\#3d4960\] {
+  border-color: #94a3b8 !important;
+}
+
+html.light .text-white,
+html.light .text-\[\#f0f3f8\] {
+  color: #0f172a !important;
+}
+
+html.light .text-\[\#cbd5e1\] {
+  color: #334155 !important;
+}
+
+html.light .text-\[\#94a1b5\],
+html.light .text-\[\#94a3b8\] {
+  color: #64748b !important;
+}
+
+html.light .text-\[\#5e6b82\] {
+  color: #64748b !important;
+}
+
 body {
   background-color: var(--bg-body);
   color: var(--text-primary);

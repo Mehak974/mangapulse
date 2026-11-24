@@ -20,6 +20,8 @@ import {
   Compass,
   MessageSquare,
   Heart,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { searchManga } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
@@ -37,11 +39,35 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [tabletSearchOpen, setTabletSearchOpen] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tabletDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const tabletInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isLight =
+        document.documentElement.classList.contains("light") ||
+        localStorage.getItem("mangapulse_theme") === "light";
+      setIsLightMode(isLight);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isLightMode;
+    setIsLightMode(next);
+    if (next) {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("mangapulse_theme", "light");
+    } else {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("mangapulse_theme", "dark");
+    }
+  };
 
   // Debounced search
   useEffect(() => {
@@ -242,6 +268,21 @@ export default function Navbar() {
             }`}
           >
             <Search className="w-4 h-4" />
+          </button>
+
+          {/* Theme Toggle (Light / Dark) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${isLightMode ? "dark" : "light"} mode`}
+            title={`Switch to ${isLightMode ? "dark" : "light"} mode`}
+            className="p-2 min-h-[36px] min-w-[36px] rounded-lg border bg-[#13171f] hover:bg-[#1a1f2a] border-[#2a3344] text-[#cbd5e1] hover:text-white transition-colors flex items-center justify-center cursor-pointer"
+          >
+            {isLightMode ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-blue-300" />
+            )}
           </button>
 
           {/* Notification Bell */}

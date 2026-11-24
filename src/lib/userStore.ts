@@ -26,6 +26,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   pushNotifications: true,
   weeklyGoalChapters: 15,
   cadenceAlerts: true,
+  is_private: false,
 };
 
 // Safe LocalStorage helpers
@@ -422,39 +423,47 @@ export function addNotification(
 export function getUserActivities(limit = 20): ActivityItem[] {
   const list = getLocal<ActivityItem[]>(STORAGE_KEYS.ACTIVITIES, []);
   if (list.length === 0) {
-    // Seed initial demo activities for a lively experience
-    return [
-      {
-        id: "act-init-1",
-        manga_id: 30013,
-        manga_title: "One Piece",
-        manga_slug: "one-piece",
-        manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx30013-ulvx9q4Sg1ba.jpg",
-        action_type: "read_chapter",
-        chapter_number: 1120,
-        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-      },
-      {
-        id: "act-init-2",
-        manga_id: 105778,
-        manga_title: "Chainsaw Man",
-        manga_slug: "chainsaw-man",
-        manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx105778-FdzPn3S1t0rB.jpg",
-        action_type: "status_change",
-        new_status: "reading",
-        timestamp: new Date(Date.now() - 3600000 * 8).toISOString(),
-      },
-      {
-        id: "act-init-3",
-        manga_id: 101517,
-        manga_title: "Jujutsu Kaisen",
-        manga_slug: "jujutsu-kaisen",
-        manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx101517-76bUvW7vLz1B.jpg",
-        action_type: "rated",
-        rating: 9.5,
-        timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-      },
-    ];
+    // Only return demo seed on localhost development, NEVER in production!
+    const isLocalhost =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname.endsWith(".localhost"));
+    if (isLocalhost && process.env.NODE_ENV !== "production") {
+      return [
+        {
+          id: "act-init-1",
+          manga_id: 30013,
+          manga_title: "One Piece",
+          manga_slug: "one-piece",
+          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx30013-ulvx9q4Sg1ba.jpg",
+          action_type: "read_chapter",
+          chapter_number: 1120,
+          timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+        },
+        {
+          id: "act-init-2",
+          manga_id: 105778,
+          manga_title: "Chainsaw Man",
+          manga_slug: "chainsaw-man",
+          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx105778-FdzPn3S1t0rB.jpg",
+          action_type: "status_change",
+          new_status: "reading",
+          timestamp: new Date(Date.now() - 3600000 * 8).toISOString(),
+        },
+        {
+          id: "act-init-3",
+          manga_id: 101517,
+          manga_title: "Jujutsu Kaisen",
+          manga_slug: "jujutsu-kaisen",
+          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx101517-76bUvW7vLz1B.jpg",
+          action_type: "rated",
+          rating: 9.5,
+          timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
+        },
+      ];
+    }
+    return [];
   }
   return list.slice(0, limit);
 }

@@ -61,6 +61,7 @@ export interface UserPreferences {
   pushNotifications: boolean;
   weeklyGoalChapters: number;
   cadenceAlerts: boolean;
+  is_private?: boolean;
 }
 
 export interface UserProfile {
@@ -77,6 +78,7 @@ export interface UserProfile {
   reading_goal?: number;
   is_verified?: boolean;
   is_supporter?: boolean;
+  is_private?: boolean;
   supporter_tier?: string | null;
   kofi_email?: string | null;
 }

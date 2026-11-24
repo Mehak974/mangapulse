@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1000px;
+      height: 1000px;
+      background: #0c0e12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .wrapper {
+      position: relative;
+      width: 580px;
+      height: 580px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Outer glowing amber aura */
+    .glow-aura {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.15) 50%, transparent 75%);
+      filter: blur(35px);
+    }
+    /* Circular profile border - warm amber gold */
+    .border-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 14px solid #f59e0b;
+      box-shadow: 0 0 45px rgba(245, 158, 11, 0.75), inset 0 0 35px rgba(245, 158, 11, 0.45);
+      background: #191610;
+    }
+    /* Inner subtle gold ring */
+    .inner-ring {
+      position: absolute;
+      inset: 22px;
+      border-radius: 50%;
+      border: 2px dashed rgba(251, 191, 36, 0.45);
+    }
+    /* Top center PRO emblem badge */
+    .top-badge {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: 3px solid #fef08a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
+      z-index: 10;
+    }
+    .top-badge svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+      stroke: none;
+    }
+    /* Center Golden Star Shield / Diamond Emblem */
+    .center-icon {
+      position: relative;
+      z-index: 5;
+      width: 260px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .center-icon svg {
+      width: 220px;
+      height: 220px;
+      fill: url(#goldGradient);
+      filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.85));
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="glow-aura"></div>
+    <div class="border-ring"></div>
+    <div class="inner-ring"></div>
+    
+    <!-- Top center PRO Pill -->
+    <div class="top-badge">
+      <svg viewBox="0 0 24 24">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    </div>
+
+    <!-- Center Golden Emblem (Star Hexagon Shield) -->
+    <div class="center-icon">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fef08a" />
+            <stop offset="35%" stop-color="#fbbf24" />
+            <stop offset="70%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#b45309" />
+          </linearGradient>
+          <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="50%" stop-color="#fef08a" />
+            <stop offset="100%" stop-color="#d97706" />
+          </linearGradient>
+        </defs>
+        <!-- Outer faceted shield -->
+        <polygon points="50,6 88,24 88,68 50,94 12,68 12,24" fill="none" stroke="url(#goldBorder)" stroke-width="4.5" />
+        <polygon points="50,14 80,29 80,63 50,85 20,63 20,29" fill="rgba(245, 158, 11, 0.15)" stroke="url(#goldGradient)" stroke-width="2.5" />
+        <!-- Glowing Center Star -->
+        <polygon points="50,22 57,38 74,40 61,52 65,69 50,60 35,69 39,52 26,40 43,38" fill="url(#goldGradient)" stroke="#ffffff" stroke-width="1.5" />
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

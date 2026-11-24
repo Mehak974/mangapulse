@@ -1,16 +1,25 @@
 {
-  "name": "MangaPulse - Manga Tracker & Release Countdown",
+  "name": "MangaPulse — Manga Tracker & Release Countdown",
   "short_name": "MangaPulse",
   "description": "100% legal manga tracking, chapter countdowns, and official where-to-read directory.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0c0e12",
   "theme_color": "#0c0e12",
   "icons": [
     {
       "src": "/icon.png",
-      "sizes": "32x32",
-      "type": "image/png"
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
