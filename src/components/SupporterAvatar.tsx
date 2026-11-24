@@ -39,21 +39,29 @@ export default function SupporterAvatar({
 }: SupporterAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const [isLocalhost, setIsLocalhost] = useState(false);
+  const [testTier, setTestTier] = useState<string>("supporter");
 
-  // ponytail: localhost testing override for coffee supporter badge
+  // ponytail: localhost testing override for supporter badge
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1" ||
-        window.location.hostname.endsWith(".localhost"))
-    ) {
-      setIsLocalhost(true);
-    }
+    const syncLocal = () => {
+      if (
+        typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1" ||
+          window.location.hostname.endsWith(".localhost"))
+      ) {
+        setIsLocalhost(true);
+        const stored = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        setTestTier(stored);
+      }
+    };
+    syncLocal();
+    window.addEventListener("mangapulse-supporter-updated", syncLocal);
+    return () => window.removeEventListener("mangapulse-supporter-updated", syncLocal);
   }, []);
 
   const effectiveIsSupporter = isSupporter || isLocalhost;
-  const effectiveTier = isLocalhost && (!tier || tier === "none") ? "coffee" : tier;
+  const effectiveTier = isLocalhost && (!tier || tier === "none" || tier === "coffee") ? testTier : tier;
   const activeTier = effectiveIsSupporter ? normalizeTier(effectiveTier) : null;
   const initial = username ? username.trim().substring(0, 2).toUpperCase() : "MP";
 

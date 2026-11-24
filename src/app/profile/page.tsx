@@ -107,21 +107,35 @@ export default function ProfilePage() {
   }, [library]);
 
   const [isLocalhost, setIsLocalhost] = useState(false);
+  const [activeTestTier, setActiveTestTier] = useState<string>("supporter");
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1" ||
-        window.location.hostname.endsWith(".localhost"))
-    ) {
-      setIsLocalhost(true);
-    }
+    const syncLocal = () => {
+      if (
+        typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1" ||
+          window.location.hostname.endsWith(".localhost"))
+      ) {
+        setIsLocalhost(true);
+        const stored = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        setActiveTestTier(stored);
+      }
+    };
+    syncLocal();
+    window.addEventListener("mangapulse-supporter-updated", syncLocal);
+    return () => window.removeEventListener("mangapulse-supporter-updated", syncLocal);
   }, []);
+
+  const handleSwitchLocalTier = (newTier: string) => {
+    localStorage.setItem("mangapulse_test_tier", newTier);
+    setActiveTestTier(newTier);
+    window.dispatchEvent(new Event("mangapulse-supporter-updated"));
+  };
 
   const isVerified = Boolean((isLoggedIn || isLocalhost) && (user?.is_verified || user?.email || isLocalhost));
   const isSupporter = Boolean(user?.is_supporter || localSupporter?.is_supporter || isLocalhost);
-  const supporterTier = user?.supporter_tier || localSupporter?.tier || (isLocalhost ? "coffee" : "Supporter");
+  const supporterTier = isLocalhost ? activeTestTier : (user?.supporter_tier || localSupporter?.tier || "Supporter");
   const weeklyGoal = user?.preferences?.weeklyGoalChapters || user?.reading_goal || 15;
   const chaptersReadThisWeek = Math.min(weeklyGoal, Math.max(totalChapters > 0 ? Math.min(totalChapters, 12) : 0, readingCount > 0 ? 8 : 0));
 
@@ -435,6 +449,57 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+
+        {/* Localhost Tier Switcher Toolbar for Interactive Testing */}
+        {isLocalhost && (
+          <div className="mt-4 p-3 rounded-xl bg-[#13171f] border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono text-[#94a1b5] font-semibold text-[11px] uppercase tracking-wider">
+                Testing Mode:
+              </span>
+              <span className="font-bold text-amber-400 uppercase font-mono text-[11px]">
+                {activeTestTier === "supporter" ? "Pro Supporter" : activeTestTier === "legend" ? "Manga Patron" : "Coffee Supporter"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleSwitchLocalTier("coffee")}
+                className={`px-3 py-1 rounded-lg text-[11px] font-mono font-bold transition-all border ${
+                  activeTestTier === "coffee"
+                    ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "bg-[#0c0e12] border-[#2a3344] text-[#94a1b5] hover:text-white"
+                }`}
+              >
+                Coffee ($3)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchLocalTier("supporter")}
+                className={`px-3 py-1 rounded-lg text-[11px] font-mono font-bold transition-all border ${
+                  activeTestTier === "supporter"
+                    ? "bg-amber-400 border-amber-300 text-black shadow-[0_0_12px_rgba(251,191,36,0.6)]"
+                    : "bg-[#0c0e12] border-[#2a3344] text-[#94a1b5] hover:text-white"
+                }`}
+              >
+                Pro Supporter ($5)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchLocalTier("legend")}
+                className={`px-3 py-1 rounded-lg text-[11px] font-mono font-bold transition-all border ${
+                  activeTestTier === "legend"
+                    ? "bg-slate-200 border-white text-black shadow-[0_0_12px_rgba(241,245,249,0.7)]"
+                    : "bg-[#0c0e12] border-[#2a3344] text-[#94a1b5] hover:text-white"
+                }`}
+              >
+                Manga Patron ($15)
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* User Bio */}
         {user?.bio && (

@@ -103,13 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let existingUser = getStoredUser();
 
-    // ponytail: localhost testing override for coffee supporter badge
+    // ponytail: localhost testing override for supporter badge
     if (
       typeof window !== "undefined" &&
       (window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1" ||
         window.location.hostname.endsWith(".localhost"))
     ) {
+      const testTier = localStorage.getItem("mangapulse_test_tier") || "supporter";
       if (!existingUser) {
         existingUser = {
           id: "local_tester",
@@ -118,16 +119,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           displayName: "Local Tester",
           created_at: new Date().toISOString(),
           is_supporter: true,
-          supporter_tier: "coffee",
+          supporter_tier: testTier,
         };
-      } else if (!existingUser.is_supporter || !existingUser.supporter_tier) {
+      } else {
         existingUser.is_supporter = true;
-        existingUser.supporter_tier = "coffee";
+        existingUser.supporter_tier = testTier;
       }
       setStoredUser(existingUser);
     }
 
     if (existingUser) setUser(existingUser);
+
+    // Listen to local testing tier switches
+    const handleSupporterSync = () => {
+      if (
+        typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1" ||
+          window.location.hostname.endsWith(".localhost"))
+      ) {
+        const testTier = localStorage.getItem("mangapulse_test_tier") || "supporter";
+        setUser((prev) => (prev ? { ...prev, is_supporter: true, supporter_tier: testTier } : prev));
+      }
+    };
+    window.addEventListener("mangapulse-supporter-updated", handleSupporterSync);
 
     async function loadAll() {
       const [libData, colData, notifData] = await Promise.all([
