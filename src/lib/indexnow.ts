@@ -4,7 +4,7 @@
  */
 
 export const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "c839f8216ba44621a162e08e64593a21";
-export const INDEXNOW_HOST = process.env.INDEXNOW_HOST || "mangapulse.co";
+export const INDEXNOW_HOST = process.env.INDEXNOW_HOST || "www.mangapulse.co";
 
 export interface IndexNowResult {
   success: boolean;

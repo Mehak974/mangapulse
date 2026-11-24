@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildMetadata({
     title: `${manga.displayTitle} Chapter ${chapterNum} Release Date & Live Countdown`,
     description: `Confirmed release schedule and exact worldwide countdown for ${manga.displayTitle} Chapter ${chapterNum}. Official simultaneous drop times for JST, EST, GMT, and where to read on Manga Plus.`,
-    path: `/release-date/${manga.slug}`,
+    path: `/release-date/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
   });
 }

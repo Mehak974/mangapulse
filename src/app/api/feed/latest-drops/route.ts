@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mangapulse.co";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mangapulse.co";
   const dayFilter = url.searchParams.get("day") || "today";
 
   const now = new Date();

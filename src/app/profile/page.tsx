@@ -435,7 +435,7 @@ export default function ProfilePage() {
   }, [isVerified, library, totalChapters, activities.length, isMangaPatron, isProSupporter, isCoffeeDonator, isSupporter, supporterTier]);
 
   const handleShare = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "https://mangapulse.co/profile";
+    const url = typeof window !== "undefined" ? window.location.href : "https://www.mangapulse.co/profile";
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);

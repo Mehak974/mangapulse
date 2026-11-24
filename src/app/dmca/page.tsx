@@ -59,7 +59,7 @@ export default function DmcaPage() {
           <Mail className="w-5 h-5 text-blue-400 shrink-0" />
           <div>
             <p className="text-xs font-mono uppercase text-[#5e6b82]">Designated DMCA Agent Email</p>
-            <p className="text-sm font-bold text-white">legal@mangapulse.com</p>
+            <p className="text-sm font-bold text-white">legal@mangapulse.co</p>
           </div>
         </div>
       </section>

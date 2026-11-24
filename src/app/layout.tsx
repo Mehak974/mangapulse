@@ -3,7 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, SITE_URL } from "@/lib/seo";
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
@@ -49,13 +49,13 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "Organization",
-                  "@id": "https://mangapulse.co/#organization",
+                  "@id": `${SITE_URL}/#organization`,
                   "name": "MangaPulse",
-                  "url": "https://mangapulse.co",
+                  "url": SITE_URL,
                   "logo": {
                     "@type": "ImageObject",
-                    "@id": "https://mangapulse.co/#logo",
-                    "url": "https://mangapulse.co/icon.png",
+                    "@id": `${SITE_URL}/#logo`,
+                    "url": `${SITE_URL}/icon.png`,
                     "caption": "MangaPulse"
                   },
                   "sameAs": [
@@ -65,19 +65,19 @@ export default function RootLayout({
                 },
                 {
                   "@type": "WebSite",
-                  "@id": "https://mangapulse.co/#website",
-                  "url": "https://mangapulse.co",
+                  "@id": `${SITE_URL}/#website`,
+                  "url": SITE_URL,
                   "name": "MangaPulse",
                   "description": "100% Legal Manga Tracker, Chapter Release Countdown & Official Directory",
                   "publisher": {
-                    "@id": "https://mangapulse.co/#organization"
+                    "@id": `${SITE_URL}/#organization`
                   },
                   "potentialAction": [
                     {
                       "@type": "SearchAction",
                       "target": {
                         "@type": "EntryPoint",
-                        "urlTemplate": "https://mangapulse.co/search/manga?q={search_term_string}"
+                        "urlTemplate": `${SITE_URL}/search/manga?q={search_term_string}`
                       },
                       "query-input": "required name=search_term_string"
                     }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { submitToIndexNow, INDEXNOW_KEY, INDEXNOW_HOST } from "@/lib/indexnow";
-import { fetchPopular, getFallbackMangaList } from "@/lib/anilist";
+import { fetchPopular, getFallbackMangaList, slugify } from "@/lib/anilist";
 
 export async function GET() {
   const baseUrl = `https://${INDEXNOW_HOST}`;
@@ -53,10 +53,20 @@ export async function POST(req: NextRequest) {
         mangaList = getFallbackMangaList();
       }
 
-      const mangaUrls = (mangaList || []).flatMap((m) => [
-        `${baseUrl}/manga/${m.slug}`,
-        `${baseUrl}/release-date/${m.slug}`,
-      ]);
+      const mangaUrls = (mangaList || []).flatMap((m) => {
+        const titleSlug = slugify(m.displayTitle);
+        const urls = [
+          `${baseUrl}/manga/${m.slug}`,
+          `${baseUrl}/release-date/${m.slug}`,
+        ];
+        if (titleSlug && titleSlug !== m.slug) {
+          urls.push(
+            `${baseUrl}/manga/${titleSlug}`,
+            `${baseUrl}/release-date/${titleSlug}`
+          );
+        }
+        return urls;
+      });
 
       urlsToSubmit = [...coreUrls, ...mangaUrls];
     }

@@ -82,7 +82,7 @@ async function handleReleaseBot(req: NextRequest) {
 
   // 4. Find today's drops
   const drops = getScheduledDropsForDate(checkDate);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mangapulse.co";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.mangapulse.co";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   const isDryRun = url.searchParams.get("dryRun") === "true" || !webhookUrl;
 

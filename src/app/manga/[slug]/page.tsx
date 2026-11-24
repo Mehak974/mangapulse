@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildMetadata({
     title: `${manga.displayTitle} — Chapter Countdown, Where to Read & Buy`,
     description,
-    path: `/manga/${manga.slug}`,
+    path: `/manga/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
   });
 }
