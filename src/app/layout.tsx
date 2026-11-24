@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
   themeColor: "#0c0e12",
@@ -39,6 +40,60 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        {/* Schema.org Knowledge Graph */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://mangapulse.co/#organization",
+                  "name": "MangaPulse",
+                  "url": "https://mangapulse.co",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "@id": "https://mangapulse.co/#logo",
+                    "url": "https://mangapulse.co/icon.png",
+                    "caption": "MangaPulse"
+                  },
+                  "sameAs": [
+                    "https://x.com/mangapulse",
+                    "https://discord.gg/mangapulse"
+                  ]
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://mangapulse.co/#website",
+                  "url": "https://mangapulse.co",
+                  "name": "MangaPulse",
+                  "description": "100% Legal Manga Tracker, Chapter Release Countdown & Official Directory",
+                  "publisher": {
+                    "@id": "https://mangapulse.co/#organization"
+                  },
+                  "potentialAction": [
+                    {
+                      "@type": "SearchAction",
+                      "target": {
+                        "@type": "EntryPoint",
+                        "urlTemplate": "https://mangapulse.co/search/manga?q={search_term_string}"
+                      },
+                      "query-input": "required name=search_term_string"
+                    }
+                  ]
+                }
+              ]
+            })
+          }}
+        />
+
+        {/* Mangareader Analytics */}
+        <script
+          defer
+          src="https://analytics.mangareader.pro/script.js"
+          data-website-id="fe98be64-6eec-45cb-9f7a-9bc786d5edc2"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -73,6 +128,7 @@ export default function RootLayout({
           <AuthModal />
           <CollectionPickerModal />
           <PWAInstallPrompt />
+          <Analytics />
         </AuthProvider>
       </body>
     </html>

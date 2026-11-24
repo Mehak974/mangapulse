@@ -130,7 +130,8 @@ export default function Navbar() {
             </span>
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-300 border border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.25)] flex items-center gap-1.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-              <span>beta version</span>
+              <span className="sm:hidden">beta</span>
+              <span className="hidden sm:inline">beta version</span>
             </span>
           </div>
         </Link>

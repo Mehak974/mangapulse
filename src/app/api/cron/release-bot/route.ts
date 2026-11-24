@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getScheduledDropsForDate, ScheduledDropItem } from "@/lib/mangaScheduleDb";
 import { createClient } from "@supabase/supabase-js";
+import { submitToIndexNow } from "@/lib/indexnow";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -153,7 +154,18 @@ async function handleReleaseBot(req: NextRequest) {
     embeds,
   };
 
-  // 6. Dispatch or return dry-run
+  // 6. Automatically submit released manga URLs to IndexNow for instant search indexing
+  if (drops.length > 0) {
+    const dropUrls = drops.flatMap((d) => [
+      `${siteUrl}/manga/${d.slug}`,
+      `${siteUrl}/release-date/${d.slug}`,
+    ]);
+    submitToIndexNow(dropUrls).catch((err) =>
+      console.warn("IndexNow background notification skipped:", err)
+    );
+  }
+
+  // 7. Dispatch or return dry-run
   if (!isDryRun && webhookUrl) {
     try {
       const response = await fetch(webhookUrl, {
