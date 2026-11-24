@@ -28,7 +28,7 @@ export default function DmcaPage() {
         <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs leading-relaxed space-y-1">
           <p className="font-bold text-sm text-emerald-200">Zero Image Hosting Notice</p>
           <p>
-            MangaPulse <strong>does NOT host, scan, rip, store, or distribute any copyrighted manga pages or digital files</strong> on its servers. All outbound reading buttons link exclusively to official licensed digital platforms (MANGA Plus by Shueisha, Viz Media, Kodansha K Manga, BookWalker, Amazon).
+            MangaPulse <strong>does NOT host, scan, rip, store, or distribute any copyrighted manga pages or digital files</strong> on its servers. All outbound reading buttons link exclusively to official licensed digital platforms (MANGA Plus by Shueisha, Viz Media, Kodansha K Manga, Amazon).
           </p>
         </div>
 

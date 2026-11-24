@@ -56,7 +56,7 @@ export type LibraryStatus = "reading" | "plan_to_read" | "completed" | "dropped"
 
 export interface UserPreferences {
   defaultView: "grid" | "list" | "compact";
-  preferredPublisher: "all" | "mangaplus" | "viz" | "bookwalker" | "amazon";
+  preferredPublisher: "all" | "mangaplus" | "viz" | "amazon";
   spoilerFilter: boolean;
   pushNotifications: boolean;
   weeklyGoalChapters: number;

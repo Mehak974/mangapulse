@@ -117,14 +117,6 @@ const PUBLISHERS_DIRECTORY = [
     url: "https://www.viz.com",
   },
   {
-    name: "BookWalker Global (Kadokawa)",
-    headquarters: "Tokyo, Japan",
-    freePolicy: "Digital volume purchasing store with frequent free chapter campaigns & coin cashback.",
-    simulpubDay: "Official volume releases on Japanese street dates",
-    catalog: "Kadokawa, Media Factory, ASCII Media Works, Dengeki Comics",
-    url: "https://global.bookwalker.jp",
-  },
-  {
     name: "K Manga (Kodansha)",
     headquarters: "Tokyo, Japan / USA",
     freePolicy: "Daily ticket system for free chapters + paid point simulpubs for latest releases.",
@@ -170,21 +162,6 @@ export default async function HomePage() {
             <p className="text-xs sm:text-sm text-[#94a1b5] leading-relaxed">
               Tracking simultaneous chapter releases across Shueisha, Kodansha, Viz Media, and Kakao. Zero scanlations. Direct verified access to official publishers and chapter clocks.
             </p>
-          </div>
-
-          <div className="flex items-center gap-3 text-xs font-mono text-[#94a1b5] flex-shrink-0">
-            <div className="p-3 bg-[#13171f] border border-[#2a3344] rounded-lg">
-              <div className="text-white font-bold text-sm">10,480+</div>
-              <div className="text-[10px] text-[#5e6b82]">Indexed Titles</div>
-            </div>
-            <div className="p-3 bg-[#13171f] border border-[#2a3344] rounded-lg">
-              <div className="text-blue-400 font-bold text-sm">Simulpub</div>
-              <div className="text-[10px] text-[#5e6b82]">Global Drops</div>
-            </div>
-            <div className="p-3 bg-[#13171f] border border-[#2a3344] rounded-lg">
-              <div className="text-emerald-400 font-bold text-sm">100% Legal</div>
-              <div className="text-[10px] text-[#5e6b82]">Zero DMCA Liability</div>
-            </div>
           </div>
         </div>
       </section>

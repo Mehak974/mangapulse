@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc pl-5 space-y-2">
           <li><strong className="text-white">AniList GraphQL API:</strong> Used to fetch public catalog metadata (titles, synopsis, genres). No user personal data is sent to AniList.</li>
           <li><strong className="text-white">Supabase:</strong> Provides encrypted database hosting and authentication services compliant with SOC 2 Type II standards.</li>
-          <li><strong className="text-white">Outbound Links:</strong> Our directory links directly to official publishers (MANGA Plus by Shueisha, Viz Media, Kodansha, BookWalker). Once you click an outbound link, you are governed by the respective publisher's privacy policy.</li>
+          <li><strong className="text-white">Outbound Links:</strong> Our directory links directly to official publishers (MANGA Plus by Shueisha, Viz Media, Kodansha). Once you click an outbound link, you are governed by the respective publisher's privacy policy.</li>
         </ul>
 
         <h2 className="text-lg font-bold text-white">4. Cookies and Local Storage</h2>

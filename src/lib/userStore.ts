@@ -29,6 +29,88 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   is_private: false,
 };
 
+export interface VisualPreset {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export const AVATAR_PRESETS: VisualPreset[] = [
+  {
+    id: "avatar-kenmei",
+    name: "Kenmei Protagonist",
+    url: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "avatar-ronin",
+    name: "Cyber Ronin",
+    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "avatar-paladin",
+    name: "Solar Paladin",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "avatar-mage",
+    name: "Twilight Mage",
+    url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "avatar-shadow",
+    name: "Shadow Hunter",
+    url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=400&auto=format&fit=crop",
+  },
+  {
+    id: "avatar-starlight",
+    name: "Starlight Dreamer",
+    url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=400&auto=format&fit=crop",
+  },
+];
+
+export const COVER_PRESETS: VisualPreset[] = [
+  {
+    id: "cover-sunset",
+    name: "Kenmei Sunset Twilight",
+    url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: "cover-cyberpunk",
+    name: "Tokyo Cyberpunk Neon",
+    url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: "cover-sakura",
+    name: "Sakura Blossom Evening",
+    url: "https://images.unsplash.com/photo-1528164344705-475426879c0d?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: "cover-galaxy",
+    name: "Midnight Nebula Cosmic",
+    url: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: "cover-golden",
+    name: "Golden Dawn Horizon",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    id: "cover-aurora",
+    name: "Platinum Starlight Aurora",
+    url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop",
+  },
+];
+
+export function getRandomAvatarPreset(): string {
+  const idx = Math.floor(Math.random() * AVATAR_PRESETS.length);
+  return AVATAR_PRESETS[idx].url;
+}
+
+export function getRandomCoverPreset(): string {
+  const idx = Math.floor(Math.random() * COVER_PRESETS.length);
+  return COVER_PRESETS[idx].url;
+}
+
 // Safe LocalStorage helpers
 function getLocal<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;

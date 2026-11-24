@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg-body: #0c0e12;
-  --bg-surface: #13171f;
-  --bg-surface-elevated: #1a1f2a;
-  --bg-surface-hover: #222938;
-  --border-subtle: #1e2430;
-  --border-default: #2a3344;
-  --border-strong: #3d4960;
-  --text-primary: #f0f3f8;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
+  --bg-body: #0e121a;
+  --bg-surface: #141b26;
+  --bg-surface-elevated: #1b2433;
+  --bg-surface-hover: #222d40;
+  --border-subtle: #242f42;
+  --border-default: #303e56;
+  --border-strong: #425575;
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #cbd5e1;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --success: #10b981;
@@ -123,13 +123,28 @@ body {
   border: 1px solid var(--border-default);
 }
 
-/* ── Accessibility & Contrast Overrides (WCAG 2.2 AA Compliance) ── */
+/* ── Accessibility, Font Legibility & Contrast Overrides (WCAG 2.2 AA Compliance) ── */
 .text-\[\#5e6b82\] {
   color: #94a3b8 !important;
 }
 
 .text-\[\#94a1b5\] {
   color: #cbd5e1 !important;
+}
+
+.text-\[\#94a3b8\] {
+  color: #e2e8f0 !important;
+}
+
+/* Enforce readable font sizing for high legibility across all displays */
+.text-\[9px\], .text-\[10px\] {
+  font-size: 11.5px !important;
+  line-height: 15px !important;
+}
+
+.text-\[11px\] {
+  font-size: 12.5px !important;
+  line-height: 17px !important;
 }
 
 /* Visible focus indicators for keyboard navigation */

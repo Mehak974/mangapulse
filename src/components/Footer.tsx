@@ -77,11 +77,6 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a href="https://global.bookwalker.jp" target="_blank" rel="noopener noreferrer" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
-                Kadokawa (BookWalker)
-              </a>
-            </li>
-            <li>
               <a href="https://kmanga.kodansha.com" target="_blank" rel="noopener noreferrer" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
                 Kodansha (K Manga)
               </a>

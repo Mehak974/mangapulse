@@ -25,6 +25,8 @@ import {
   markAllNotificationsRead as storeMarkAllRead,
   addNotification as storeAddNotification,
   logActivity,
+  getRandomAvatarPreset,
+  getRandomCoverPreset,
 } from "@/lib/userStore";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
@@ -120,12 +122,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           created_at: new Date().toISOString(),
           is_supporter: true,
           supporter_tier: testTier,
+          avatar_url: getRandomAvatarPreset(),
+          banner_url: getRandomCoverPreset(),
         };
       } else {
         existingUser.is_supporter = true;
         existingUser.supporter_tier = testTier;
+        if (!existingUser.avatar_url) existingUser.avatar_url = getRandomAvatarPreset();
+        if (!existingUser.banner_url) existingUser.banner_url = getRandomCoverPreset();
       }
       setStoredUser(existingUser);
+    } else if (existingUser) {
+      let changed = false;
+      if (!existingUser.avatar_url) {
+        existingUser.avatar_url = getRandomAvatarPreset();
+        changed = true;
+      }
+      if (!existingUser.banner_url) {
+        existingUser.banner_url = getRandomCoverPreset();
+        changed = true;
+      }
+      if (changed) setStoredUser(existingUser);
     }
 
     if (existingUser) setUser(existingUser);

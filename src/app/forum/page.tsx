@@ -32,7 +32,7 @@ const CATEGORIES = [
   { id: "all", label: "All Discussions", desc: "Everything manga, chapters, and community" },
   { id: "chapter_drops", label: "Chapter Drops", desc: "Live reactions & weekly chapter discussions" },
   { id: "general", label: "General & Theories", desc: "Series discussions, lore theories, and reviews" },
-  { id: "where_to_read", label: "Legal Releases", desc: "MANGA Plus, Viz, BookWalker & licensing news" },
+  { id: "where_to_read", label: "Legal Releases", desc: "MANGA Plus, Viz, K Manga & licensing news" },
   { id: "site_feedback", label: "Feedback", desc: "Feature suggestions & bug reports for MangaPulse" },
 ];
 

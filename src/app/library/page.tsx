@@ -18,6 +18,7 @@ import {
   LogIn,
   Eye,
   Download,
+  ArrowUpDown,
 } from "lucide-react";
 import { LibraryStatus, MangaDisplaySettings } from "@/types/manga";
 import DisplaySettingsBar from "@/components/DisplaySettingsBar";
@@ -50,6 +51,27 @@ export default function LibraryPage() {
   const [showCreateCol, setShowCreateCol] = useState(false);
   const [displaySettings, setDisplaySettings] = useState<MangaDisplaySettings>(DEFAULT_DISPLAY_SETTINGS);
 
+  // Per-collection and per-tab sorting
+  type LibrarySortOption = "alphabetical" | "added" | "last_read" | "unread";
+  const [sortPreferences, setSortPreferences] = useState<Record<string, LibrarySortOption>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mangapulse_col_sorts");
+      if (raw) setSortPreferences(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const updateSortPreference = (key: string, sort: LibrarySortOption) => {
+    setSortPreferences((prev) => {
+      const next = { ...prev, [key]: sort };
+      try {
+        localStorage.setItem("mangapulse_col_sorts", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
   // Load and listen to display settings
   useEffect(() => {
     setDisplaySettings(getDisplaySettings());
@@ -79,6 +101,55 @@ export default function LibraryPage() {
   };
 
   const selectedCol = collections.find((c) => c.id === selectedCollectionId);
+
+  const currentSort: LibrarySortOption =
+    (selectedCol ? sortPreferences[selectedCol.id] : sortPreferences[activeTab]) || "added";
+
+  // Sort custom collection items
+  const sortedCollectionItems = [...(selectedCol?.items || [])].sort((a, b) => {
+    if (currentSort === "alphabetical") {
+      return a.manga_title.localeCompare(b.manga_title);
+    }
+    if (currentSort === "added") {
+      return new Date(b.added_at || 0).getTime() - new Date(a.added_at || 0).getTime();
+    }
+    if (currentSort === "last_read") {
+      const libA = library.find((l) => l.manga_id === a.manga_id);
+      const libB = library.find((l) => l.manga_id === b.manga_id);
+      const timeA = new Date(libA?.updated_at || libA?.created_at || 0).getTime();
+      const timeB = new Date(libB?.updated_at || libB?.created_at || 0).getTime();
+      return timeB - timeA;
+    }
+    if (currentSort === "unread") {
+      const libA = library.find((l) => l.manga_id === a.manga_id);
+      const libB = library.find((l) => l.manga_id === b.manga_id);
+      const unreadA = Math.max(0, (libA?.total_chapters || 100) - (libA?.progress_chapter || 0));
+      const unreadB = Math.max(0, (libB?.total_chapters || 100) - (libB?.progress_chapter || 0));
+      return unreadB - unreadA;
+    }
+    return 0;
+  });
+
+  // Sort general library items
+  const sortedLibraryItems = [...filteredItems].sort((a, b) => {
+    if (currentSort === "alphabetical") {
+      return a.manga_title.localeCompare(b.manga_title);
+    }
+    if (currentSort === "added") {
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    }
+    if (currentSort === "last_read") {
+      const timeA = new Date(a.updated_at || a.created_at || 0).getTime();
+      const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
+      return timeB - timeA;
+    }
+    if (currentSort === "unread") {
+      const unreadA = Math.max(0, (a.total_chapters || 100) - a.progress_chapter);
+      const unreadB = Math.max(0, (b.total_chapters || 100) - b.progress_chapter);
+      return unreadB - unreadA;
+    }
+    return 0;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
@@ -250,7 +321,7 @@ export default function LibraryPage() {
           {/* If a single collection is selected to view */}
           {selectedCol ? (
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1e2430] gap-3">
                 <div>
                   <button
                     onClick={() => setSelectedCollectionId(null)}
@@ -264,18 +335,36 @@ export default function LibraryPage() {
                   )}
                 </div>
 
-                <button
-                  onClick={() => deleteCollection(selectedCol.id)}
-                  className="px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs flex items-center gap-1 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete List</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* Per-Collection Sort Control */}
+                  <div className="flex items-center gap-1.5 bg-[#0c0e12] border border-[#2a3344] px-2.5 py-1 rounded-lg">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                    <span className="text-[11px] font-mono text-[#94a1b5]">Sort:</span>
+                    <select
+                      value={currentSort}
+                      onChange={(e) => updateSortPreference(selectedCol.id, e.target.value as any)}
+                      className="bg-transparent text-xs text-white outline-none cursor-pointer font-semibold"
+                    >
+                      <option value="alphabetical" className="bg-[#141b26] text-white">Alphabetical (A - Z)</option>
+                      <option value="added" className="bg-[#141b26] text-white">Recently Added</option>
+                      <option value="last_read" className="bg-[#141b26] text-white">Last Read</option>
+                      <option value="unread" className="bg-[#141b26] text-white">Unread Chapters</option>
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={() => deleteCollection(selectedCol.id)}
+                    className="px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete List</span>
+                  </button>
+                </div>
               </div>
 
-              {selectedCol.items && selectedCol.items.length > 0 ? (
+              {sortedCollectionItems && sortedCollectionItems.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {selectedCol.items.map((m) => (
+                  {sortedCollectionItems.map((m) => (
                     <div
                       key={m.manga_id}
                       className="surface-card rounded-xl overflow-hidden border border-[#1e2430] p-2.5 flex flex-col justify-between gap-2"
@@ -362,9 +451,29 @@ export default function LibraryPage() {
       ) : (
         /* View: Manga Tracking Grid / Table with customizable fields */
         <div className="space-y-4">
-          {filteredItems.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#13171f] p-3 rounded-xl border border-[#1e2430]">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-xs text-[#94a1b5] font-mono">Sort tab by:</span>
+              <select
+                value={currentSort}
+                onChange={(e) => updateSortPreference(activeTab, e.target.value as any)}
+                className="bg-[#0c0e12] border border-[#2a3344] focus:border-blue-500 rounded-lg px-2.5 py-1 text-xs text-white outline-none cursor-pointer font-semibold"
+              >
+                <option value="alphabetical" className="bg-[#141b26] text-white">Alphabetical (A - Z)</option>
+                <option value="added" className="bg-[#141b26] text-white">Recently Added</option>
+                <option value="last_read" className="bg-[#141b26] text-white">Last Read</option>
+                <option value="unread" className="bg-[#141b26] text-white">Unread Chapters</option>
+              </select>
+            </div>
+            <div className="text-xs text-[#94a1b5] font-mono">
+              Showing <span className="font-bold text-white">{sortedLibraryItems.length}</span> titles
+            </div>
+          </div>
+
+          {sortedLibraryItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredItems.map((entry) => {
+              {sortedLibraryItems.map((entry) => {
                 const total = entry.total_chapters || 100;
                 const unread = Math.max(0, total - entry.progress_chapter);
 

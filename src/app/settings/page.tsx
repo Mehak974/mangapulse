@@ -21,7 +21,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserPreferences, UserProfile } from "@/types/manga";
-import { DEFAULT_PREFERENCES } from "@/lib/userStore";
+import {
+  DEFAULT_PREFERENCES,
+  AVATAR_PRESETS,
+  COVER_PRESETS,
+  getRandomAvatarPreset,
+  getRandomCoverPreset,
+} from "@/lib/userStore";
 import SupporterAvatar from "@/components/SupporterAvatar";
 
 type TabId = "profile" | "preferences" | "goals" | "notifications" | "data" | "account";
@@ -50,10 +56,11 @@ export default function SettingsPage() {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
 
   // Preferences
   const [defaultView, setDefaultView] = useState<"grid" | "list" | "compact">("grid");
-  const [preferredPublisher, setPreferredPublisher] = useState<"all" | "mangaplus" | "viz" | "bookwalker" | "amazon">("all");
+  const [preferredPublisher, setPreferredPublisher] = useState<"all" | "mangaplus" | "viz" | "amazon">("all");
   const [spoilerFilter, setSpoilerFilter] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [weeklyGoal, setWeeklyGoal] = useState(15);
@@ -67,6 +74,7 @@ export default function SettingsPage() {
       setBio(user.bio || "");
       setLocation(user.location || "");
       setAvatarUrl(user.avatar_url || "");
+      setBannerUrl(user.banner_url || "");
 
       const prefs = user.preferences || DEFAULT_PREFERENCES;
       setDefaultView(prefs.defaultView || "grid");
@@ -93,12 +101,19 @@ export default function SettingsPage() {
         cadenceAlerts,
       };
 
+      // If no avatar or cover is selected, assign random preset
+      const finalAvatar = avatarUrl.trim() || getRandomAvatarPreset();
+      const finalBanner = bannerUrl.trim() || getRandomCoverPreset();
+      setAvatarUrl(finalAvatar);
+      setBannerUrl(finalBanner);
+
       await updateProfile({
         displayName: displayName.trim(),
         username: username.trim() || user?.username,
         bio: bio.trim(),
         location: location.trim(),
-        avatar_url: avatarUrl.trim() || null,
+        avatar_url: finalAvatar,
+        banner_url: finalBanner,
         preferences: prefs,
         reading_goal: Number(weeklyGoal),
       });
@@ -337,33 +352,146 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    {/* Presets Grid */}
+                    {/* Avatar Presets Grid */}
                     <div className="mt-3">
-                      <span className="text-[11px] font-mono text-[#5e6b82] block mb-1.5">
-                        Or select a manga avatar preset:
-                      </span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-mono text-[#94a1b5]">
+                          Or select a manga avatar preset:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAvatarUrl(getRandomAvatarPreset())}
+                          className="text-[11px] font-mono text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Sparkles className="w-3 h-3 text-blue-400" />
+                          <span>Randomize Avatar</span>
+                        </button>
+                      </div>
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                        {[
-                          { name: "Straw Hat", url: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=120&auto=format&fit=crop&q=80" },
-                          { name: "Hunter", url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=120&auto=format&fit=crop&q=80" },
-                          { name: "Ronin", url: "https://images.unsplash.com/photo-1563089145-599997674d42?w=120&auto=format&fit=crop&q=80" },
-                          { name: "Cyber", url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=120&auto=format&fit=crop&q=80" },
-                          { name: "Night", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80" },
-                        ].map((preset) => (
+                        {AVATAR_PRESETS.map((preset) => (
                           <button
-                            key={preset.name}
+                            key={preset.id}
                             type="button"
                             onClick={() => setAvatarUrl(preset.url)}
-                            className={`w-10 h-10 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${
+                            className={`w-11 h-11 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all cursor-pointer ${
                               avatarUrl === preset.url
-                                ? "border-blue-500 scale-105"
-                                : "border-[#2a3344] opacity-60 hover:opacity-100"
+                                ? "border-blue-500 scale-105 shadow-md shadow-blue-500/20"
+                                : "border-[#2a3344] opacity-70 hover:opacity-100 hover:border-slate-400"
                             }`}
                             title={preset.name}
                           >
                             <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
                           </button>
                         ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Profile Cover Image (Banner) & Presets */}
+                  <div>
+                    <label className="block text-xs font-semibold text-[#94a1b5] mb-2">
+                      Profile Cover Image (Banner)
+                    </label>
+
+                    <div className="p-4 rounded-xl bg-[#0c0e12] border border-[#2a3344] space-y-3">
+                      {/* Banner Preview */}
+                      <div className="relative h-28 sm:h-36 w-full rounded-lg overflow-hidden bg-gradient-to-r from-[#141b26] to-[#1e2430] border border-[#1e2430] flex items-center justify-center">
+                        {bannerUrl ? (
+                          <>
+                            <img src={bannerUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                            <span className="absolute bottom-2 left-3 text-[11px] font-mono text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm">
+                              Active Profile Banner
+                            </span>
+                          </>
+                        ) : (
+                          <div className="text-center text-[#5e6b82] text-xs font-mono px-4">
+                            <span>No cover image selected</span>
+                            <span className="block text-[10px] text-[#94a1b5] mt-0.5">
+                              (A random scenic anime preset will be assigned automatically on save)
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Upload from Disk & URL */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <label className="px-3 py-1.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold border border-[#2a3344] transition-colors cursor-pointer flex items-center gap-1.5">
+                            <Upload className="w-3.5 h-3.5 text-blue-400" />
+                            <span>Upload Cover from Device</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    setBannerUrl(ev.target?.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
+                            />
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={() => setBannerUrl(getRandomCoverPreset())}
+                            className="px-3 py-1.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold border border-[#2a3344] transition-colors cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Randomize Cover</span>
+                          </button>
+
+                          {bannerUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setBannerUrl("")}
+                              className="text-xs text-red-400 hover:underline px-1 cursor-pointer"
+                            >
+                              Remove Cover
+                            </button>
+                          )}
+                        </div>
+
+                        <input
+                          type="url"
+                          value={bannerUrl}
+                          onChange={(e) => setBannerUrl(e.target.value)}
+                          placeholder="Or paste direct banner image URL (e.g. https://...)"
+                          className="w-full px-3 py-1.5 rounded-lg bg-[#13171f] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Cover Presets Grid */}
+                      <div className="pt-2 border-t border-[#1e2430]">
+                        <span className="text-[11px] font-mono text-[#94a1b5] block mb-2">
+                          Scenic anime cover presets:
+                        </span>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {COVER_PRESETS.map((preset) => (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => setBannerUrl(preset.url)}
+                              className={`relative h-14 rounded-lg overflow-hidden border-2 text-left transition-all cursor-pointer group ${
+                                bannerUrl === preset.url
+                                  ? "border-blue-500 shadow-md shadow-blue-500/20"
+                                  : "border-[#2a3344] opacity-70 hover:opacity-100 hover:border-slate-400"
+                              }`}
+                              title={preset.name}
+                            >
+                              <img src={preset.url} alt={preset.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                              <span className="absolute bottom-1 left-1.5 right-1.5 text-[9px] font-mono font-bold text-white truncate drop-shadow">
+                                {preset.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -417,11 +545,10 @@ export default function SettingsPage() {
                       onChange={(e: any) => setPreferredPublisher(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white focus:outline-none focus:border-blue-500"
                     >
-                      <option value="all">Show All Legal Options (MANGA Plus, Viz, BookWalker, Amazon)</option>
+                      <option value="all">Show All Legal Options (MANGA Plus, Viz, Amazon)</option>
                       <option value="mangaplus">Prioritize MANGA Plus by Shueisha (Free Simulpub)</option>
                       <option value="viz">Prioritize Viz Media / Shonen Jump</option>
-                      <option value="bookwalker">Prioritize BookWalker Global (Digital Volumes)</option>
-                      <option value="amazon">Prioritize Amazon / Kindle (Physical & E-Book)</option>
+                      <option value="amazon">Prioritize Amazon / Kindle (Physical &amp; E-Book)</option>
                     </select>
                   </div>
 

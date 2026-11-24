@@ -78,7 +78,7 @@ const SEED_THREADS: ForumThread[] = [
     title: "Best Places to Buy Digital Volumes Legally with English Translation",
     author_name: "OfficialReader",
     author_avatar: null,
-    content: "Here is a comparison between BookWalker Global, Kindle Amazon, and Kobo for manga collections.",
+    content: "Here is a comparison between MANGA Plus, Kindle Amazon, and Kobo for digital manga collections.",
     manga_tag: "Guides",
     created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
     upvotes: 35,
