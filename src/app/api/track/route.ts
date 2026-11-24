@@ -42,7 +42,18 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = request.headers.get("authorization");
+  const bearerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, "").trim() : null;
+  const key = url.searchParams.get("key");
+
+  // Require secret authorization to view internal publisher click-through statistics
+  if (cronSecret && bearerToken !== cronSecret && key !== cronSecret) {
+    return NextResponse.json({ error: "Unauthorized. Provide valid key to view telemetry." }, { status: 401 });
+  }
+
   // Read aggregated stats
   const stats: Record<string, number> = {};
   for (const [pub, count] of outboundClickStats.entries()) {

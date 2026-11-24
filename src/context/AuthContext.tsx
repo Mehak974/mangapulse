@@ -119,15 +119,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen to real Supabase auth state change (e.g. returning from Google OAuth redirect)
     if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      const client = supabase;
+      const { data: { subscription } } = client.auth.onAuthStateChange(
         async (event, session) => {
           if (session?.user) {
+            // Fetch verified server-side profile to enforce real supporter status
+            let isSupporter = false;
+            let supporterTier = "none";
+            let bioText: string | null = null;
+            let dbUsername: string | null = null;
+            let dbAvatar: string | null = null;
+
+            try {
+              const { data: profile } = await client
+                .from("profiles")
+                .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier")
+                .eq("id", session.user.id)
+                .single();
+
+              if (profile) {
+                isSupporter = Boolean(profile.is_supporter);
+                supporterTier = profile.supporter_tier || "none";
+                bioText = profile.bio || null;
+                dbUsername = profile.username || null;
+                dbAvatar = profile.avatar_url || null;
+              }
+            } catch (err) {
+              console.warn("Could not fetch server profile:", err);
+            }
+
             const meta = session.user.user_metadata || {};
             const u: UserProfile = {
               id: session.user.id,
               email: session.user.email || "",
-              username: meta.full_name || meta.name || meta.user_name || session.user.email?.split("@")[0] || "Reader",
-              avatar_url: meta.avatar_url || meta.picture || null,
+              username: dbUsername || meta.full_name || meta.name || meta.user_name || session.user.email?.split("@")[0] || "Reader",
+              avatar_url: dbAvatar || meta.avatar_url || meta.picture || null,
+              bio: bioText,
+              is_supporter: isSupporter,
+              supporter_tier: supporterTier,
               created_at: session.user.created_at,
             };
             setUser(u);
@@ -151,18 +180,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /* ── Auth Actions ── */
   const login = async (email: string, pass: string) => {
     try {
-      if (supabase) {
+      if (supabase && isSupabaseConfigured) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password: pass,
         });
         if (error) return { success: false, error: error.message };
 
+        // Fetch verified profile from Supabase
+        let isSupporter = false;
+        let supporterTier = "none";
+        let bioText: string | null = null;
+        let dbUsername: string | null = null;
+        let dbAvatar: string | null = null;
+
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier")
+            .eq("id", data.user.id)
+            .single();
+
+          if (profile) {
+            isSupporter = Boolean(profile.is_supporter);
+            supporterTier = profile.supporter_tier || "none";
+            bioText = profile.bio || null;
+            dbUsername = profile.username || null;
+            dbAvatar = profile.avatar_url || null;
+          }
+        } catch (err) {
+          console.warn("Could not fetch server profile on login:", err);
+        }
+
         const u: UserProfile = {
           id: data.user.id,
           email: data.user.email || email,
-          username: data.user.user_metadata?.username || email.split("@")[0],
-          avatar_url: data.user.user_metadata?.avatar_url || null,
+          username: dbUsername || data.user.user_metadata?.username || email.split("@")[0],
+          avatar_url: dbAvatar || data.user.user_metadata?.avatar_url || null,
+          bio: bioText,
+          is_supporter: isSupporter,
+          supporter_tier: supporterTier,
           created_at: data.user.created_at,
         };
         setUser(u);
@@ -171,18 +228,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      // Local / Offline Session
-      const u: UserProfile = {
-        id: `usr-${Date.now()}`,
-        email,
-        username: email.split("@")[0],
-        avatar_url: null,
-        created_at: new Date().toISOString(),
+      // Hard-disable fake offline login bypass
+      return {
+        success: false,
+        error: "Supabase authentication is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to log in.",
       };
-      setUser(u);
-      setStoredUser(u);
-      await Promise.all([refreshLibrary(u.id), refreshCollections(u.id), refreshNotifications(u.id)]);
-      return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || "Failed to log in" };
     }
@@ -190,7 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, pass: string, username: string) => {
     try {
-      if (supabase) {
+      if (supabase && isSupabaseConfigured) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password: pass,
@@ -204,6 +254,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: data.user.email || email,
             username: username || email.split("@")[0],
             avatar_url: null,
+            is_supporter: false,
+            supporter_tier: "none",
             created_at: data.user.created_at,
           };
           setUser(u);
@@ -212,17 +264,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Local Session
-      const u: UserProfile = {
-        id: `usr-${Date.now()}`,
-        email,
-        username: username || email.split("@")[0],
-        avatar_url: null,
-        created_at: new Date().toISOString(),
+      // Hard-disable fake offline signup bypass
+      return {
+        success: false,
+        error: "Supabase authentication is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to register.",
       };
-      setUser(u);
-      setStoredUser(u);
-      return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || "Failed to sign up" };
     }
@@ -266,8 +312,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    const updated = await storeUpdateUserProfile(updates);
-    if (updated) setUser(updated);
+    // Entitlement security: Strip privileged supporter fields so client cannot elevate itself
+    const sanitized = { ...updates };
+    delete sanitized.is_supporter;
+    delete sanitized.supporter_tier;
+
+    const updated = await storeUpdateUserProfile(sanitized);
+    if (updated) {
+      // Preserve verified supporter status from existing server session
+      setUser({
+        ...updated,
+        is_supporter: user?.is_supporter ?? false,
+        supporter_tier: user?.supporter_tier ?? "none",
+      });
+    }
     return updated;
   };
 

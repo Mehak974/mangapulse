@@ -20,30 +20,24 @@ import {
 import { useAuth } from "@/context/AuthContext";
 
 export default function DonatePage() {
-  const { user, isLoggedIn, updateProfile } = useAuth();
+  const { user, isLoggedIn, setAuthModalOpen } = useAuth();
   const [selectedTier, setSelectedTier] = useState<number>(5);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [donatedSuccess, setDonatedSuccess] = useState(false);
+  const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
 
-  const handleMockDonation = async (amount: number, tierName: string) => {
-    // Save to localStorage for instant local/guest reflection
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "mangapulse_supporter",
-        JSON.stringify({ is_supporter: true, tier: tierName, amount, date: new Date().toISOString() })
-      );
-      window.dispatchEvent(new CustomEvent("mangapulse-supporter-updated", { detail: { tierName, amount } }));
-    }
+  const handleOfficialCheckout = (amount: number, tierName: string) => {
+    // Construct verified Ko-fi redirect URL passing authenticated user memo
+    const kofiBase = "https://ko-fi.com/mangapulse";
+    const memo = user ? `user_id:${user.id}|email:${user.email}` : "";
+    const checkoutUrl = memo ? `${kofiBase}?memo=${encodeURIComponent(memo)}` : kofiBase;
 
-    if (user) {
-      await updateProfile({
-        is_supporter: true,
-        supporter_tier: tierName,
-        bio: user.bio ? `${user.bio} (Official ${tierName})` : `Official ${tierName}`,
-      });
-    }
-    setDonatedSuccess(true);
-    setTimeout(() => setDonatedSuccess(false), 5000);
+    setCheckoutNotice(
+      `Redirecting to secure payment for ${tierName}. Once received, your supporter perks sync automatically via our verified webhook.`
+    );
+
+    setTimeout(() => {
+      window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+    }, 800);
   };
 
   return (
@@ -67,18 +61,16 @@ export default function DonatePage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-4 lg:px-8 mt-12 space-y-12">
-        {/* Success Alert */}
-        {donatedSuccess && (
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between animate-in fade-in">
+        {/* Checkout Alert */}
+        {checkoutNotice && (
+          <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-center justify-between animate-in fade-in">
             <div className="flex items-center gap-2">
-              <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-              <span>
-                Thank you so much! Your supporter status has been activated on your MangaPulse profile.
-              </span>
+              <Check className="w-5 h-5 text-blue-400 flex-shrink-0" />
+              <span>{checkoutNotice}</span>
             </div>
-            <Link href="/profile" className="font-bold underline text-white">
-              View Profile
-            </Link>
+            <button onClick={() => setCheckoutNotice(null)} className="font-bold underline text-white text-xs">
+              Dismiss
+            </button>
           </div>
         )}
 
@@ -114,7 +106,7 @@ export default function DonatePage() {
             </div>
 
             <button
-              onClick={() => handleMockDonation(3, "Coffee Supporter")}
+              onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
               className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2"
             >
               <Coffee className="w-4 h-4 text-amber-400" />
@@ -160,7 +152,7 @@ export default function DonatePage() {
             </div>
 
             <button
-              onClick={() => handleMockDonation(5, "Pro Supporter")}
+              onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
               className="mt-6 w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md"
             >
               <Zap className="w-4 h-4" />
@@ -202,7 +194,7 @@ export default function DonatePage() {
             </div>
 
             <button
-              onClick={() => handleMockDonation(15, "Manga Patron")}
+              onClick={() => handleOfficialCheckout(15, "Manga Patron")}
               className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2"
             >
               <Crown className="w-4 h-4 text-purple-400" />
