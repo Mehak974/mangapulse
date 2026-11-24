@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport: Viewport = {
   themeColor: "#0c0e12",
@@ -74,6 +75,7 @@ export default function RootLayout({
           <CollectionPickerModal />
           <PWAInstallPrompt />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
