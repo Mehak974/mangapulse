@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 export interface ForumComment {
   id: string;
   author_name: string;
@@ -76,7 +78,7 @@ const SEED_THREADS: ForumThread[] = [
     title: "Best Places to Buy Digital Volumes Legally with English Translation",
     author_name: "OfficialReader",
     author_avatar: null,
-    content: "Here is a comparison between BookWalker Global, Kindle Amazon, and Kobo for manga collections. BookWalker often gives 40% coin cashback during Golden Week campaigns!",
+    content: "Here is a comparison between BookWalker Global, Kindle Amazon, and Kobo for manga collections.",
     manga_tag: "Guides",
     created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
     upvotes: 35,
@@ -116,28 +118,116 @@ export function saveForumThreads(threads: ForumThread[]): void {
   }
 }
 
-export function createForumThread(
-  thread: Omit<ForumThread, "id" | "created_at" | "upvotes" | "comments">
-): ForumThread {
-  const list = getForumThreads();
+/**
+ * Fetch threads from Supabase database if available, merging with local state.
+ */
+export async function fetchLiveForumThreads(): Promise<ForumThread[]> {
+  if (supabase) {
+    try {
+      const { data: dbThreads, error } = await supabase
+        .from("forum_threads")
+        .select(`
+          id,
+          category_id,
+          title,
+          content,
+          likes_count,
+          created_at,
+          author_id,
+          profiles:author_id (username, avatar_url),
+          forum_posts (
+            id,
+            content,
+            likes_count,
+            created_at,
+            author_id,
+            profiles:author_id (username, avatar_url)
+          )
+        `)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (!error && dbThreads && dbThreads.length > 0) {
+        const mapped: ForumThread[] = dbThreads.map((t: any) => ({
+          id: t.id,
+          category: t.category_id as any,
+          title: t.title,
+          author_name: t.profiles?.username || "Reader",
+          author_avatar: t.profiles?.avatar_url || null,
+          content: t.content,
+          created_at: t.created_at,
+          upvotes: t.likes_count || 0,
+          comments: (t.forum_posts || []).map((p: any) => ({
+            id: p.id,
+            author_name: p.profiles?.username || "Reader",
+            author_avatar: p.profiles?.avatar_url || null,
+            content: p.content,
+            created_at: p.created_at,
+            upvotes: p.likes_count || 0,
+          })),
+        }));
+
+        saveForumThreads(mapped);
+        return mapped;
+      }
+    } catch (err) {
+      console.warn("Could not fetch remote forum threads:", err);
+    }
+  }
+
+  return getForumThreads();
+}
+
+export async function createForumThread(
+  thread: Omit<ForumThread, "id" | "created_at" | "upvotes" | "comments">,
+  authorId?: string
+): Promise<ForumThread> {
+  const localList = getForumThreads();
+  const tempId = `thread-${Date.now()}`;
   const newThread: ForumThread = {
     ...thread,
-    id: `thread-${Date.now()}`,
+    id: tempId,
     created_at: new Date().toISOString(),
     upvotes: 1,
     comments: [],
   };
-  list.unshift(newThread);
-  saveForumThreads(list);
+
+  localList.unshift(newThread);
+  saveForumThreads(localList);
+
+  // Persist to Supabase if authenticated
+  if (supabase && authorId && authorId !== "guest") {
+    try {
+      const { data, error } = await supabase
+        .from("forum_threads")
+        .insert({
+          category_id: thread.category,
+          author_id: authorId,
+          title: thread.title,
+          content: thread.content,
+        })
+        .select()
+        .single();
+
+      if (!error && data) {
+        newThread.id = data.id;
+        saveForumThreads(localList);
+      }
+    } catch (err) {
+      console.warn("Could not insert thread to Supabase:", err);
+    }
+  }
+
   return newThread;
 }
 
-export function addCommentToThread(
+export async function addCommentToThread(
   threadId: string,
   author_name: string,
   content: string,
-  author_avatar?: string | null
-): ForumComment | null {
+  author_avatar?: string | null,
+  authorId?: string
+): Promise<ForumComment | null> {
   const list = getForumThreads();
   const thread = list.find((t) => t.id === threadId);
   if (!thread) return null;
@@ -154,6 +244,20 @@ export function addCommentToThread(
   thread.comments = thread.comments || [];
   thread.comments.push(newComment);
   saveForumThreads(list);
+
+  // Persist to Supabase if UUID format thread
+  if (supabase && authorId && authorId !== "guest" && threadId.length > 20) {
+    try {
+      await supabase.from("forum_posts").insert({
+        thread_id: threadId,
+        author_id: authorId,
+        content: content.trim(),
+      });
+    } catch (err) {
+      console.warn("Could not insert post to Supabase:", err);
+    }
+  }
+
   return newComment;
 }
 
@@ -165,4 +269,3 @@ export function upvoteThread(threadId: string): void {
     saveForumThreads(list);
   }
 }
-

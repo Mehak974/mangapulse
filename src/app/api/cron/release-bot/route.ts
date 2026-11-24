@@ -97,7 +97,38 @@ async function handleReleaseBot(req: NextRequest) {
     });
   }
 
-  // 5. Build Discord Webhook Embeds (up to 10 embeds per Discord webhook call)
+  // 5. Generate In-App User Notifications for Tracked Library Series
+  let inAppNotifsCreated = 0;
+  if (supabaseUrl && serviceRoleKey && drops.length > 0) {
+    try {
+      const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
+      for (const drop of drops) {
+        const { data: libraryUsers } = await adminSupabase
+          .from("user_manga_library")
+          .select("user_id")
+          .eq("manga_id", drop.id);
+
+        if (libraryUsers && libraryUsers.length > 0) {
+          const notifs = libraryUsers.map((u) => ({
+            user_id: u.user_id,
+            manga_id: drop.id,
+            title: `${drop.title} Chapter ${drop.latestChapter}`,
+            message: `New chapter officially released on ${drop.publisher}.`,
+            url: `/manga/${drop.slug}`,
+            type: "release",
+            is_read: false,
+          }));
+
+          await adminSupabase.from("user_notifications").insert(notifs);
+          inAppNotifsCreated += notifs.length;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not record in-app drop notifications:", err);
+    }
+  }
+
+  // 6. Build Discord Webhook Embeds (up to 10 embeds per Discord webhook call)
   const embeds = drops.slice(0, 10).map((drop) => {
     const mangaUrl = `${siteUrl}/manga/${drop.slug}`;
     return {
@@ -149,6 +180,7 @@ async function handleReleaseBot(req: NextRequest) {
         dateChecked: checkDate.toISOString(),
         dropsCount: drops.length,
         expiredSubscriptionsPruned: expiredCount,
+        inAppNotificationsCreated: inAppNotifsCreated,
         dispatched: true,
         message: `Successfully broadcasted ${drops.length} manga drop alerts to Discord webhook.`,
         drops,
@@ -169,6 +201,7 @@ async function handleReleaseBot(req: NextRequest) {
     dateChecked: checkDate.toISOString(),
     dropsCount: drops.length,
     expiredSubscriptionsPruned: expiredCount,
+    inAppNotificationsCreated: inAppNotifsCreated,
     dispatched: false,
     dryRun: true,
     note: webhookUrl ? "Dry run executed." : "DISCORD_WEBHOOK_URL is not set.",

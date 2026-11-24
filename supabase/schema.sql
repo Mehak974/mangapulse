@@ -297,9 +297,11 @@ CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING
 DROP POLICY IF EXISTS "Users can view own subscription" ON public.subscriptions;
 CREATE POLICY "Users can view own subscription" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can manage own library" ON public.user_manga_library FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own library" ON public.user_manga_library;
+CREATE POLICY "Users can manage own library" ON public.user_manga_library FOR ALL USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can manage own collections" ON public.user_collections FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own collections" ON public.user_collections;
+CREATE POLICY "Users can manage own collections" ON public.user_collections FOR ALL USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Public collections viewable by anyone" ON public.user_collections;
 CREATE POLICY "Public collections viewable by anyone" ON public.user_collections FOR SELECT USING (is_private = false);
@@ -312,7 +314,8 @@ DROP POLICY IF EXISTS "Public collection items viewable by anyone" ON public.col
 CREATE POLICY "Public collection items viewable by anyone" ON public.collection_manga FOR SELECT
     USING (EXISTS (SELECT 1 FROM public.user_collections WHERE id = collection_manga.collection_id AND is_private = false));
 
-DROP POLICY IF EXISTS "Users can manage own notifications" ON public.user_notifications FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own notifications" ON public.user_notifications;
+CREATE POLICY "Users can manage own notifications" ON public.user_notifications FOR ALL USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Categories viewable by anyone" ON public.forum_categories;
 CREATE POLICY "Categories viewable by anyone" ON public.forum_categories FOR SELECT USING (true);

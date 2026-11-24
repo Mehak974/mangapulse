@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   ForumThread,
   getForumThreads,
+  fetchLiveForumThreads,
   createForumThread,
   addCommentToThread,
   upvoteThread,
@@ -62,26 +63,32 @@ export default function ForumPage() {
 
   useEffect(() => {
     refreshThreads();
+    fetchLiveForumThreads().then((list) => {
+      setThreads(list);
+    });
     const handleUpdate = () => refreshThreads();
     window.addEventListener("mangapulse-forum-updated", handleUpdate);
     return () => window.removeEventListener("mangapulse-forum-updated", handleUpdate);
   }, [selectedThread?.id]);
 
-  const handleCreateThread = (e: React.FormEvent) => {
+  const handleCreateThread = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
     const author = user?.displayName || user?.username || "Reader";
     const author_avatar = user?.avatar_url || null;
 
-    const created = createForumThread({
-      category: newCategory,
-      title: newTitle.trim(),
-      content: newContent.trim(),
-      manga_tag: newTag.trim() || null,
-      author_name: author,
-      author_avatar,
-    });
+    const created = await createForumThread(
+      {
+        category: newCategory,
+        title: newTitle.trim(),
+        content: newContent.trim(),
+        manga_tag: newTag.trim() || null,
+        author_name: author,
+        author_avatar,
+      },
+      user?.id
+    );
 
     setModalOpen(false);
     setNewTitle("");
@@ -90,14 +97,14 @@ export default function ForumPage() {
     setSelectedThread(created);
   };
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedThread || !commentText.trim()) return;
 
     const author = user?.displayName || user?.username || "Reader";
     const author_avatar = user?.avatar_url || null;
 
-    addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar);
+    await addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar, user?.id);
     setCommentText("");
   };
 
