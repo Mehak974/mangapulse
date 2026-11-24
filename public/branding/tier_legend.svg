@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <radialGradient id="bgGlowGold" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#451a03" />
+      <stop offset="50%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#09090b" />
+    </radialGradient>
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#f59e0b" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+    <linearGradient id="crownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <filter id="goldNeonGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="20" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="800" height="800" rx="36" fill="url(#bgGlowGold)" stroke="url(#goldBorder)" stroke-width="4" />
+
+  <!-- Sunburst Radiance Lines -->
+  <g opacity="0.12" stroke="#f59e0b" stroke-width="2">
+    <line x1="400" y1="310" x2="400" y2="40" />
+    <line x1="400" y1="310" x2="650" y2="100" />
+    <line x1="400" y1="310" x2="740" y2="310" />
+    <line x1="400" y1="310" x2="650" y2="520" />
+    <line x1="400" y1="310" x2="150" y2="520" />
+    <line x1="400" y1="310" x2="60" y2="310" />
+    <line x1="400" y1="310" x2="150" y2="100" />
+  </g>
+
+  <!-- Badge Header Pill -->
+  <rect x="250" y="70" width="300" height="42" rx="21" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1.5" />
+  <text x="400" y="97" font-family="'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#fbbf24" text-anchor="middle" letter-spacing="3">TIER 3 • ARCHIVAL GUILD</text>
+
+  <!-- Central Glowing Icon: Golden Royal Crown & Ornate Tome -->
+  <g transform="translate(400, 310)" filter="url(#goldNeonGlow)">
+    <!-- Aura Ring -->
+    <circle r="145" fill="#78350f" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2" stroke-dasharray="12 6" />
+
+    <!-- Ornate Open Ancient Tome -->
+    <path d="M0,-20 C-40,-45 -95,-45 -115,-15 L-115,35 C-95,10 -40,10 0,35 C40,10 95,10 115,35 L115,-15 C95,-45 40,-45 0,-20 Z" fill="#1c1917" stroke="url(#goldBorder)" stroke-width="6" />
+    <line x1="0" y1="-20" x2="0" y2="35" stroke="#fbbf24" stroke-width="5" />
+
+    <!-- Ornate Book Corners / Highlights -->
+    <circle cx="-100" cy="-5" r="4" fill="#fbbf24" />
+    <circle cx="100" cy="-5" r="4" fill="#fbbf24" />
+    <circle cx="-100" cy="25" r="4" fill="#fbbf24" />
+    <circle cx="100" cy="25" r="4" fill="#fbbf24" />
+
+    <!-- Floating Royal Crown -->
+    <g transform="translate(0, -85)">
+      <!-- Crown Base -->
+      <path d="M-65,30 L65,30 L55,42 L-55,42 Z" fill="#b45309" stroke="url(#crownGrad)" stroke-width="3" />
+      <!-- Crown Spikes -->
+      <path d="M-65,30 L-80,-25 L-35,10 L0,-45 L35,10 L80,-25 L65,30 Z" fill="url(#crownGrad)" stroke="#fef08a" stroke-width="4" stroke-linejoin="round" />
+      <!-- Crown Jewels -->
+      <circle cx="-80" cy="-28" r="6" fill="#fef08a" />
+      <circle cx="0" cy="-48" r="8" fill="#ffffff" />
+      <circle cx="80" cy="-28" r="6" fill="#fef08a" />
+      <circle cx="0" cy="10" r="7" fill="#dc2626" stroke="#fbbf24" stroke-width="2" />
+      <circle cx="-40" cy="18" r="5" fill="#2563eb" stroke="#fbbf24" stroke-width="1.5" />
+      <circle cx="40" cy="18" r="5" fill="#2563eb" stroke="#fbbf24" stroke-width="1.5" />
+    </g>
+  </g>
+
+  <!-- Pricing & Title -->
+  <text x="400" y="540" font-family="'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-1">Archival Legend</text>
+  <text x="400" y="595" font-family="'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="800" fill="#fbbf24" text-anchor="middle">$25+ <tspan font-size="18" fill="#94a3b8" font-weight="500">/ Monthly or Lifetime VIP</tspan></text>
+
+  <!-- Perks Divider -->
+  <line x1="220" y1="630" x2="580" y2="630" stroke="#292524" stroke-width="2" />
+
+  <!-- Perks Bullet List -->
+  <text x="400" y="675" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="600" fill="#fef3c7" text-anchor="middle">👑 VIP Golden Founder Crown &amp; Hall of Fame Listing</text>
+  <text x="400" y="715" font-family="'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="600" fill="#fde68a" text-anchor="middle">✨ Direct Input on Next Manga Tracking Catalog Additions</text>
+  <text x="400" y="750" font-family="'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="500" fill="#78716c" text-anchor="middle">MangaPulse Founding Guild Patron</text>
+</svg>
