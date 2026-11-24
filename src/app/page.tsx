@@ -145,36 +145,16 @@ export default async function HomePage() {
     .slice(0, 3);
 
   return (
-    <div className="space-y-16 pb-20">
-      {/* Index Status Sub-header */}
-      <section className="border-b border-[#1e2430] bg-[#0f1217] py-8 px-4 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="font-mono text-[11px] uppercase tracking-wider text-[#94a1b5]">
-                MangaPulse Release Directory & Tracker
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Manga Release Schedule, Countdowns & Official Directory
-            </h1>
-            <p className="text-xs sm:text-sm text-[#94a1b5] leading-relaxed">
-              Tracking simultaneous chapter releases across Shueisha, Kodansha, Viz Media, and Kakao. Zero scanlations. Direct verified access to official publishers and chapter clocks.
-            </p>
-          </div>
-        </div>
-      </section>
-
+    <div className="space-y-16 pb-20 pt-6">
       {/* Section 1: Active Imminent Chapter Countdowns */}
       {countdownManga.length > 0 && (
         <section id="countdowns" className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between pb-3 mb-6 border-b border-[#1e2430]">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-blue-400" />
-              <h2 className="text-base font-bold text-white uppercase tracking-wider text-xs">
+              <h1 className="text-base font-bold text-white uppercase tracking-wider text-xs">
                 Active Simulpub Chapter Countdowns
-              </h2>
+              </h1>
             </div>
             <span className="text-[11px] font-mono text-[#5e6b82]">
               Synced to Japanese Midnight JST Drop Times

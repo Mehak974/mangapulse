@@ -42,6 +42,8 @@ export default function DonatePage() {
     patron: "https://ko-fi.com/summary/1a4fc898-513d-4a7e-9f04-5f25aa1c00f8",
   };
 
+  const PATREON_JOIN_URL = "https://www.patreon.com/17189920/join";
+
   const handleOfficialCheckout = (amount: number, tierName: string) => {
     let checkoutUrl = "https://ko-fi.com/mangapulse";
     const lower = tierName.toLowerCase();
@@ -182,9 +184,9 @@ export default function DonatePage() {
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
             <div>
-              <span className="font-bold text-white block">100% Secure Ko-fi Checkout • Zero Financial Risk</span>
+              <span className="font-bold text-white block">100% Secure Checkout • Debit Cards, Credit Cards, PayPal & Stripe</span>
               <span className="text-[#94a1b5] text-[11px]">
-                MangaPulse never takes, handles, or stores credit cards or banking data. All transactions are processed off-site via Ko-fi (PayPal / Stripe) with full buyer protection.
+                MangaPulse never handles or stores credit cards or banking data. All transactions are securely processed off-site via Patreon & Ko-fi with full buyer protection.
               </span>
             </div>
           </div>
@@ -194,6 +196,31 @@ export default function DonatePage() {
           >
             Read Terms &rarr;
           </Link>
+        </div>
+
+        {/* ── Pay with Debit Card Banner ── */}
+        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#13171f] via-[#1a2130] to-[#13171f] border border-blue-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl">
+          <div className="space-y-1.5 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono text-[10px] font-bold uppercase tracking-wider border border-blue-500/30">
+              <CreditCard className="w-3 h-3" />
+              <span>Direct Card Checkout</span>
+            </div>
+            <h2 className="text-lg font-bold text-white">Pay with Debit Card</h2>
+            <p className="text-xs text-[#94a1b5] leading-relaxed">
+              Prefer paying directly with your Debit Card, Credit Card, Apple Pay, or Google Pay? You can join directly through our official Patreon portal.
+            </p>
+          </div>
+
+          <a
+            href={PATREON_JOIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full md:w-auto py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-blue-500/20 whitespace-nowrap cursor-pointer hover:scale-[1.02]"
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>Pay with Debit Card (Patreon)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
 
         {/* ── 3 Supporter Tiers ── */}
@@ -231,13 +258,24 @@ export default function DonatePage() {
               </ul>
             </div>
 
-            <button
-              onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
-              className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Coffee className="w-4 h-4 text-amber-400" />
-              <span>Tip $3 via Ko-fi</span>
-            </button>
+            <div className="mt-6 space-y-2">
+              <button
+                onClick={() => handleOfficialCheckout(3, "Coffee Supporter")}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Coffee className="w-4 h-4 text-amber-400" />
+                <span>Tip $3 via Ko-fi</span>
+              </button>
+              <a
+                href={PATREON_JOIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2 px-3 rounded-xl bg-[#0c0e12] hover:bg-[#1a1f2a] border border-[#2a3344] text-[#94a1b5] hover:text-white font-medium text-[11px] transition-colors flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-3 h-3 text-blue-400" />
+                <span>Pay with Debit Card</span>
+              </a>
+            </div>
           </div>
 
           {/* Tier 2: Pro Supporter (Featured) */}
@@ -281,13 +319,24 @@ export default function DonatePage() {
               </ul>
             </div>
 
-            <button
-              onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
-              className="mt-6 w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer"
-            >
-              <Zap className="w-4 h-4" />
-              <span>Join Pro Tier ($5/mo)</span>
-            </button>
+            <div className="mt-6 space-y-2">
+              <button
+                onClick={() => handleOfficialCheckout(5, "Pro Supporter")}
+                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              >
+                <Zap className="w-4 h-4" />
+                <span>Join Pro Tier ($5/mo)</span>
+              </button>
+              <a
+                href={PATREON_JOIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2 px-3 rounded-xl bg-[#0c0e12] hover:bg-[#1a1f2a] border border-[#2a3344] text-[#94a1b5] hover:text-white font-medium text-[11px] transition-colors flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-3 h-3 text-blue-400" />
+                <span>Pay with Debit Card</span>
+              </a>
+            </div>
           </div>
 
           {/* Tier 3: Manga Patron */}
@@ -327,13 +376,24 @@ export default function DonatePage() {
               </ul>
             </div>
 
-            <button
-              onClick={() => handleOfficialCheckout(15, "Manga Patron")}
-              className="mt-6 w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Crown className="w-4 h-4 text-purple-400" />
-              <span>Become a Patron ($15)</span>
-            </button>
+            <div className="mt-6 space-y-2">
+              <button
+                onClick={() => handleOfficialCheckout(15, "Manga Patron")}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#1a1f2a] hover:bg-[#252f40] text-white font-bold text-xs border border-[#2a3344] transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Crown className="w-4 h-4 text-purple-400" />
+                <span>Become a Patron ($15)</span>
+              </button>
+              <a
+                href={PATREON_JOIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2 px-3 rounded-xl bg-[#0c0e12] hover:bg-[#1a1f2a] border border-[#2a3344] text-[#94a1b5] hover:text-white font-medium text-[11px] transition-colors flex items-center justify-center gap-1.5"
+              >
+                <CreditCard className="w-3 h-3 text-blue-400" />
+                <span>Pay with Debit Card</span>
+              </a>
+            </div>
           </div>
         </div>
 

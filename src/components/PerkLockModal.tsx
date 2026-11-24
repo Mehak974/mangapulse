@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import Link from "next/link";
-import { Crown, Sparkles, Zap, Coffee, X, Check, ExternalLink, ShieldCheck } from "lucide-react";
+import { Crown, Sparkles, Zap, Coffee, X, Check, ExternalLink, ShieldCheck, CreditCard } from "lucide-react";
 
 export type SupporterTierLevel = "coffee" | "supporter" | "legend";
 
@@ -185,6 +185,17 @@ export default function PerkLockModal({
           >
             <span>{targetCtaText}</span>
             <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+
+          <a
+            href="https://www.patreon.com/17189920/join"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#0c0e12] hover:bg-[#1a1f2a] border border-[#2a3344] text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+          >
+            <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+            <span>Pay with Debit Card (Patreon)</span>
+            <ExternalLink className="w-3 h-3 text-[#5e6b82]" />
           </a>
 
           <div className="flex items-center justify-between gap-2 pt-1 text-xs">
