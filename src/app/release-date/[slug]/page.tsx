@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { fetchMangaDetails } from "@/lib/anilist";
-import { buildMetadata, generateCountdownSchema } from "@/lib/seo";
+import { fetchMangaDetails, slugify } from "@/lib/anilist";
+import { buildMetadata, generateCountdownSchema, SITE_URL } from "@/lib/seo";
+import { indexDiscoveredPages } from "@/lib/indexnow";
 import CountdownTimer from "@/components/CountdownTimer";
 import OfficialActions from "@/components/OfficialActions";
 import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle } from "lucide-react";
@@ -42,6 +43,17 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
   const { manga } = await fetchMangaDetails(slug);
 
   if (!manga) notFound();
+
+  // Auto-index newly discovered countdown and manga paths to IndexNow
+  const titleSlug = slugify(manga.displayTitle);
+  indexDiscoveredPages([
+    `${SITE_URL}/release-date/${slug}`,
+    `${SITE_URL}/release-date/${manga.slug}`,
+    titleSlug ? `${SITE_URL}/release-date/${titleSlug}` : null,
+    `${SITE_URL}/manga/${slug}`,
+    `${SITE_URL}/manga/${manga.slug}`,
+    titleSlug ? `${SITE_URL}/manga/${titleSlug}` : null,
+  ]);
 
   const chapterNum =
     manga.nextAiringChapter?.episodeOrChapter ||

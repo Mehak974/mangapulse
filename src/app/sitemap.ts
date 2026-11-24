@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { fetchPopular, getFallbackMangaList, slugify } from "@/lib/anilist";
+import { fetchPopular, fetchTrending, getFallbackMangaList, slugify } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
 
@@ -75,18 +75,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   staticRoutes.forEach(addRoute);
 
-  // 2. Fetch popular titles to index dynamic detail and countdown pages
+  // 2. Fetch popular and trending titles to index dynamic detail and countdown pages
   const mangaPool: MangaItem[] = [];
   try {
-    const [page1Res, page2Res] = await Promise.allSettled([
+    const [page1Res, page2Res, trendingRes] = await Promise.allSettled([
       fetchPopular(1, 50),
       fetchPopular(2, 50),
+      fetchTrending(1, 50),
     ]);
     if (page1Res.status === "fulfilled" && Array.isArray(page1Res.value)) {
       mangaPool.push(...page1Res.value);
     }
     if (page2Res.status === "fulfilled" && Array.isArray(page2Res.value)) {
       mangaPool.push(...page2Res.value);
+    }
+    if (trendingRes.status === "fulfilled" && Array.isArray(trendingRes.value)) {
+      mangaPool.push(...trendingRes.value);
     }
   } catch {
     // Network or rate limit fallback

@@ -69,3 +69,40 @@ export async function submitToIndexNow(urls: string[]): Promise<IndexNowResult> 
     };
   }
 }
+
+// In-memory LRU set to prevent repeated submissions of the same URL across requests
+const recentlyIndexedUrls = new Set<string>();
+
+/**
+ * Automatically indexes newly discovered pages (triggered when users view a manga page,
+ * countdown page, or discover manga in search results).
+ * Runs completely asynchronously (fire-and-forget) so user page responses are never delayed.
+ */
+export function indexDiscoveredPages(urls: (string | null | undefined)[]): void {
+  try {
+    const validUrls = urls.filter(
+      (u): u is string => typeof u === "string" && (u.startsWith("https://") || u.startsWith("http://"))
+    );
+
+    const freshUrls = validUrls.filter((u) => !recentlyIndexedUrls.has(u));
+    if (freshUrls.length === 0) return;
+
+    for (const u of freshUrls) {
+      recentlyIndexedUrls.add(u);
+      if (recentlyIndexedUrls.size > 10000) {
+        const oldest = recentlyIndexedUrls.values().next().value;
+        if (oldest) recentlyIndexedUrls.delete(oldest);
+      }
+    }
+
+    // Submit non-blocking in background
+    submitToIndexNow(freshUrls).catch((err) => {
+      // Non-fatal background error
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("IndexNow auto-indexing background notice:", err?.message || err);
+      }
+    });
+  } catch {
+    // Non-fatal guard
+  }
+}

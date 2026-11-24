@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { searchManga } from "@/lib/anilist";
+import { searchManga, slugify } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
+import { SITE_URL } from "@/lib/seo";
+import { indexDiscoveredPages } from "@/lib/indexnow";
 
 // 60-second in-memory query cache to shield AniList GraphQL rate limits (90 req/min)
 interface CacheEntry {
@@ -10,6 +12,20 @@ interface CacheEntry {
 
 const searchCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+function triggerSearchDiscoveryIndexing(items: MangaItem[]) {
+  if (!items || items.length === 0) return;
+  const discoveredUrls = items.flatMap((m) => {
+    const titleSlug = slugify(m.displayTitle);
+    return [
+      `${SITE_URL}/manga/${m.slug}`,
+      titleSlug ? `${SITE_URL}/manga/${titleSlug}` : null,
+      `${SITE_URL}/release-date/${m.slug}`,
+      titleSlug ? `${SITE_URL}/release-date/${titleSlug}` : null,
+    ];
+  });
+  indexDiscoveredPages(discoveredUrls);
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -29,6 +45,10 @@ export async function GET(request: Request) {
     // Refresh LRU order on hit
     searchCache.delete(cacheKey);
     searchCache.set(cacheKey, cached);
+
+    // Auto-index discovered manga
+    triggerSearchDiscoveryIndexing(cached.data);
+
     return NextResponse.json(
       { results: cached.data, cached: true },
       {
@@ -57,6 +77,9 @@ export async function GET(request: Request) {
       expiresAt: now + CACHE_TTL_MS,
     });
 
+    // Auto-index discovered manga returned from user search
+    triggerSearchDiscoveryIndexing(results);
+
     return NextResponse.json(
       { results, cached: false },
       {
@@ -73,4 +96,3 @@ export async function GET(request: Request) {
     );
   }
 }
-

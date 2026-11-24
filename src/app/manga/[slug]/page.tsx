@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { fetchMangaDetails } from "@/lib/anilist";
-import { buildMetadata, generateBookSchema, generateCountdownSchema } from "@/lib/seo";
+import { fetchMangaDetails, slugify } from "@/lib/anilist";
+import { buildMetadata, generateBookSchema, generateCountdownSchema, SITE_URL } from "@/lib/seo";
+import { indexDiscoveredPages } from "@/lib/indexnow";
 import MangaDetailActions from "@/components/MangaDetailActions";
 import MangaDetailTabs from "@/components/MangaDetailTabs";
 import { Star } from "lucide-react";
@@ -43,6 +44,17 @@ export default async function MangaDetailPage({ params }: PageProps) {
   const { manga, recommendations } = await fetchMangaDetails(slug);
 
   if (!manga) notFound();
+
+  // Auto-index newly discovered manga and pure-title paths to IndexNow
+  const titleSlug = slugify(manga.displayTitle);
+  indexDiscoveredPages([
+    `${SITE_URL}/manga/${slug}`,
+    `${SITE_URL}/manga/${manga.slug}`,
+    titleSlug ? `${SITE_URL}/manga/${titleSlug}` : null,
+    `${SITE_URL}/release-date/${slug}`,
+    `${SITE_URL}/release-date/${manga.slug}`,
+    titleSlug ? `${SITE_URL}/release-date/${titleSlug}` : null,
+  ]);
 
   const coverUrl =
     manga.coverImage.extraLarge ||
