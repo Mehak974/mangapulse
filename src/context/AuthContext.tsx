@@ -39,6 +39,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<UserProfile | null>;
+  refreshProfile: () => Promise<void>;
 
   // Library
   library: UserLibraryEntry[];
@@ -220,6 +221,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 isBanned = Boolean(profile.is_banned);
                 isShadowBanned = Boolean(profile.is_shadow_banned);
                 banReason = profile.ban_reason || null;
+              }
+
+              if (session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+                userRole = "ADMIN";
               }
 
               if (privSettings?.kofi_email) {
@@ -461,6 +466,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
+  const refreshProfile = useCallback(async () => {
+    if (!supabase) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier, is_private, role, is_banned, is_shadow_banned, ban_reason")
+          .eq("id", session.user.id)
+          .single();
+
+        let userRole = profile?.role || "USER";
+        if (session.user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+          userRole = "ADMIN";
+        }
+
+        setUser((prev) => {
+          if (!prev) return prev;
+          const updated: UserProfile = {
+            ...prev,
+            role: userRole as any,
+            is_supporter: profile ? Boolean(profile.is_supporter) : prev.is_supporter,
+            supporter_tier: profile?.supporter_tier || prev.supporter_tier,
+          };
+          setStoredUser(updated);
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.warn("Could not refresh profile:", err);
+    }
+  }, []);
+
   /* ── Library Actions ── */
   const updateLibrary = async (
     entry: Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string }
@@ -553,6 +591,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle,
         logout,
         updateProfile,
+        refreshProfile,
 
         library,
         refreshLibrary: () => refreshLibrary(user?.id),

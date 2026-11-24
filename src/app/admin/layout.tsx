@@ -23,7 +23,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoggedIn, login, signInWithGoogle, logout, updateProfile } = useAuth();
+  const { user, isLoggedIn, login, signInWithGoogle, logout, updateProfile, refreshProfile } = useAuth();
 
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -37,19 +37,35 @@ export default function AdminLayout({
 
   // ── Verify Role against Live Database ──
   const verifyLiveAdminRole = useCallback(async (userId?: string) => {
-    if (!userId && !user?.id) {
+    let targetId = userId || user?.id;
+    let targetEmail = user?.email?.toLowerCase();
+
+    // If targetId or email not yet hydrated from context, check active Supabase session
+    if (supabase && (!targetId || !targetEmail)) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          targetId = targetId || session.user.id;
+          targetEmail = targetEmail || session.user.email?.toLowerCase();
+        }
+      } catch (err) {
+        console.warn("Could not retrieve session:", err);
+      }
+    }
+
+    if (!targetId) {
       setCheckingAuth(false);
       setIsAdmin(false);
       return;
     }
 
-    const targetId = userId || user?.id;
-
-    // Check existing context first
-    if (user?.role === "ADMIN") {
+    // Owner email always has master ADMIN privileges
+    const isOwner = targetEmail === "mehakiqbal974@gmail.com";
+    if (user?.role === "ADMIN" || isOwner) {
       setIsAdmin(true);
       setLiveRole("ADMIN");
       setCheckingAuth(false);
+      refreshProfile?.();
       return;
     }
 
@@ -67,6 +83,7 @@ export default function AdminLayout({
           if (profile.role === "ADMIN") {
             setIsAdmin(true);
             setCheckingAuth(false);
+            refreshProfile?.();
             return;
           }
         }
@@ -77,7 +94,7 @@ export default function AdminLayout({
 
     setIsAdmin(false);
     setCheckingAuth(false);
-  }, [user?.id, user?.role]);
+  }, [user, refreshProfile]);
 
   useEffect(() => {
     // Initial check on load
@@ -110,11 +127,13 @@ export default function AdminLayout({
           .eq("id", authUser.id)
           .single();
 
-        if (profile?.role === "ADMIN") {
+        const isOwner = authUser.email?.toLowerCase() === "mehakiqbal974@gmail.com";
+        if (profile?.role === "ADMIN" || isOwner) {
           setIsAdmin(true);
           setLiveRole("ADMIN");
           setCheckingAuth(false);
           setLoginLoading(false);
+          refreshProfile?.();
           return;
         } else {
           setLoginError(`Account signed in, but role is "${profile?.role || "USER"}". Administrator privileges required.`);
@@ -299,9 +318,10 @@ export default function AdminLayout({
 
           <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full pt-2">
             <button
-              onClick={() => {
+              onClick={async () => {
                 setCheckingAuth(true);
-                verifyLiveAdminRole();
+                await refreshProfile?.();
+                await verifyLiveAdminRole();
               }}
               className="w-full sm:flex-1 py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
