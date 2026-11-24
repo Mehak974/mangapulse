@@ -23,6 +23,7 @@ import {
   Edit3,
   ShieldAlert,
   ShieldCheck,
+  Shield,
   Lock,
   Trophy,
   Target,
@@ -47,6 +48,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { UserLibraryEntry, ActivityItem } from "@/types/manga";
 import SupporterAvatar from "@/components/SupporterAvatar";
+import StaffBadge from "@/components/StaffBadge";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import PerkLockModal, { SupporterTierLevel } from "@/components/PerkLockModal";
 import { getUserActivities, DEFAULT_PREFERENCES } from "@/lib/userStore";
@@ -636,6 +638,7 @@ export default function ProfilePage() {
                 <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   @{username}
                 </span>
+                <StaffBadge role={user?.role} />
                 {isPrivate && (
                   <span className="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
@@ -660,6 +663,16 @@ export default function ProfilePage() {
 
           {/* Action Buttons Toolbar right in the Identity Row (100% Clickable, Guaranteed Accessibility) */}
           <div className="flex items-center gap-2 flex-wrap relative z-30 pointer-events-auto">
+            {user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="px-3 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-semibold border border-blue-500/40 flex items-center gap-1.5 transition-colors shadow-sm"
+              >
+                <Shield className="w-3.5 h-3.5 text-blue-400" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
+
             {/* Theme Customizer Button */}
             <button
               type="button"

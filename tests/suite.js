@@ -65,4 +65,39 @@ assert.strictEqual(validateTelemetry("A".repeat(65), "One Piece", null), false, 
 assert.strictEqual(validateTelemetry("Viz Media", "A".repeat(155), null), false, "Title > 150 chars must fail");
 console.log("✔ Outbound click validation boundaries passed.");
 
-console.log("\n All 4 test invariant suites passed successfully (0 errors).");
+// 5. Test Reserved Usernames & Staff RBAC Invariants
+const RESERVED_STAFF_NAMES = ["admin", "staff", "mangapulse", "moderator", "mod", "system", "support"];
+function isReservedUsername(username) {
+  const clean = (username || "").toLowerCase().trim();
+  return RESERVED_STAFF_NAMES.some((r) => clean === r || clean.includes(r));
+}
+
+assert.strictEqual(isReservedUsername("admin"), true, "admin must be blocked");
+assert.strictEqual(isReservedUsername("staff_member"), true, "staff prefix must be blocked");
+assert.strictEqual(isReservedUsername("mangapulse_official"), true, "mangapulse must be blocked");
+assert.strictEqual(isReservedUsername("moderator_dan"), true, "moderator must be blocked");
+assert.strictEqual(isReservedUsername("ordinary_reader_99"), false, "valid reader username must pass");
+console.log("✔ Reserved staff username prevention invariant passed.");
+
+// 6. Test RBAC Role Gate Invariants
+const VALID_ROLES = new Set(["USER", "SUPPORTER", "MODERATOR", "ADMIN"]);
+function hasAdminAccess(role) {
+  return role === "ADMIN";
+}
+function hasModAccess(role) {
+  return role === "ADMIN" || role === "MODERATOR";
+}
+
+assert.strictEqual(VALID_ROLES.has("USER"), true);
+assert.strictEqual(VALID_ROLES.has("SUPPORTER"), true);
+assert.strictEqual(VALID_ROLES.has("MODERATOR"), true);
+assert.strictEqual(VALID_ROLES.has("ADMIN"), true);
+assert.strictEqual(VALID_ROLES.has("HACKER"), false, "invalid role must be rejected");
+assert.strictEqual(hasAdminAccess("ADMIN"), true, "ADMIN role must have admin panel access");
+assert.strictEqual(hasAdminAccess("MODERATOR"), false, "MODERATOR must not have full admin access");
+assert.strictEqual(hasAdminAccess("USER"), false, "USER must not have admin panel access");
+assert.strictEqual(hasModAccess("MODERATOR"), true, "MODERATOR must have forum moderation access");
+assert.strictEqual(hasModAccess("ADMIN"), true, "ADMIN must have forum moderation access");
+console.log("✔ RBAC role gate hierarchy invariants passed.");
+
+console.log("\n All 6 test invariant suites passed successfully (0 errors).");

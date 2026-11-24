@@ -64,6 +64,8 @@ export interface UserPreferences {
   is_private?: boolean;
 }
 
+export type UserRole = "USER" | "SUPPORTER" | "MODERATOR" | "ADMIN";
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -81,6 +83,65 @@ export interface UserProfile {
   is_private?: boolean;
   supporter_tier?: string | null;
   kofi_email?: string | null;
+  role?: UserRole;
+  is_banned?: boolean;
+  is_shadow_banned?: boolean;
+  ban_reason?: string | null;
+  banned_at?: string | null;
+  last_login_at?: string | null;
+  last_login_ip?: string | null;
+  signup_ip?: string | null;
+  auth_provider?: string | null;
+}
+
+export interface AuditLogItem {
+  id: string;
+  admin_id: string;
+  admin_username?: string;
+  admin_email?: string;
+  action: string;
+  target_id?: string | null;
+  details?: Record<string, any> | null;
+  ip_address?: string | null;
+  created_at: string;
+}
+
+export interface MangaOverrideItem {
+  manga_slug: string;
+  is_delisted: boolean;
+  status_override?: "DELAYED" | "HIATUS" | "ONGOING" | "COMPLETED" | null;
+  next_chapter_override?: number | null;
+  target_timestamp_override?: number | null;
+  reason?: string | null;
+  updated_at: string;
+}
+
+export interface SitewideBroadcastItem {
+  id: string;
+  message: string;
+  is_active: boolean;
+  level: "info" | "warning" | "critical";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminTelemetryUser {
+  id: string;
+  email: string;
+  username: string;
+  display_name?: string | null;
+  role: UserRole;
+  created_at: string;
+  last_login_at?: string | null;
+  last_login_ip?: string | null;
+  last_user_agent?: string | null;
+  signup_ip?: string | null;
+  auth_provider?: string | null;
+  is_banned: boolean;
+  is_shadow_banned: boolean;
+  ban_reason?: string | null;
+  banned_at?: string | null;
+  country?: string | null;
 }
 
 export interface ActivityItem {

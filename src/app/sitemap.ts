@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { fetchPopular, fetchTrending, getFallbackMangaList, slugify } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
+import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -111,9 +112,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // 3. Generate both pure title URLs (/manga/[title]) and ID-based URLs (/manga/[title]-[id])
+  const delistedList = await getAllDelistedSlugs();
+  const delistedSet = new Set(delistedList.map((s) => s.toLowerCase()));
+
   for (const manga of uniqueManga) {
     const titleSlug = slugify(manga.displayTitle);
     const fullSlug = manga.slug;
+
+    // Exclude delisted DMCA titles from sitemap
+    if (delistedSet.has(titleSlug) || delistedSet.has(fullSlug.toLowerCase())) {
+      continue;
+    }
 
     // Pure title manga page (e.g. https://www.mangapulse.co/manga/one-piece)
     if (titleSlug) {

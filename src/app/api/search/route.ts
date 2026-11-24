@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { searchManga, slugify } from "@/lib/anilist";
+import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
 import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
 import { indexDiscoveredPages } from "@/lib/indexnow";
@@ -60,7 +61,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    const results = await searchManga(cleanQuery, limit);
+    const rawResults = await searchManga(cleanQuery, limit);
+    const delisted = await getAllDelistedSlugs();
+    const results = delisted.length > 0
+      ? rawResults.filter(
+          (m) =>
+            !delisted.includes(m.slug.toLowerCase()) &&
+            !delisted.includes(slugify(m.displayTitle))
+        )
+      : rawResults;
 
     // Enforce strict LRU cap of 200 items before insertion to prevent memory bloat
     while (searchCache.size >= 200) {

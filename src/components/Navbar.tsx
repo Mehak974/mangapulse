@@ -23,6 +23,7 @@ import {
   Sparkles,
   Sun,
   Moon,
+  Shield,
 } from "lucide-react";
 import { searchManga } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
@@ -326,6 +327,17 @@ export default function Navbar() {
                   <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
                   <span>My Dashboard</span>
                 </Link>
+
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 font-semibold transition-colors border border-blue-500/30"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Admin Panel</span>
+                  </Link>
+                )}
 
                 <Link
                   href="/library"

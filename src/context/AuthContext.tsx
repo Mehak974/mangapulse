@@ -190,12 +190,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             let dbAvatar: string | null = null;
             let isPrivateProfile = false;
             let linkedKofiEmail: string | null = null;
+            let userRole: any = "USER";
+            let isBanned = false;
+            let isShadowBanned = false;
+            let banReason: string | null = null;
 
             try {
               const [{ data: profile }, { data: privSettings }] = await Promise.all([
                 client
                   .from("profiles")
-                  .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier, is_private")
+                  .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier, is_private, role, is_banned, is_shadow_banned, ban_reason")
                   .eq("id", session.user.id)
                   .single(),
                 client
@@ -212,6 +216,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 dbUsername = profile.username || null;
                 dbAvatar = profile.avatar_url || null;
                 isPrivateProfile = Boolean(profile.is_private);
+                userRole = profile.role || "USER";
+                isBanned = Boolean(profile.is_banned);
+                isShadowBanned = Boolean(profile.is_shadow_banned);
+                banReason = profile.ban_reason || null;
               }
 
               if (privSettings?.kofi_email) {
@@ -224,6 +232,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   target_user_id: session.user.id,
                   user_email: session.user.email.toLowerCase(),
                 });
+              }
+
+              // Send background login telemetry
+              if (session.access_token) {
+                fetch("/api/auth/telemetry", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${session.access_token}` },
+                }).catch(() => {});
               }
             } catch (err) {
               console.warn("Could not fetch server profile:", err);
@@ -240,6 +256,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               supporter_tier: supporterTier,
               is_private: isPrivateProfile,
               kofi_email: linkedKofiEmail,
+              role: userRole,
+              is_banned: isBanned,
+              is_shadow_banned: isShadowBanned,
+              ban_reason: banReason,
               created_at: session.user.created_at,
             };
             setUser(u);
@@ -276,20 +296,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let bioText: string | null = null;
         let dbUsername: string | null = null;
         let dbAvatar: string | null = null;
+        let userRole: any = "USER";
 
         try {
           const { data: profile } = await supabase
             .from("profiles")
-            .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier")
+            .select("username, display_name, avatar_url, bio, is_supporter, supporter_tier, role, is_banned, ban_reason")
             .eq("id", data.user.id)
             .single();
 
           if (profile) {
+            if (profile.is_banned) {
+              await supabase.auth.signOut();
+              return {
+                success: false,
+                error: `Your account has been suspended: ${profile.ban_reason || "Violation of Community Guidelines"}`,
+              };
+            }
             isSupporter = Boolean(profile.is_supporter);
             supporterTier = profile.supporter_tier || "none";
             bioText = profile.bio || null;
             dbUsername = profile.username || null;
             dbAvatar = profile.avatar_url || null;
+            userRole = profile.role || "USER";
           }
         } catch (err) {
           console.warn("Could not fetch server profile on login:", err);
@@ -303,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           bio: bioText,
           is_supporter: isSupporter,
           supporter_tier: supporterTier,
+          role: userRole,
           created_at: data.user.created_at,
         };
         setUser(u);
@@ -323,6 +353,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, pass: string, username: string) => {
     try {
+      const RESERVED = ["admin", "staff", "mangapulse", "moderator", "mod", "system", "support"];
+      const checkName = (username || "").toLowerCase().trim();
+      if (RESERVED.some((r) => checkName === r || checkName.includes(r))) {
+        return { success: false, error: "Username contains reserved staff keywords." };
+      }
+
       if (supabase && isSupabaseConfigured) {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -395,18 +431,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    // Entitlement security: Strip privileged supporter fields so client cannot elevate itself
+    // Entitlement security: Strip privileged supporter and role fields so client cannot elevate itself
     const sanitized = { ...updates };
     delete sanitized.is_supporter;
     delete sanitized.supporter_tier;
+    delete sanitized.role;
+    delete sanitized.is_banned;
+    delete sanitized.is_shadow_banned;
+    delete sanitized.ban_reason;
+
+    if (sanitized.username) {
+      const RESERVED = ["admin", "staff", "mangapulse", "moderator", "mod", "system", "support"];
+      const checkName = sanitized.username.toLowerCase().trim();
+      if (user?.role !== "ADMIN" && RESERVED.some((r) => checkName === r || checkName.includes(r))) {
+        throw new Error("Username contains reserved staff keywords.");
+      }
+    }
 
     const updated = await storeUpdateUserProfile(sanitized);
     if (updated) {
-      // Preserve verified supporter status from existing server session
+      // Preserve verified supporter & role status from existing server session
       setUser({
         ...updated,
         is_supporter: user?.is_supporter ?? false,
         supporter_tier: user?.supporter_tier ?? "none",
+        role: user?.role ?? "USER",
       });
     }
     return updated;

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import BroadcastBanner from "@/components/BroadcastBanner";
 import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
@@ -152,6 +153,7 @@ export default function RootLayout({
           />
         </noscript>
         <AuthProvider>
+          <BroadcastBanner />
           <Navbar />
           <main className="flex-1">{children}</main>
           <MobileNav />

@@ -4,9 +4,11 @@ export interface ForumComment {
   id: string;
   author_name: string;
   author_avatar?: string | null;
+  author_role?: string | null;
   content: string;
   created_at: string;
   upvotes: number;
+  is_deleted?: boolean;
 }
 
 export interface ForumThread {
@@ -15,11 +17,15 @@ export interface ForumThread {
   title: string;
   author_name: string;
   author_avatar?: string | null;
+  author_role?: string | null;
   content: string;
   manga_tag?: string | null;
   created_at: string;
   upvotes: number;
   comments: ForumComment[];
+  is_pinned?: boolean;
+  is_locked?: boolean;
+  is_deleted?: boolean;
 }
 
 const STORAGE_KEY = "mangapulse_forum_threads";
@@ -226,7 +232,8 @@ export async function addCommentToThread(
   author_name: string,
   content: string,
   author_avatar?: string | null,
-  authorId?: string
+  authorId?: string,
+  author_role?: string | null
 ): Promise<ForumComment | null> {
   const list = getForumThreads();
   const thread = list.find((t) => t.id === threadId);
@@ -236,6 +243,7 @@ export async function addCommentToThread(
     id: `c-${Date.now()}`,
     author_name,
     author_avatar,
+    author_role: author_role || null,
     content: content.trim(),
     created_at: new Date().toISOString(),
     upvotes: 0,

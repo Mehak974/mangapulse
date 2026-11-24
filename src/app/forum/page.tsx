@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import SupporterAvatar from "@/components/SupporterAvatar";
+import StaffBadge from "@/components/StaffBadge";
 import {
   ForumThread,
   getForumThreads,
@@ -87,6 +88,7 @@ export default function ForumPage() {
         manga_tag: newTag.trim() || null,
         author_name: author,
         author_avatar,
+        author_role: user?.role || "USER",
       },
       user?.id
     );
@@ -105,7 +107,7 @@ export default function ForumPage() {
     const author = user?.displayName || user?.username || "Reader";
     const author_avatar = user?.avatar_url || null;
 
-    await addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar, user?.id);
+    await addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar, user?.id, user?.role || "USER");
     setCommentText("");
   };
 
@@ -247,6 +249,7 @@ export default function ForumPage() {
                           showBadge={false}
                         />
                         <span>{thread.author_name}</span>
+                        <StaffBadge role={thread.author_role} />
                       </span>
 
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#94a1b5]">
@@ -282,13 +285,18 @@ export default function ForumPage() {
                       {selectedThread.manga_tag}
                     </span>
                   )}
-                  <span className="text-xs text-[#5e6b82]">
-                    Posted by <strong className="text-white">{selectedThread.author_name}</strong> •{" "}
-                    {new Date(selectedThread.created_at).toLocaleDateString([], {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                  <span className="text-xs text-[#5e6b82] flex items-center gap-1.5 flex-wrap">
+                    <span>Posted by</span>
+                    <strong className="text-white">{selectedThread.author_name}</strong>
+                    <StaffBadge role={selectedThread.author_role} />
+                    <span>•</span>
+                    <span>
+                      {new Date(selectedThread.created_at).toLocaleDateString([], {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
                   </span>
                 </div>
 
@@ -323,6 +331,7 @@ export default function ForumPage() {
                                 showBadge={false}
                               />
                               <span>{c.author_name}</span>
+                              <StaffBadge role={c.author_role} />
                             </span>
                             <span className="font-mono">
                               {new Date(c.created_at).toLocaleTimeString([], {

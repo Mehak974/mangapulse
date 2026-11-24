@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { fetchMangaDetails, slugify } from "@/lib/anilist";
+import { isMangaDelisted } from "@/lib/mangaOverrides";
 import { buildMetadata, generateCountdownSchema, SITE_URL } from "@/lib/seo";
 import { indexDiscoveredPages } from "@/lib/indexnow";
 import CountdownTimer from "@/components/CountdownTimer";
@@ -16,6 +17,14 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  if (await isMangaDelisted(slug)) {
+    return buildMetadata({
+      title: "Release Date Not Found",
+      path: `/release-date/${slug}`,
+      noIndex: true,
+    });
+  }
+
   const { manga } = await fetchMangaDetails(slug);
 
   if (!manga) {
@@ -40,9 +49,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ReleaseDateCountdownPage({ params }: PageProps) {
   const { slug } = await params;
+  if (await isMangaDelisted(slug)) notFound();
+
   const { manga } = await fetchMangaDetails(slug);
 
   if (!manga) notFound();
+  if (await isMangaDelisted(manga.slug) || await isMangaDelisted(manga.displayTitle)) notFound();
 
   // Auto-index newly discovered countdown and manga paths to IndexNow
   const titleSlug = slugify(manga.displayTitle);
