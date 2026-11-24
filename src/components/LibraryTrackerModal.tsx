@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { MangaItem, LibraryStatus, UserLibraryEntry } from "@/types/manga";
-import { upsertLibraryEntry, removeLibraryEntry, fetchUserLibrary } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 import { X, Check, Trash2, Bookmark } from "lucide-react";
 
 interface ModalProps {
@@ -11,6 +11,7 @@ interface ModalProps {
 }
 
 export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
+  const { user, library, updateLibrary, removeFromLibrary } = useAuth();
   const [status, setStatus] = useState<LibraryStatus>("reading");
   const [progress, setProgress] = useState<number>(0);
   const [rating, setRating] = useState<number>(0);
@@ -19,26 +20,22 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
   const [existingId, setExistingId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function load() {
-      const items = await fetchUserLibrary();
-      const match = items.find((it) => it.manga_id === manga.id);
-      if (match) {
-        setExistingId(match.id);
-        setStatus(match.status);
-        setProgress(match.progress_chapter);
-        setRating(match.rating || 0);
-        setNotes(match.notes || "");
-      }
+    const match = library.find((it) => it.manga_id === manga.id);
+    if (match) {
+      setExistingId(match.id);
+      setStatus(match.status);
+      setProgress(match.progress_chapter);
+      setRating(match.rating || 0);
+      setNotes(match.notes || "");
     }
-    load();
-  }, [manga.id]);
+  }, [manga.id, library]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await upsertLibraryEntry({
+      await updateLibrary({
         id: existingId || undefined,
-        user_id: "guest",
+        user_id: user?.id || "guest",
         manga_id: manga.id,
         manga_slug: manga.slug,
         manga_title: manga.displayTitle,
@@ -62,7 +59,7 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
   };
 
   const handleDelete = async () => {
-    await removeLibraryEntry(manga.id);
+    await removeFromLibrary(manga.id);
     onClose();
   };
 

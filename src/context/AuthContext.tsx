@@ -15,6 +15,7 @@ import {
   updateUserProfile as storeUpdateUserProfile,
   getUserLibrary,
   saveLibraryEntry,
+  saveLibraryBatch,
   deleteLibraryEntry,
   getUserCollections,
   createCollection as storeCreateCollection,
@@ -43,8 +44,9 @@ interface AuthContextType {
 
   // Library
   library: UserLibraryEntry[];
-  refreshLibrary: () => Promise<void>;
+  refreshLibrary: (userId?: string) => Promise<void>;
   updateLibrary: (entry: Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string }) => Promise<void>;
+  importLibraryBatch: (entries: (Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string })[]) => Promise<UserLibraryEntry[]>;
   removeFromLibrary: (mangaId: number) => Promise<void>;
   incrementChapter: (mangaId: number) => Promise<void>;
 
@@ -88,9 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [selectedMangaForCollection, setSelectedMangaForCollection] = useState<MangaItem | null>(null);
 
   const refreshLibrary = useCallback(async (userId?: string) => {
-    const data = await getUserLibrary(userId);
+    const targetId = userId ?? user?.id;
+    const data = await getUserLibrary(targetId);
     setLibrary(data);
-  }, []);
+  }, [user?.id]);
 
   const refreshCollections = useCallback(async (userId?: string) => {
     const data = await getUserCollections(userId);
@@ -541,6 +544,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await refreshLibrary(user?.id);
   };
 
+  const importLibraryBatch = async (
+    entries: (Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string })[]
+  ) => {
+    const updated = await saveLibraryBatch(entries, user?.id);
+    setLibrary(updated);
+    return updated;
+  };
+
   const removeFromLibrary = async (mangaId: number) => {
     await deleteLibraryEntry(mangaId, user?.id);
     await refreshLibrary(user?.id);
@@ -625,8 +636,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshProfile,
 
         library,
-        refreshLibrary: () => refreshLibrary(user?.id),
+        refreshLibrary: (uid?: string) => refreshLibrary(uid ?? user?.id),
         updateLibrary,
+        importLibraryBatch,
         removeFromLibrary,
         incrementChapter,
 

@@ -107,21 +107,24 @@ export async function fetchAniListUserLibrary(username: string): Promise<UserLib
         media.coverImage?.medium ||
         "/placeholder-cover.png";
 
+      const scoreNum = Number(item.score);
+      const rating = scoreNum > 0 ? Math.min(10, Math.max(1, scoreNum)) : null;
+
       entries.push({
-        id: `imported-${media.id}`,
+        id: undefined,
         user_id: "local",
         manga_id: media.id,
         manga_slug: slug,
         manga_title: title,
         manga_cover: cover,
         status: mapAniListStatus(item.status || list.status),
-        progress_chapter: item.progress || 0,
+        progress_chapter: Math.max(0, item.progress || 0),
         total_chapters: media.chapters || null,
-        rating: item.score ? Math.min(10, Math.max(1, Number(item.score))) : null,
+        rating,
         notes: null,
         created_at: now,
         updated_at: now,
-      });
+      } as any);
     }
   }
 
@@ -154,20 +157,20 @@ export function parseMALXml(xmlText: string): UserLibraryEntry[] {
     const status = mapMALStatus(statusMatch ? statusMatch[1] : undefined);
 
     entries.push({
-      id: `imported-mal-${mangaId}`,
+      id: undefined,
       user_id: "local",
       manga_id: mangaId,
       manga_slug: slug,
       manga_title: title,
       manga_cover: "/placeholder-cover.png",
       status,
-      progress_chapter: progress,
+      progress_chapter: Math.max(0, progress),
       total_chapters: null,
-      rating: score,
+      rating: score && score >= 1 && score <= 10 ? score : null,
       notes: null,
       created_at: now,
       updated_at: now,
-    });
+    } as any);
   }
 
   return entries;

@@ -19,7 +19,9 @@ import {
   Settings,
   Activity,
   Layers,
+  Download,
 } from "lucide-react";
+import ImportModal from "@/components/ImportModal";
 import { useAuth } from "@/context/AuthContext";
 import CountdownTimer from "@/components/CountdownTimer";
 import MangaCard from "@/components/MangaCard";
@@ -54,10 +56,11 @@ const GENRE_MAP: Record<string, string[]> = {
 };
 
 export default function DashboardPage() {
-  const { user, isLoggedIn, library, collections, incrementChapter } = useAuth();
+  const { user, isLoggedIn, library, collections, incrementChapter, refreshLibrary } = useAuth();
   const [recommendations, setRecommendations] = useState<MangaItem[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingRecs, setLoadingRecs] = useState(true);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   // Combine unique manga entries from both library and user collections
   const userMangaMap = useMemo(() => {
@@ -322,6 +325,14 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setImportModalOpen(true)}
+              className="px-3.5 py-2 rounded-lg bg-[#1a1f2a] hover:bg-[#222938] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-2 transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-400" />
+              <span>Import</span>
+            </button>
             <Link
               href="/library"
               className="px-3.5 py-2 rounded-lg bg-[#1a1f2a] hover:bg-[#222938] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-2 transition-colors"
@@ -416,9 +427,17 @@ export default function DashboardPage() {
                 You haven&apos;t added any manga to your library or collections yet. Create a collection or add titles to track upcoming chapters, countdowns, and your weekly release schedule.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setImportModalOpen(true)}
+                  className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-blue-600/20 cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Import AniList / MAL</span>
+                </button>
                 <Link
                   href="/library"
-                  className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-colors shadow-lg shadow-blue-600/20"
+                  className="px-4 py-2.5 rounded-lg bg-[#1a1f2a] hover:bg-[#252f40] text-white text-xs font-semibold border border-[#2a3344] flex items-center gap-2 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create a Collection</span>
@@ -808,6 +827,12 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+
+      <ImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={() => refreshLibrary()}
+      />
     </div>
   );
 }

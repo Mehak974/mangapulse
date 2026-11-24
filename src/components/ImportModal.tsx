@@ -12,7 +12,7 @@ interface ImportModalProps {
 }
 
 export default function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
-  const { updateLibrary } = useAuth();
+  const { importLibraryBatch } = useAuth();
   const [activeTab, setActiveTab] = useState<"anilist" | "mal">("anilist");
   const [aniListUser, setAniListUser] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,14 +31,15 @@ export default function ImportModal({ isOpen, onClose, onSuccess }: ImportModalP
 
     try {
       const entries = await fetchAniListUserLibrary(aniListUser);
-      for (const entry of entries) {
-        await updateLibrary(entry);
+      if (!entries || entries.length === 0) {
+        throw new Error(`No manga entries found on '${aniListUser.trim()}' AniList profile.`);
       }
+      await importLibraryBatch(entries);
       setImportCount(entries.length);
       setTimeout(() => {
         onSuccess();
         onClose();
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to import from AniList.");
     } finally {
@@ -59,14 +60,15 @@ export default function ImportModal({ isOpen, onClose, onSuccess }: ImportModalP
       try {
         const text = event.target?.result as string;
         const entries = parseMALXml(text);
-        for (const entry of entries) {
-          await updateLibrary(entry);
+        if (!entries || entries.length === 0) {
+          throw new Error("No manga records found in the provided XML file.");
         }
+        await importLibraryBatch(entries);
         setImportCount(entries.length);
         setTimeout(() => {
           onSuccess();
           onClose();
-        }, 1500);
+        }, 1200);
       } catch (err: any) {
         setErrorMsg(err.message || "Failed to parse MyAnimeList XML file.");
       } finally {

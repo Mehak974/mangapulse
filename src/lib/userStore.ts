@@ -116,6 +116,18 @@ function getLocal<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
     const raw = localStorage.getItem(key);
+    if (!raw && key === STORAGE_KEYS.LIBRARY) {
+      const legacy = localStorage.getItem("mangareader_library_v1") || localStorage.getItem("mangapulse_user_library");
+      if (legacy) {
+        try {
+          const parsed = JSON.parse(legacy);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            localStorage.setItem(key, legacy);
+            return parsed as T;
+          }
+        } catch {}
+      }
+    }
     return raw ? JSON.parse(raw) : fallback;
   } catch {
     return fallback;
@@ -286,8 +298,16 @@ export async function updateUserProfile(updates: Partial<UserProfile>): Promise<
 
 /* ────────────────────────── LIBRARY ────────────────────────── */
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidUuid(id?: string | null): boolean {
+  return Boolean(id && UUID_REGEX.test(id));
+}
+
 export async function getUserLibrary(userId?: string): Promise<UserLibraryEntry[]> {
-  if (supabase && userId && userId !== "guest") {
+  const localItems = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+
+  if (supabase && isValidUuid(userId)) {
     try {
       const { data, error } = await supabase
         .from("user_manga_library")
@@ -295,51 +315,83 @@ export async function getUserLibrary(userId?: string): Promise<UserLibraryEntry[
         .eq("user_id", userId)
         .order("updated_at", { ascending: false });
 
-      if (!error && data) return data as UserLibraryEntry[];
+      if (!error && data) {
+        if (data.length > 0) {
+          setLocal(STORAGE_KEYS.LIBRARY, data);
+          return data as UserLibraryEntry[];
+        }
+        // If Supabase returned 0 items but local storage has tracked/imported items,
+        // sync them up to Supabase so they don't get lost on page refresh!
+        if (localItems.length > 0) {
+          saveLibraryBatch(localItems, userId).catch(() => {});
+          return localItems;
+        }
+        return [];
+      }
     } catch (e) {
       console.warn("Supabase library fetch error:", e);
     }
   }
-  return getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+  return localItems;
 }
 
 export async function saveLibraryEntry(
   entry: Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string }
 ): Promise<UserLibraryEntry> {
   const now = new Date().toISOString();
+  let savedDbRecord: UserLibraryEntry | null = null;
 
-  if (supabase && entry.user_id && entry.user_id !== "guest") {
+  if (supabase && isValidUuid(entry.user_id)) {
     try {
+      const payload: Record<string, any> = {
+        user_id: entry.user_id,
+        manga_id: entry.manga_id,
+        manga_slug: entry.manga_slug,
+        manga_title: entry.manga_title,
+        manga_cover: entry.manga_cover,
+        status: entry.status,
+        progress_chapter: Math.max(0, entry.progress_chapter || 0),
+        total_chapters: entry.total_chapters || null,
+        rating: entry.rating && entry.rating >= 1 && entry.rating <= 10 ? entry.rating : null,
+        notes: entry.notes || null,
+        updated_at: now,
+      };
+
+      if (isValidUuid(entry.id)) {
+        payload.id = entry.id;
+      }
+
       const { data, error } = await supabase
         .from("user_manga_library")
-        .upsert(
-          { ...entry, updated_at: now },
-          { onConflict: "user_id,manga_id" }
-        )
+        .upsert(payload, { onConflict: "user_id,manga_id" })
         .select()
         .single();
 
-      if (!error && data) return data as UserLibraryEntry;
+      if (!error && data) {
+        savedDbRecord = data as UserLibraryEntry;
+      } else if (error) {
+        console.error("Supabase library upsert error:", error.message);
+      }
     } catch (e) {
-      console.warn("Supabase library upsert error:", e);
+      console.warn("Supabase library upsert exception:", e);
     }
   }
 
   const list = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
   const idx = list.findIndex((it) => it.manga_id === entry.manga_id);
 
-  const full: UserLibraryEntry = {
-    id: entry.id || `local-lib-${entry.manga_id}`,
+  const full: UserLibraryEntry = savedDbRecord || {
+    id: isValidUuid(entry.id) ? entry.id! : `local-lib-${entry.manga_id}`,
     user_id: entry.user_id || "guest",
     manga_id: entry.manga_id,
     manga_slug: entry.manga_slug,
     manga_title: entry.manga_title,
     manga_cover: entry.manga_cover,
     status: entry.status,
-    progress_chapter: entry.progress_chapter,
-    total_chapters: entry.total_chapters,
-    rating: entry.rating,
-    notes: entry.notes,
+    progress_chapter: Math.max(0, entry.progress_chapter || 0),
+    total_chapters: entry.total_chapters || null,
+    rating: entry.rating && entry.rating >= 1 && entry.rating <= 10 ? entry.rating : null,
+    notes: entry.notes || null,
     created_at: idx >= 0 ? list[idx].created_at : now,
     updated_at: now,
   };
@@ -351,8 +403,94 @@ export async function saveLibraryEntry(
   return full;
 }
 
+export async function saveLibraryBatch(
+  entries: (Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string })[],
+  userId?: string
+): Promise<UserLibraryEntry[]> {
+  if (!entries || entries.length === 0) return [];
+  const now = new Date().toISOString();
+  const targetUserId = userId || "guest";
+  const isTargetUserValidUuid = isValidUuid(userId);
+
+  // 1. Bulk upsert to Supabase if logged in with valid UUID
+  if (supabase && isTargetUserValidUuid) {
+    try {
+      const records = entries.map((entry) => {
+        const payload: Record<string, any> = {
+          user_id: userId,
+          manga_id: entry.manga_id,
+          manga_slug: entry.manga_slug,
+          manga_title: entry.manga_title,
+          manga_cover: entry.manga_cover,
+          status: entry.status,
+          progress_chapter: Math.max(0, entry.progress_chapter || 0),
+          total_chapters: entry.total_chapters || null,
+          rating: entry.rating && entry.rating >= 1 && entry.rating <= 10 ? entry.rating : null,
+          notes: entry.notes || null,
+          updated_at: now,
+        };
+        if (isValidUuid(entry.id)) {
+          payload.id = entry.id;
+        }
+        return payload;
+      });
+
+      // Upsert in chunks of 50
+      const chunkSize = 50;
+      for (let i = 0; i < records.length; i += chunkSize) {
+        const chunk = records.slice(i, i + chunkSize);
+        const { error } = await supabase
+          .from("user_manga_library")
+          .upsert(chunk, { onConflict: "user_id,manga_id" });
+        if (error) {
+          console.error("Supabase batch upsert chunk error:", error.message);
+        }
+      }
+
+      const { data, error } = await supabase
+        .from("user_manga_library")
+        .select("*")
+        .eq("user_id", userId)
+        .order("updated_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        setLocal(STORAGE_KEYS.LIBRARY, data);
+        return data as UserLibraryEntry[];
+      }
+    } catch (e) {
+      console.warn("Supabase batch save exception:", e);
+    }
+  }
+
+  // 2. Local storage bulk sync
+  const list = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+  for (const entry of entries) {
+    const idx = list.findIndex((it) => it.manga_id === entry.manga_id);
+    const full: UserLibraryEntry = {
+      id: isValidUuid(entry.id) ? entry.id! : `local-lib-${entry.manga_id}`,
+      user_id: targetUserId,
+      manga_id: entry.manga_id,
+      manga_slug: entry.manga_slug,
+      manga_title: entry.manga_title,
+      manga_cover: entry.manga_cover,
+      status: entry.status,
+      progress_chapter: Math.max(0, entry.progress_chapter || 0),
+      total_chapters: entry.total_chapters || null,
+      rating: entry.rating && entry.rating >= 1 && entry.rating <= 10 ? entry.rating : null,
+      notes: entry.notes || null,
+      created_at: idx >= 0 ? list[idx].created_at : now,
+      updated_at: now,
+    };
+    if (idx >= 0) list[idx] = full;
+    else list.unshift(full);
+  }
+
+  setLocal(STORAGE_KEYS.LIBRARY, list);
+  return list;
+}
+
 export async function deleteLibraryEntry(mangaId: number, userId?: string): Promise<void> {
-  if (supabase && userId && userId !== "guest") {
+  if (supabase && isValidUuid(userId)) {
     try {
       await supabase
         .from("user_manga_library")
