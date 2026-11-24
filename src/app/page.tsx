@@ -68,8 +68,8 @@ const WEEKLY_SCHEDULE = [
     platform: "MANGA Plus / K Manga",
     titles: [
       { name: "Kingdom", ch: "818", slug: "kingdom-46765" },
-      { name: "Oshi no Ko", ch: "166", slug: "oshi-no-ko-117195" },
       { name: "Choujin X", ch: "62", slug: "choujin-x-126693" },
+      { name: "Kowloon Generic Romance", ch: "92", slug: "kowloon-generic-romance-112521" },
     ],
   },
   {
@@ -87,9 +87,9 @@ const WEEKLY_SCHEDULE = [
 ];
 
 const ALL_TIME_TOP = [
-  { rank: 1, title: "Berserk", score: 9.4, author: "Kentarou Miura", year: 1989, ch: 380, slug: "berserk-30002" },
+  { rank: 1, title: "Berserk", score: 9.4, author: "Kentarou Miura", year: 1989, ch: 376, slug: "berserk-30002" },
   { rank: 2, title: "JoJo's Bizarre Adventure: Steel Ball Run", score: 9.3, author: "Hirohiko Araki", year: 2004, ch: 95, slug: "steel-ball-run-31706" },
-  { rank: 3, title: "One Piece", score: 9.2, author: "Eiichiro Oda", year: 1997, ch: 1130, slug: "one-piece-30013" },
+  { rank: 3, title: "One Piece", score: 9.2, author: "Eiichiro Oda", year: 1997, ch: 1135, slug: "one-piece-30013" },
   { rank: 4, title: "Vagabond", score: 9.2, author: "Takehiko Inoue", year: 1998, ch: 327, slug: "vagabond-30656" },
   { rank: 5, title: "Monster", score: 9.1, author: "Naoki Urasawa", year: 1994, ch: 162, slug: "monster-30001" },
   { rank: 6, title: "Vinland Saga", score: 9.0, author: "Makoto Yukimura", year: 2005, ch: 215, slug: "vinland-saga-30642" },

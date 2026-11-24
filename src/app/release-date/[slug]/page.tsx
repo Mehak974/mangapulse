@@ -112,55 +112,89 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
       {/* Page Header */}
       <div className="space-y-2 border-b border-[#1e2430] pb-6">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+          <span className={`w-2 h-2 rounded-full ${manga.status === "FINISHED" ? "bg-emerald-500" : manga.status === "HIATUS" ? "bg-amber-500" : "bg-blue-500"}`}></span>
           <span className="font-mono text-[11px] uppercase tracking-wider text-[#94a1b5]">
-            Confirmed Worldwide Simulpub Schedule
+            {manga.status === "FINISHED"
+              ? "Series Completed & Concluded"
+              : manga.status === "HIATUS"
+              ? "Official Publication Hiatus"
+              : "Confirmed Worldwide Simulpub Schedule"}
           </span>
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-          {manga.displayTitle} Chapter {chapterNum} Release Date & Countdown
+          {manga.status === "FINISHED"
+            ? `${manga.displayTitle} — All Chapters Released`
+            : manga.status === "HIATUS"
+            ? `${manga.displayTitle} — Publication Hiatus & Status`
+            : `${manga.displayTitle} Chapter ${chapterNum} Release Date & Countdown`}
         </h1>
 
         <p className="text-xs sm:text-sm text-[#94a1b5] leading-relaxed">
-          The upcoming chapter of {manga.displayTitle} is scheduled for simultaneous worldwide digital release on authorized publisher platforms including Shueisha MANGA Plus and Viz Media.
+          {manga.status === "FINISHED"
+            ? `Official serialization for ${manga.displayTitle} has completed. Read all released chapters legally on authorized publisher platforms.`
+            : manga.status === "HIATUS"
+            ? `Official serialization for ${manga.displayTitle} is currently on hiatus. Read verified chapters and track status updates on official platforms.`
+            : `The upcoming chapter of ${manga.displayTitle} is scheduled for simultaneous worldwide digital release on authorized publisher platforms including Shueisha MANGA Plus and Viz Media.`}
         </p>
       </div>
 
-      {/* Prominent High-Visibility Countdown Timer */}
-      <CountdownTimer
-        targetTimestamp={airingTimestamp}
-        chapterNumber={typeof chapterNum === "number" ? chapterNum : undefined}
-      />
-
-      {/* Complete Worldwide Timezone Schedule Table */}
-      <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-blue-400" />
-            <h2 className="font-bold text-white text-xs uppercase tracking-wider">
-              Exact Release Time Across All Global Timezones
-            </h2>
+      {/* Prominent High-Visibility Countdown Timer or Status Box */}
+      {manga.status === "FINISHED" ? (
+        <div className="surface-card rounded-xl p-6 border border-emerald-500/30 bg-emerald-500/5 text-center space-y-2">
+          <div className="inline-block px-3 py-1 rounded bg-emerald-500/10 text-emerald-400 font-bold text-sm">
+            Series Officially Completed
           </div>
-          <span className="text-[11px] font-mono text-[#5e6b82]">
-            Simultaneous Drop Time
-          </span>
+          <p className="text-xs text-[#94a1b5] max-w-lg mx-auto">
+            {manga.displayTitle} has concluded its official serialization with {manga.chapters ? `${manga.chapters} chapters` : "all chapters released"}. There are no active upcoming chapter countdowns.
+          </p>
         </div>
+      ) : manga.status === "HIATUS" ? (
+        <div className="surface-card rounded-xl p-6 border border-amber-500/30 bg-amber-500/5 text-center space-y-2">
+          <div className="inline-block px-3 py-1 rounded bg-amber-500/10 text-amber-400 font-bold text-sm">
+            Official Publication Hiatus
+          </div>
+          <p className="text-xs text-[#94a1b5] max-w-lg mx-auto">
+            {manga.displayTitle} is currently on an official publication hiatus. Verified chapters up to Chapter {manga.chapters || "latest"} are available on authorized platforms below. The next release date will be updated once officially confirmed by the publisher.
+          </p>
+        </div>
+      ) : (
+        <CountdownTimer
+          targetTimestamp={airingTimestamp}
+          chapterNumber={typeof chapterNum === "number" ? chapterNum : undefined}
+        />
+      )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          {timezones.map((tz) => (
-            <div key={tz.zone} className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg flex items-center justify-between">
-              <div>
-                <div className="text-white font-semibold text-xs">{tz.abbr}</div>
-                <div className="text-[10px] text-[#5e6b82] font-mono">{tz.zone}</div>
-              </div>
-              <div className="font-mono font-bold text-xs text-blue-400 text-right">
-                {tz.time}
-              </div>
+      {/* Complete Worldwide Timezone Schedule Table (Releasing series only) */}
+      {manga.status === "RELEASING" && (
+        <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-blue-400" />
+              <h2 className="font-bold text-white text-xs uppercase tracking-wider">
+                Exact Release Time Across All Global Timezones
+              </h2>
             </div>
-          ))}
+            <span className="text-[11px] font-mono text-[#5e6b82]">
+              Simultaneous Drop Time
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            {timezones.map((tz) => (
+              <div key={tz.zone} className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg flex items-center justify-between">
+                <div>
+                  <div className="text-white font-semibold text-xs">{tz.abbr}</div>
+                  <div className="text-[10px] text-[#5e6b82] font-mono">{tz.zone}</div>
+                </div>
+                <div className="font-mono font-bold text-xs text-blue-400 text-right">
+                  {tz.time}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Official Where to Read */}
       <OfficialActions

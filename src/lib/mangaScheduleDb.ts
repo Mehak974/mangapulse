@@ -248,13 +248,35 @@ export const VERIFIED_SCHEDULES: VerifiedSchedule[] = [
   {
     id: 119257,
     titleMatch: ["omniscient reader", "jeonjijeok dokja sijeom"],
-    latestChapter: 235,
-    nextChapter: 236,
+    latestChapter: 238,
+    nextChapter: 239,
     cadence: "weekly",
     magazine: "Naver Webtoon",
     dropDayOfWeek: 2, // Tuesday
     dropHourUTC: 15,
     publisher: "WEBTOON Official",
+  },
+  {
+    id: 161048,
+    titleMatch: ["infinite mage", "the infinite mage", "muhan-ui mabeopsa"],
+    latestChapter: 94,
+    nextChapter: 95,
+    cadence: "weekly",
+    magazine: "KakaoPage",
+    dropDayOfWeek: 2, // Tuesday
+    dropHourUTC: 15,
+    publisher: "KakaoPage & Tapas",
+  },
+  {
+    id: 178939,
+    titleMatch: ["absolute regression", "jeoldaehoegwi"],
+    latestChapter: 38,
+    nextChapter: 39,
+    cadence: "weekly",
+    magazine: "Naver Webtoon",
+    dropDayOfWeek: 4, // Thursday
+    dropHourUTC: 15,
+    publisher: "Naver Webtoon & WEBTOON",
   },
   {
     id: 86377,
@@ -318,23 +340,40 @@ export const VERIFIED_SCHEDULES: VerifiedSchedule[] = [
     id: 30002,
     titleMatch: ["berserk"],
     latestChapter: 376,
-    nextChapter: 377,
-    cadence: "irregular",
+    nextChapter: 376,
+    cadence: "hiatus",
     magazine: "Young Animal",
     dropDayOfWeek: 4,
     dropHourUTC: 15,
     publisher: "Hakusensha & Dark Horse",
+    isHiatus: true,
+    totalChapters: 376,
+  },
+  {
+    id: 30656,
+    titleMatch: ["vagabond"],
+    latestChapter: 327,
+    nextChapter: 327,
+    cadence: "hiatus",
+    magazine: "Weekly Morning",
+    dropDayOfWeek: 3,
+    dropHourUTC: 15,
+    publisher: "Kodansha & Viz Media",
+    isHiatus: true,
+    totalChapters: 327,
   },
   {
     id: 30026,
     titleMatch: ["hunter x hunter"],
     latestChapter: 405,
-    nextChapter: 406,
-    cadence: "irregular",
+    nextChapter: 405,
+    cadence: "hiatus",
     magazine: "Weekly Shonen Jump Special",
     dropDayOfWeek: 0,
     dropHourUTC: 15,
     publisher: "Viz Media",
+    isHiatus: true,
+    totalChapters: 405,
   },
 
   // --- Finished Series (Zero countdown - Completed) ---
@@ -531,44 +570,18 @@ export function getVerifiedScheduleItem(
  */
 export function calculateProgressedChapters(
   found: VerifiedSchedule,
-  atDate: Date = new Date()
+  _atDate: Date = new Date()
 ): { latestChapter: number; nextChapter: number } {
-  let latestChapter = found.latestChapter;
-  let nextChapter = found.nextChapter;
+  const latestChapter = found.latestChapter;
+  const nextChapter = found.nextChapter;
 
   if (found.isFinished || found.cadence === "finished") {
     const total = found.totalChapters || found.latestChapter;
     return { latestChapter: total, nextChapter: total };
   }
 
-  if (found.isHiatus || found.cadence === "hiatus") {
-    return { latestChapter: found.latestChapter, nextChapter: found.nextChapter };
-  }
-
-  // Benchmark reference epoch for automated chapter progression (Nov 24, 2024 15:00 UTC)
-  const referenceEpoch = new Date("2024-11-24T15:00:00Z").getTime();
-  const msSinceEpoch = Math.max(0, atDate.getTime() - referenceEpoch);
-
-  if (found.cadence === "weekly") {
-    const weeksElapsed = Math.floor(msSinceEpoch / (7 * 24 * 60 * 60 * 1000));
-    // Account for seasonal magazine breaks (~1 break per 4-5 issues)
-    const estimatedChapters = Math.floor(weeksElapsed * 0.85);
-    if (estimatedChapters > 0) {
-      latestChapter = found.latestChapter + estimatedChapters;
-      nextChapter = latestChapter + 1;
-    }
-  } else if (found.cadence === "biweekly") {
-    const biweeksElapsed = Math.floor(msSinceEpoch / (14 * 24 * 60 * 60 * 1000));
-    if (biweeksElapsed > 0) {
-      latestChapter = found.latestChapter + biweeksElapsed;
-      nextChapter = latestChapter + 1;
-    }
-  } else if (found.cadence === "monthly") {
-    const monthsElapsed = (atDate.getUTCFullYear() - 2024) * 12 + (atDate.getUTCMonth() - 10);
-    if (monthsElapsed > 0) {
-      latestChapter = found.latestChapter + monthsElapsed;
-      nextChapter = latestChapter + 1;
-    }
+  if (found.isHiatus || found.cadence === "hiatus" || found.cadence === "irregular") {
+    return { latestChapter: found.latestChapter, nextChapter: found.latestChapter };
   }
 
   return { latestChapter, nextChapter };
@@ -693,7 +706,7 @@ export function getVerifiedSchedule(
       };
     }
 
-    if (found.isHiatus || found.cadence === "hiatus") {
+    if (found.isHiatus || found.cadence === "hiatus" || found.cadence === "irregular") {
       return {
         isFinished: false,
         isHiatus: true,
@@ -701,7 +714,7 @@ export function getVerifiedSchedule(
         nextChapter: found.nextChapter,
         targetTimestamp: null,
         magazine: found.magazine,
-        cadenceText: "Scheduled Hiatus",
+        cadenceText: found.cadence === "irregular" ? "Irregular Releases" : "Scheduled Hiatus",
         publisher: found.publisher,
       };
     }
@@ -732,6 +745,17 @@ export function getVerifiedSchedule(
       }
       targetDate.setUTCDate(targetDate.getUTCDate() + daysUntil);
       targetDate.setUTCHours(found.dropHourUTC, 0, 0, 0);
+    }
+
+    // Ensure targetTimestamp is strictly in the future
+    if (targetDate.getTime() <= now.getTime()) {
+      if (found.cadence === "monthly") {
+        targetDate.setUTCMonth(targetDate.getUTCMonth() + 1);
+      } else if (found.cadence === "biweekly") {
+        targetDate.setUTCDate(targetDate.getUTCDate() + 14);
+      } else {
+        targetDate.setUTCDate(targetDate.getUTCDate() + 7);
+      }
     }
 
     const targetTimestamp = Math.floor(targetDate.getTime() / 1000);
@@ -784,6 +808,10 @@ export function getVerifiedSchedule(
   const targetDate = new Date(now);
   targetDate.setUTCDate(targetDate.getUTCDate() + daysUntil);
   targetDate.setUTCHours(15, 0, 0, 0);
+
+  if (targetDate.getTime() <= now.getTime()) {
+    targetDate.setUTCDate(targetDate.getUTCDate() + 7);
+  }
 
   const estimatedCurrent = totalChapters || Math.max(30, (id % 150) + 20);
 

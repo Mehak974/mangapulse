@@ -11,6 +11,22 @@ interface CountdownProps {
   sourcePublisher?: string;
 }
 
+function getCountdownState(targetTimestamp: number) {
+  const now = Math.floor(Date.now() / 1000);
+  const diff = targetTimestamp - now;
+
+  if (diff <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true };
+  }
+
+  const days = Math.floor(diff / 86400);
+  const hours = Math.floor((diff % 86400) / 3600);
+  const minutes = Math.floor((diff % 3600) / 60);
+  const seconds = diff % 60;
+
+  return { days, hours, minutes, seconds, isPast: false };
+}
+
 export default function CountdownTimer({
   targetTimestamp,
   chapterNumber,
@@ -18,33 +34,14 @@ export default function CountdownTimer({
   cadenceLabel = "Weekly Simulpub",
   sourcePublisher = "Official Publisher",
 }: CountdownProps) {
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-    isPast: boolean;
-  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false });
+  const [timeLeft, setTimeLeft] = useState(() => getCountdownState(targetTimestamp));
 
   const [localTimeString, setLocalTimeString] = useState<string>("");
   const [timezoneName, setTimezoneName] = useState<string>("");
 
   useEffect(() => {
     function calculate() {
-      const now = Math.floor(Date.now() / 1000);
-      const diff = targetTimestamp - now;
-
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true });
-        return;
-      }
-
-      const days = Math.floor(diff / 86400);
-      const hours = Math.floor((diff % 86400) / 3600);
-      const minutes = Math.floor((diff % 3600) / 60);
-      const seconds = diff % 60;
-
-      setTimeLeft({ days, hours, minutes, seconds, isPast: false });
+      setTimeLeft(getCountdownState(targetTimestamp));
     }
 
     calculate();

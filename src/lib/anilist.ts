@@ -73,7 +73,7 @@ export function formatMangaItem(media: any): MangaItem {
       ? media.description.replace(/<[^>]*>/g, "")
       : "",
     genres: media.genres || [],
-    status: verified.isFinished ? "FINISHED" : media.status || "RELEASING",
+    status: verified.isFinished ? "FINISHED" : verified.isHiatus ? "HIATUS" : media.status || "RELEASING",
     averageScore: media.averageScore || null,
     popularity: media.popularity || null,
     chapters,

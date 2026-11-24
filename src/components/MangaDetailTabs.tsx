@@ -102,6 +102,20 @@ export default function MangaDetailTabs({
                 </div>
               </div>
             </div>
+          ) : manga.status === "HIATUS" ? (
+            <div className="surface-card rounded-xl p-4 border border-[#2a3344] bg-[#0c0e12] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold flex-shrink-0">
+                ⏸
+              </div>
+              <div>
+                <div className="font-bold text-xs text-white uppercase font-mono">
+                  Official Publication Hiatus
+                </div>
+                <div className="text-xs text-[#94a1b5] mt-0.5">
+                  This series is currently on an official publication hiatus. Verified chapters up to Chapter {manga.chapters || "latest"} are available on official platforms below.
+                </div>
+              </div>
+            </div>
           ) : null}
 
           {/* Official Actions */}

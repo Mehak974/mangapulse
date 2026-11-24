@@ -121,8 +121,8 @@ export default async function MangaDetailPage({ params }: PageProps) {
 
               <div className="flex justify-between">
                 <span className="text-[#94a1b5]">Status</span>
-                <span className={`font-semibold ${manga.status === "RELEASING" ? "text-emerald-400" : "text-white"}`}>
-                  {manga.status === "RELEASING" ? "Publishing (Ongoing)" : manga.status}
+                <span className={`font-semibold ${manga.status === "RELEASING" ? "text-emerald-400" : manga.status === "HIATUS" ? "text-amber-400" : "text-white"}`}>
+                  {manga.status === "RELEASING" ? "Publishing (Ongoing)" : manga.status === "HIATUS" ? "On Hiatus" : manga.status === "FINISHED" ? "Completed" : manga.status}
                 </span>
               </div>
 
@@ -212,6 +212,16 @@ export default async function MangaDetailPage({ params }: PageProps) {
                 {manga.status === "RELEASING" && (
                   <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     Active Simulpub
+                  </span>
+                )}
+                {manga.status === "HIATUS" && (
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    On Hiatus
+                  </span>
+                )}
+                {manga.status === "FINISHED" && (
+                  <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    Completed Series
                   </span>
                 )}
                 {ratingFormatted && (
