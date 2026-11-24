@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Solid Dark Canvas (NO gradient) -->
+  <rect width="1920" height="1080" fill="#0c0e12" />
+
+  <!-- Subtle Solid Wireframe Grid Lines (NO gradient) -->
+  <g stroke="#181e28" stroke-width="1.5">
+    <line x1="0" y1="140" x2="1920" y2="140" />
+    <line x1="0" y1="940" x2="1920" y2="940" />
+    <line x1="160" y1="0" x2="160" y2="1080" />
+    <line x1="1760" y1="0" x2="1760" y2="1080" />
+  </g>
+
+  <!-- Top Navigation Header Simulation -->
+  <g transform="translate(160, 45)">
+    <!-- MP Logo Box -->
+    <rect width="52" height="52" rx="12" fill="#ffffff" />
+    <text x="26" y="37" 
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-weight="900" 
+          font-size="28" 
+          text-anchor="middle" 
+          letter-spacing="-2" 
+          fill="#0c0e12">MP</text>
+    <circle cx="43" cy="10" r="4.5" fill="#2563eb" />
+
+    <!-- Site Title -->
+    <text x="70" y="36" 
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-weight="900" 
+          font-size="26" 
+          letter-spacing="-1" 
+          fill="#ffffff">MANGAPULSE</text>
+    
+    <rect x="270" y="10" width="70" height="28" rx="6" fill="#1e2430" stroke="#2a3344" stroke-width="1" />
+    <text x="305" y="29" 
+          font-family="'SF Mono', Menlo, Consolas, monospace" 
+          font-size="12" 
+          font-weight="700" 
+          text-anchor="middle" 
+          fill="#94a1b5">INDEX</text>
+
+    <!-- Pill Status (Right) -->
+    <rect x="1350" y="8" width="250" height="34" rx="17" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-width="1.5" />
+    <circle cx="1372" cy="25" r="4.5" fill="#10b981" />
+    <text x="1485" y="30" 
+          font-family="'SF Mono', Menlo, Consolas, monospace" 
+          font-size="12" 
+          font-weight="700" 
+          text-anchor="middle" 
+          fill="#34d399">100% LEGAL &amp; VERIFIED</text>
+  </g>
+
+  <!-- Hero Headline Section -->
+  <g transform="translate(160, 240)">
+    <rect width="180" height="30" rx="15" fill="#2563eb" fill-opacity="0.15" stroke="#2563eb" stroke-width="1.5" />
+    <text x="90" y="20" 
+          font-family="'SF Mono', Menlo, Consolas, monospace" 
+          font-size="12" 
+          font-weight="700" 
+          text-anchor="middle" 
+          fill="#60a5fa">OFFICIAL HUB</text>
+
+    <text x="0" y="90" 
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-weight="900" 
+          font-size="64" 
+          letter-spacing="-2" 
+          fill="#ffffff">Live Simulpub Countdowns &amp; Directory</text>
+
+    <text x="0" y="145" 
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="22" 
+          font-weight="500" 
+          fill="#94a1b5">Track exact chapter release drop times across Shueisha, Viz Media, Kodansha, and Webtoon. Zero piracy.</text>
+  </g>
+
+  <!-- Central Countdown Cards (Exact MangaPulse UI Style) -->
+  <g transform="translate(160, 460)">
+    <!-- Card 1: One Piece -->
+    <g transform="translate(0, 0)">
+      <rect width="780" height="340" rx="20" fill="#141820" stroke="#1e2430" stroke-width="2" />
+      
+      <rect x="35" y="35" width="130" height="26" rx="6" fill="#2563eb" fill-opacity="0.2" stroke="#2563eb" stroke-width="1" />
+      <text x="100" y="52" font-family="'SF Mono', monospace" font-size="11" font-weight="700" text-anchor="middle" fill="#60a5fa">WEEKLY JUMP</text>
+
+      <text x="35" y="110" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="34" font-weight="900" fill="#ffffff">One Piece</text>
+      <text x="35" y="145" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="600" fill="#3b82f6">Chapter 1136 Official Simulpub</text>
+
+      <!-- Countdown Blocks -->
+      <g transform="translate(35, 175)">
+        <rect x="0" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="40" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">02</text>
+        <text x="40" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">DAYS</text>
+
+        <rect x="95" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="135" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">14</text>
+        <text x="135" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">HOURS</text>
+
+        <rect x="190" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="230" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">35</text>
+        <text x="230" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">MINS</text>
+
+        <rect x="285" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="325" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">12</text>
+        <text x="325" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">SECS</text>
+      </g>
+
+      <text x="35" y="295" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#94a1b5">Read officially on: <tspan fill="#ffffff">MANGA Plus by Shueisha</tspan> &amp; <tspan fill="#ffffff">Viz Media</tspan></text>
+    </g>
+
+    <!-- Card 2: Chainsaw Man -->
+    <g transform="translate(820, 0)">
+      <rect width="780" height="340" rx="20" fill="#141820" stroke="#1e2430" stroke-width="2" />
+      
+      <rect x="35" y="35" width="130" height="26" rx="6" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="1" />
+      <text x="100" y="52" font-family="'SF Mono', monospace" font-size="11" font-weight="700" text-anchor="middle" fill="#fbbf24">JUMP+ DIGITAL</text>
+
+      <text x="35" y="110" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="34" font-weight="900" fill="#ffffff">Chainsaw Man</text>
+      <text x="35" y="145" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="600" fill="#f59e0b">Chapter 193 Official Simulpub</text>
+
+      <!-- Countdown Blocks -->
+      <g transform="translate(35, 175)">
+        <rect x="0" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="40" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">04</text>
+        <text x="40" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">DAYS</text>
+
+        <rect x="95" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="135" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">08</text>
+        <text x="135" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">HOURS</text>
+
+        <rect x="190" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="230" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">12</text>
+        <text x="230" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">MINS</text>
+
+        <rect x="285" y="0" width="80" height="70" rx="10" fill="#0c0e12" stroke="#2a3344" stroke-width="1.5" />
+        <text x="325" y="42" font-family="'SF Mono', monospace" font-size="28" font-weight="800" text-anchor="middle" fill="#ffffff">44</text>
+        <text x="325" y="60" font-family="'SF Mono', monospace" font-size="10" text-anchor="middle" fill="#94a1b5">SECS</text>
+      </g>
+
+      <text x="35" y="295" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#94a1b5">Read officially on: <tspan fill="#ffffff">MANGA Plus by Shueisha</tspan></text>
+    </g>
+  </g>
+
+  <!-- Bottom Publisher Badges Bar -->
+  <g transform="translate(160, 985)">
+    <text x="0" y="22" font-family="'SF Mono', monospace" font-size="13" font-weight="700" fill="#5e6b82">PARTNER NETWORKS:</text>
+    <text x="200" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#94a1b5">SHUEISHA (MANGA Plus)</text>
+    <text x="470" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#5e6b82">•</text>
+    <text x="510" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#94a1b5">VIZ MEDIA</text>
+    <text x="630" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#5e6b82">•</text>
+    <text x="670" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#94a1b5">KODANSHA (K MANGA)</text>
+    <text x="910" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#5e6b82">•</text>
+    <text x="950" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#94a1b5">NAVER (WEBTOON)</text>
+  </g>
+</svg>
