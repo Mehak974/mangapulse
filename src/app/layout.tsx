@@ -7,6 +7,7 @@ import { buildMetadata } from "@/lib/seo";
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export const viewport: Viewport = {
   themeColor: "#0c0e12",
@@ -52,7 +53,7 @@ export default function RootLayout({
                     document.documentElement.classList.add('dark');
                     document.documentElement.classList.remove('light');
                   }
-                  if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+                  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                     window.addEventListener('load', function() {
                       navigator.serviceWorker.register('/sw.js').catch(function(){});
                     });
@@ -71,6 +72,7 @@ export default function RootLayout({
           <Footer />
           <AuthModal />
           <CollectionPickerModal />
+          <PWAInstallPrompt />
         </AuthProvider>
       </body>
     </html>
