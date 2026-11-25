@@ -3,6 +3,7 @@ import { fetchPopular, fetchTrending, getFallbackMangaList, slugify } from "@/li
 import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
 import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
+import { getVisitedPages } from "@/lib/visitedPages";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -171,6 +172,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       });
     }
+  }
+
+  // 4. Incorporate all user-visited and dynamically discovered pages
+  try {
+    const visitedPages = await getVisitedPages();
+    for (const vp of visitedPages) {
+      const pathLower = vp.path.toLowerCase();
+      const isDelisted = Array.from(delistedSet).some((slug) =>
+        pathLower.includes(`/manga/${slug}`) || pathLower.includes(`/release-date/${slug}`)
+      );
+      if (!isDelisted) {
+        addRoute({
+          url: vp.url,
+          lastModified: vp.last_visited_at ? new Date(vp.last_visited_at) : now,
+          changeFrequency: vp.changeFrequency || "daily",
+          priority: vp.priority || 0.8,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("Could not enrich sitemap with visited pages:", err);
   }
 
   return Array.from(urlMap.values());

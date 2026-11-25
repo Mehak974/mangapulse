@@ -7,6 +7,7 @@ import { fetchMangaDetails, slugify } from "@/lib/anilist";
 import { isMangaDelisted } from "@/lib/mangaOverrides";
 import { buildMetadata, generateCountdownSchema, SITE_URL } from "@/lib/seo";
 import { indexDiscoveredPages } from "@/lib/indexnow";
+import { recordVisitedPage } from "@/lib/visitedPages";
 import CountdownTimer from "@/components/CountdownTimer";
 import OfficialActions from "@/components/OfficialActions";
 import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle } from "lucide-react";
@@ -56,16 +57,12 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
   if (!manga) notFound();
   if (await isMangaDelisted(manga.slug) || await isMangaDelisted(manga.displayTitle)) notFound();
 
-  // Auto-index newly discovered countdown and manga paths to IndexNow
+  // Auto-index newly discovered countdown and manga paths to IndexNow & Sitemap
   const titleSlug = slugify(manga.displayTitle);
-  indexDiscoveredPages([
-    `${SITE_URL}/release-date/${slug}`,
-    `${SITE_URL}/release-date/${manga.slug}`,
-    titleSlug ? `${SITE_URL}/release-date/${titleSlug}` : null,
-    `${SITE_URL}/manga/${slug}`,
-    `${SITE_URL}/manga/${manga.slug}`,
-    titleSlug ? `${SITE_URL}/manga/${titleSlug}` : null,
-  ]);
+  recordVisitedPage(`/release-date/${slug}`, { title: `${manga.displayTitle} Release Countdown` });
+  if (titleSlug && titleSlug !== slug) {
+    recordVisitedPage(`/release-date/${titleSlug}`, { title: `${manga.displayTitle} Release Countdown` });
+  }
 
   const chapterNum =
     manga.nextAiringChapter?.episodeOrChapter ||

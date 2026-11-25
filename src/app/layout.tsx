@@ -9,6 +9,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PageVisitTracker from "@/components/PageVisitTracker";
 import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
@@ -161,6 +162,7 @@ export default function RootLayout({
           <AuthModal />
           <CollectionPickerModal />
           <PWAInstallPrompt />
+          <PageVisitTracker />
           <Analytics />
         </AuthProvider>
       </body>
