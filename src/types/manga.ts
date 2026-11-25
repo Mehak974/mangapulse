@@ -42,6 +42,7 @@ export interface MangaItem {
   chapters?: number | null;
   volumes?: number | null;
   countryOfOrigin?: string | null;
+  format?: string | null;
   startDate?: {
     year?: number | null;
     month?: number | null;
@@ -169,6 +170,9 @@ export interface UserLibraryEntry {
   total_chapters: number | null;
   rating: number | null; // 1-10
   notes: string | null;
+  genres?: string[];
+  country_of_origin?: string | null;
+  format?: string | null;
   created_at: string;
   updated_at: string;
 }

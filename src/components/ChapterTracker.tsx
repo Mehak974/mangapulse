@@ -12,6 +12,8 @@ import {
   clearAllChaptersRead,
 } from "@/lib/chapterStore";
 import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
+import { logActivity } from "@/lib/userStore";
+import { slugify } from "@/lib/anilist";
 import {
   Check,
   CheckSquare,
@@ -174,7 +176,17 @@ export default function ChapterTracker({
 
   // Toggle single chapter
   const handleToggleChapter = (num: number) => {
-    toggleChapterRead(mangaId, num);
+    const isNowRead = toggleChapterRead(mangaId, num);
+    if (isNowRead) {
+      logActivity({
+        manga_id: mangaId,
+        manga_title: mangaTitle,
+        manga_slug: slugify(mangaTitle),
+        manga_cover: "",
+        action_type: "read_chapter",
+        chapter_number: num,
+      });
+    }
   };
 
   // Toggle checkbox selection
@@ -190,7 +202,18 @@ export default function ChapterTracker({
 
   // Batch actions
   const handleMarkSelectedRead = () => {
-    markChaptersRead(mangaId, Array.from(selectedSet));
+    const arr = Array.from(selectedSet);
+    markChaptersRead(mangaId, arr);
+    if (arr.length > 0) {
+      logActivity({
+        manga_id: mangaId,
+        manga_title: mangaTitle,
+        manga_slug: slugify(mangaTitle),
+        manga_cover: "",
+        action_type: "read_chapter",
+        chapter_number: Math.max(...arr),
+      });
+    }
     setSelectedSet(new Set());
   };
 
@@ -201,6 +224,14 @@ export default function ChapterTracker({
 
   const handleMarkAllBelowRead = (num: number) => {
     markAllBelowRead(mangaId, num);
+    logActivity({
+      manga_id: mangaId,
+      manga_title: mangaTitle,
+      manga_slug: slugify(mangaTitle),
+      manga_cover: "",
+      action_type: "read_chapter",
+      chapter_number: num,
+    });
     setActiveMenuChapter(null);
   };
 

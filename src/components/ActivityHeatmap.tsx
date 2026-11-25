@@ -36,19 +36,7 @@ export default function ActivityHeatmap({
       const dateStr = target.toISOString().split("T")[0];
       const count = activityMap[dateStr] || 0;
 
-      // Deterministic decorative activity if mock data is low
-      const pseudoCount =
-        count > 0
-          ? count
-          : (target.getDay() === 0 || target.getDay() === 6) && i % 5 === 0
-          ? 3
-          : i % 11 === 0
-          ? 2
-          : i % 17 === 0
-          ? 1
-          : 0;
-
-      const finalCount = count > 0 ? count : pseudoCount;
+      const finalCount = count;
       const level = finalCount === 0 ? 0 : finalCount <= 1 ? 1 : finalCount <= 3 ? 2 : 3;
 
       days.push({
@@ -72,7 +60,7 @@ export default function ActivityHeatmap({
       else break;
     }
 
-    return { weeks: resultWeeks, activeDaysCount: activeDays, currentStreak: Math.max(streak, 4) };
+    return { weeks: resultWeeks, activeDaysCount: activeDays, currentStreak: streak };
   }, [activities]);
 
   const levelColors = [

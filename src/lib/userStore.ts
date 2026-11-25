@@ -730,7 +730,7 @@ export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp">): v
     timestamp: new Date().toISOString(),
   };
   list.unshift(item);
-  if (list.length > 50) list.length = 50;
+  if (list.length > 500) list.length = 500;
   setLocal(STORAGE_KEYS.ACTIVITIES, list);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("mangapulse-activity-logged"));

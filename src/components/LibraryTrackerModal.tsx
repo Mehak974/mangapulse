@@ -49,6 +49,9 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
         total_chapters: manga.chapters ?? null,
         rating: rating > 0 ? rating : null,
         notes: notes.trim() || null,
+        genres: manga.genres,
+        country_of_origin: manga.countryOfOrigin || undefined,
+        format: (manga as any).format || undefined,
       });
       onClose();
     } catch (err) {

@@ -69,6 +69,9 @@ export default function Navbar() {
       document.documentElement.classList.add("dark");
       localStorage.setItem("mangapulse_theme", "dark");
     }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mangapulse-theme-changed", { detail: next ? "light" : "dark" }));
+    }
   };
 
   // Debounced search
@@ -283,9 +286,9 @@ export default function Navbar() {
             className="p-2 min-h-[36px] min-w-[36px] rounded-lg border bg-[#13171f] hover:bg-[#1a1f2a] border-[#2a3344] text-[#cbd5e1] hover:text-white transition-colors flex items-center justify-center cursor-pointer"
           >
             {isLightMode ? (
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Moon className="w-4 h-4 text-indigo-600" />
             ) : (
-              <Moon className="w-4 h-4 text-blue-300" />
+              <Sun className="w-4 h-4 text-amber-400" />
             )}
           </button>
 

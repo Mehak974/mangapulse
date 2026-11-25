@@ -48,6 +48,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { UserLibraryEntry, ActivityItem } from "@/types/manga";
 import SupporterAvatar from "@/components/SupporterAvatar";
+import { computeReadingStatus, computeContentType, computeTopGenres } from "@/lib/profileStats";
 import StaffBadge from "@/components/StaffBadge";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
 import PerkLockModal, { SupporterTierLevel } from "@/components/PerkLockModal";
@@ -282,6 +283,10 @@ export default function ProfilePage() {
   const planCount = useMemo(() => library.filter((e) => e.status === "plan_to_read").length, [library]);
   const completedCount = useMemo(() => library.filter((e) => e.status === "completed").length, [library]);
   const droppedCount = useMemo(() => library.filter((e) => e.status === "dropped").length, [library]);
+
+  const readingStats = useMemo(() => computeReadingStatus(library), [library]);
+  const contentStats = useMemo(() => computeContentType(library), [library]);
+  const genreStats = useMemo(() => computeTopGenres(library), [library]);
 
   const totalChapters = useMemo(() => {
     const librarySum = library.reduce((sum, item) => sum + (item.progress_chapter || 0), 0);
@@ -1087,18 +1092,69 @@ export default function ProfilePage() {
 
                   {/* Right 1 Col: Donut Charts & Top Genres */}
                   <div className="space-y-6">
-                    {/* Reading Status Circle Breakdown */}
+                    {/* Reading Status Dynamic Multi-Segment Donut Breakdown */}
                     <div className="p-6 rounded-2xl bg-[#13171f] border border-[#1e2430]">
                       <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-[#94a1b5] mb-4">
                         Reading Status
                       </h3>
                       <div className="flex items-center gap-4">
-                        <div className="relative w-24 h-24 rounded-full border-4 border-emerald-500 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                          <div className="text-center">
-                            <div className="text-base font-black text-white font-mono">
-                              {library.length > 0 ? `${Math.round((readingCount / library.length) * 100)}%` : "0%"}
-                            </div>
-                            <div className="text-[9px] font-mono text-[#94a1b5]">Reading</div>
+                        <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                            {/* Background Circle */}
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#1e2430" strokeWidth="8" />
+                            {readingStats.totalCount > 0 ? (
+                              <>
+                                {/* Reading (Emerald) */}
+                                {readingStats.readingCount > 0 && (
+                                  <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke="#10b981"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${(readingStats.readingCount / readingStats.totalCount) * 238.76} 238.76`}
+                                    strokeDashoffset="0"
+                                    strokeLinecap="round"
+                                  />
+                                )}
+                                {/* Completed (Blue) */}
+                                {readingStats.completedCount > 0 && (
+                                  <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke="#3b82f6"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${(readingStats.completedCount / readingStats.totalCount) * 238.76} 238.76`}
+                                    strokeDashoffset={-((readingStats.readingCount / readingStats.totalCount) * 238.76)}
+                                    strokeLinecap="round"
+                                  />
+                                )}
+                                {/* Plan to Read (Amber) */}
+                                {readingStats.planCount > 0 && (
+                                  <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke="#f59e0b"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${(readingStats.planCount / readingStats.totalCount) * 238.76} 238.76`}
+                                    strokeDashoffset={-(((readingStats.readingCount + readingStats.completedCount) / readingStats.totalCount) * 238.76)}
+                                    strokeLinecap="round"
+                                  />
+                                )}
+                              </>
+                            ) : null}
+                          </svg>
+
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span className="text-sm font-black text-white font-mono">
+                              {readingStats.totalCount > 0 ? `${readingStats.readingPct}%` : "0%"}
+                            </span>
+                            <span className="text-[9px] font-mono text-[#94a1b5]">Reading</span>
                           </div>
                         </div>
 
@@ -1108,7 +1164,12 @@ export default function ProfilePage() {
                               <span className="w-2 h-2 rounded-full bg-emerald-400" />
                               <span>Reading</span>
                             </span>
-                            <span className="font-mono font-bold text-white">{readingCount}</span>
+                            <span className="font-mono font-bold text-white">
+                              {readingStats.readingCount}
+                              {readingStats.totalCount > 0 && (
+                                <span className="text-[10px] text-[#5e6b82] ml-1">({readingStats.readingPct}%)</span>
+                              )}
+                            </span>
                           </div>
 
                           <div className="flex items-center justify-between">
@@ -1116,7 +1177,12 @@ export default function ProfilePage() {
                               <span className="w-2 h-2 rounded-full bg-blue-400" />
                               <span>Completed</span>
                             </span>
-                            <span className="font-mono font-bold text-white">{completedCount}</span>
+                            <span className="font-mono font-bold text-white">
+                              {readingStats.completedCount}
+                              {readingStats.totalCount > 0 && (
+                                <span className="text-[10px] text-[#5e6b82] ml-1">({readingStats.completedPct}%)</span>
+                              )}
+                            </span>
                           </div>
 
                           <div className="flex items-center justify-between">
@@ -1124,7 +1190,12 @@ export default function ProfilePage() {
                               <span className="w-2 h-2 rounded-full bg-amber-400" />
                               <span>Plan to Read</span>
                             </span>
-                            <span className="font-mono font-bold text-white">{planCount}</span>
+                            <span className="font-mono font-bold text-white">
+                              {readingStats.planCount}
+                              {readingStats.totalCount > 0 && (
+                                <span className="text-[10px] text-[#5e6b82] ml-1">({readingStats.planPct}%)</span>
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1136,10 +1207,50 @@ export default function ProfilePage() {
                         Content Type
                       </h3>
                       <div className="flex items-center gap-4">
-                        <div className="relative w-24 h-24 rounded-full border-4 border-cyan-400 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                          <div className="text-center">
-                            <div className="text-base font-black text-white font-mono">100%</div>
-                            <div className="text-[9px] font-mono text-[#94a1b5]">Official Index</div>
+                        <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#1e2430" strokeWidth="8" />
+                            {contentStats.totalCount > 0 ? (
+                              <>
+                                {/* Manga (Cyan) */}
+                                {contentStats.mangaCount > 0 && (
+                                  <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke="#06b6d4"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${(contentStats.mangaCount / contentStats.totalCount) * 238.76} 238.76`}
+                                    strokeDashoffset="0"
+                                    strokeLinecap="round"
+                                  />
+                                )}
+                                {/* Manhwa (Purple) */}
+                                {contentStats.manhwaCount > 0 && (
+                                  <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="38"
+                                    fill="none"
+                                    stroke="#a855f7"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${(contentStats.manhwaCount / contentStats.totalCount) * 238.76} 238.76`}
+                                    strokeDashoffset={-((contentStats.mangaCount / contentStats.totalCount) * 238.76)}
+                                    strokeLinecap="round"
+                                  />
+                                )}
+                              </>
+                            ) : null}
+                          </svg>
+
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span className="text-sm font-black text-white font-mono">
+                              {contentStats.totalCount > 0 ? `${contentStats.dominantPct}%` : "0%"}
+                            </span>
+                            <span className="text-[9px] font-mono text-[#94a1b5] truncate max-w-[64px]">
+                              {contentStats.totalCount > 0 ? contentStats.dominantType.replace("Japanese ", "").replace("Korean ", "").replace("Chinese ", "") : "Empty"}
+                            </span>
                           </div>
                         </div>
 
@@ -1147,38 +1258,62 @@ export default function ProfilePage() {
                           <div className="flex items-center justify-between">
                             <span className="flex items-center gap-1.5 text-cyan-400">
                               <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                              <span>Manga &amp; Manhwa</span>
+                              <span>Manga (JP)</span>
                             </span>
-                            <span className="font-mono font-bold text-white">{library.length}</span>
+                            <span className="font-mono font-bold text-white">
+                              {contentStats.mangaCount}
+                              {contentStats.totalCount > 0 && (
+                                <span className="text-[10px] text-[#5e6b82] ml-1">({contentStats.mangaPct}%)</span>
+                              )}
+                            </span>
                           </div>
-                          <div className="text-[11px] text-[#5e6b82]">Simulpub official releases</div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5 text-purple-400">
+                              <span className="w-2 h-2 rounded-full bg-purple-400" />
+                              <span>Manhwa (KR)</span>
+                            </span>
+                            <span className="font-mono font-bold text-white">
+                              {contentStats.manhwaCount}
+                              {contentStats.totalCount > 0 && (
+                                <span className="text-[10px] text-[#5e6b82] ml-1">({contentStats.manhwaPct}%)</span>
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="text-[11px] text-[#5e6b82] pt-1">
+                            {contentStats.totalCount > 0 ? `${contentStats.totalCount} verified titles indexed` : "No titles in library"}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Top Genres Bars */}
+                    {/* Top Genres Bars (Dynamic from User Library) */}
                     <div className="p-6 rounded-2xl bg-[#13171f] border border-[#1e2430]">
                       <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-[#94a1b5] mb-3">
                         Top Genres
                       </h3>
-                      <div className="space-y-2.5 text-xs">
-                        {[
-                          { name: "Action & Adventure", percent: 45, color: "bg-blue-500" },
-                          { name: "Fantasy & Magic", percent: 30, color: "bg-purple-500" },
-                          { name: "Drama & Mystery", percent: 15, color: "bg-amber-500" },
-                          { name: "Comedy & Slice", percent: 10, color: "bg-emerald-500" },
-                        ].map((g) => (
-                          <div key={g.name}>
-                            <div className="flex justify-between text-[11px] font-mono text-[#94a1b5] mb-1">
-                              <span>{g.name}</span>
-                              <span>{g.percent}%</span>
+                      {genreStats.length > 0 ? (
+                        <div className="space-y-3 text-xs">
+                          {genreStats.map((g) => (
+                            <div key={g.name}>
+                              <div className="flex justify-between text-[11px] font-mono text-[#94a1b5] mb-1">
+                                <span className="text-white font-medium">{g.name}</span>
+                                <span className="text-[#94a1b5]">
+                                  {g.percent}% <span className="text-[#5e6b82]">({g.count} {g.count === 1 ? "title" : "titles"})</span>
+                                </span>
+                              </div>
+                              <div className="w-full bg-[#0c0e12] h-1.5 rounded-full overflow-hidden">
+                                <div className={`h-full ${g.color} transition-all duration-500`} style={{ width: `${g.percent}%` }} />
+                              </div>
                             </div>
-                            <div className="w-full bg-[#0c0e12] h-1.5 rounded-full overflow-hidden">
-                              <div className={`h-full ${g.color}`} style={{ width: `${g.percent}%` }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-xs text-[#5e6b82]">
+                          Track manga in your library to see your personalized genre breakdown.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1669,26 +1804,72 @@ export default function ProfilePage() {
                       Reading Status
                     </h4>
                     <div className="flex items-center gap-3">
-                      <div className="relative w-20 h-20 rounded-full border-4 border-emerald-500 flex items-center justify-center flex-shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
-                        <div className="text-center">
-                          <div className="text-sm font-black text-white font-mono">
-                            {library.length > 0 ? `${Math.round((readingCount / library.length) * 100)}%` : "0%"}
-                          </div>
-                          <div className="text-[8px] font-mono text-[#94a1b5]">Reading</div>
+                      <div className="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="38" fill="none" stroke="#1e2430" strokeWidth="8" />
+                          {readingStats.totalCount > 0 ? (
+                            <>
+                              {readingStats.readingCount > 0 && (
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="38"
+                                  fill="none"
+                                  stroke="#10b981"
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(readingStats.readingCount / readingStats.totalCount) * 238.76} 238.76`}
+                                  strokeDashoffset="0"
+                                  strokeLinecap="round"
+                                />
+                              )}
+                              {readingStats.completedCount > 0 && (
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="38"
+                                  fill="none"
+                                  stroke="#3b82f6"
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(readingStats.completedCount / readingStats.totalCount) * 238.76} 238.76`}
+                                  strokeDashoffset={-((readingStats.readingCount / readingStats.totalCount) * 238.76)}
+                                  strokeLinecap="round"
+                                />
+                              )}
+                              {readingStats.planCount > 0 && (
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="38"
+                                  fill="none"
+                                  stroke="#f59e0b"
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(readingStats.planCount / readingStats.totalCount) * 238.76} 238.76`}
+                                  strokeDashoffset={-(((readingStats.readingCount + readingStats.completedCount) / readingStats.totalCount) * 238.76)}
+                                  strokeLinecap="round"
+                                />
+                              )}
+                            </>
+                          ) : null}
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                          <span className="text-xs font-black text-white font-mono">
+                            {readingStats.totalCount > 0 ? `${readingStats.readingPct}%` : "0%"}
+                          </span>
+                          <span className="text-[8px] font-mono text-[#94a1b5]">Reading</span>
                         </div>
                       </div>
                       <div className="space-y-1 text-xs flex-1">
                         <div className="flex justify-between">
                           <span className="text-emerald-400">Reading</span>
-                          <span className="font-mono font-bold text-white">{readingCount}</span>
+                          <span className="font-mono font-bold text-white">{readingStats.readingCount}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-blue-400">Completed</span>
-                          <span className="font-mono font-bold text-white">{completedCount}</span>
+                          <span className="font-mono font-bold text-white">{readingStats.completedCount}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-amber-400">Plan to Read</span>
-                          <span className="font-mono font-bold text-white">{planCount}</span>
+                          <span className="font-mono font-bold text-white">{readingStats.planCount}</span>
                         </div>
                       </div>
                     </div>
@@ -1700,18 +1881,61 @@ export default function ProfilePage() {
                       Content Type
                     </h4>
                     <div className="flex items-center gap-3">
-                      <div className="relative w-20 h-20 rounded-full border-4 border-cyan-400 flex items-center justify-center flex-shrink-0 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
-                        <div className="text-center">
-                          <div className="text-sm font-black text-white font-mono">100%</div>
-                          <div className="text-[8px] font-mono text-[#94a1b5]">Official</div>
+                      <div className="relative w-20 h-20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="38" fill="none" stroke="#1e2430" strokeWidth="8" />
+                          {contentStats.totalCount > 0 ? (
+                            <>
+                              {contentStats.mangaCount > 0 && (
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="38"
+                                  fill="none"
+                                  stroke="#06b6d4"
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(contentStats.mangaCount / contentStats.totalCount) * 238.76} 238.76`}
+                                  strokeDashoffset="0"
+                                  strokeLinecap="round"
+                                />
+                              )}
+                              {contentStats.manhwaCount > 0 && (
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  r="38"
+                                  fill="none"
+                                  stroke="#a855f7"
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(contentStats.manhwaCount / contentStats.totalCount) * 238.76} 238.76`}
+                                  strokeDashoffset={-((contentStats.mangaCount / contentStats.totalCount) * 238.76)}
+                                  strokeLinecap="round"
+                                />
+                              )}
+                            </>
+                          ) : null}
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                          <span className="text-xs font-black text-white font-mono">
+                            {contentStats.totalCount > 0 ? `${contentStats.dominantPct}%` : "0%"}
+                          </span>
+                          <span className="text-[8px] font-mono text-[#94a1b5] truncate max-w-[50px]">
+                            {contentStats.totalCount > 0 ? contentStats.dominantType.replace("Japanese ", "").replace("Korean ", "").replace("Chinese ", "") : "Empty"}
+                          </span>
                         </div>
                       </div>
                       <div className="space-y-1 text-xs flex-1">
                         <div className="flex justify-between">
-                          <span className="text-cyan-400">Tracked Titles</span>
-                          <span className="font-mono font-bold text-white">{library.length}</span>
+                          <span className="text-cyan-400">Manga (JP)</span>
+                          <span className="font-mono font-bold text-white">{contentStats.mangaCount}</span>
                         </div>
-                        <div className="text-[10px] text-[#5e6b82]">Manga &amp; Manhwa index</div>
+                        <div className="flex justify-between">
+                          <span className="text-purple-400">Manhwa (KR)</span>
+                          <span className="font-mono font-bold text-white">{contentStats.manhwaCount}</span>
+                        </div>
+                        <div className="text-[10px] text-[#5e6b82]">
+                          {contentStats.totalCount > 0 ? `${contentStats.totalCount} tracked titles` : "No titles in library"}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1721,23 +1945,25 @@ export default function ProfilePage() {
                     <h4 className="font-bold text-xs uppercase font-mono tracking-wider text-[#94a1b5] mb-3">
                       Top Genres
                     </h4>
-                    <div className="space-y-2 text-xs">
-                      {[
-                        { name: "Action & Adventure", percent: 45, color: "bg-blue-500" },
-                        { name: "Fantasy & Magic", percent: 30, color: "bg-purple-500" },
-                        { name: "Drama & Mystery", percent: 15, color: "bg-amber-500" },
-                      ].map((g) => (
-                        <div key={g.name}>
-                          <div className="flex justify-between text-[10px] font-mono text-[#94a1b5] mb-0.5">
-                            <span>{g.name}</span>
-                            <span>{g.percent}%</span>
+                    {genreStats.length > 0 ? (
+                      <div className="space-y-2 text-xs">
+                        {genreStats.slice(0, 3).map((g) => (
+                          <div key={g.name}>
+                            <div className="flex justify-between text-[10px] font-mono text-[#94a1b5] mb-0.5">
+                              <span className="text-white font-medium">{g.name}</span>
+                              <span>{g.percent}%</span>
+                            </div>
+                            <div className="w-full bg-[#161a22] h-1.5 rounded-full overflow-hidden">
+                              <div className={`h-full ${g.color} transition-all duration-500`} style={{ width: `${g.percent}%` }} />
+                            </div>
                           </div>
-                          <div className="w-full bg-[#161a22] h-1.5 rounded-full overflow-hidden">
-                            <div className={`h-full ${g.color}`} style={{ width: `${g.percent}%` }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-[11px] text-[#5e6b82]">
+                        Track manga in your library to see your genre stats.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

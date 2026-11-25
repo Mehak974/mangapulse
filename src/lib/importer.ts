@@ -26,6 +26,9 @@ const ANILIST_USER_LIBRARY_QUERY = `
               medium
             }
             chapters
+            genres
+            countryOfOrigin
+            format
           }
         }
       }
@@ -122,6 +125,9 @@ export async function fetchAniListUserLibrary(username: string): Promise<UserLib
         total_chapters: media.chapters || null,
         rating,
         notes: null,
+        genres: media.genres || [],
+        country_of_origin: media.countryOfOrigin || "JP",
+        format: media.format || "MANGA",
         created_at: now,
         updated_at: now,
       } as any);

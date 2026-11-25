@@ -41,9 +41,21 @@ html.light body {
 html.light .bg-\[\#0c0e12\],
 html.light .bg-\[\#07090e\],
 html.light .bg-\[\#0e121a\],
+html.light .bg-\[\#0f1217\],
+html.light .bg-\[\#0e1219\],
+html.light .bg-\[\#0b0e14\],
+html.light .bg-\[\#08090c\],
+html.light .bg-\[\#0d1017\],
+html.light .bg-\[\#0a0d14\],
 html.light [class*="bg-[#0c0e12]"],
 html.light [class*="bg-[#07090e]"],
-html.light [class*="bg-[#0e121a]"] {
+html.light [class*="bg-[#0e121a]"],
+html.light [class*="bg-[#0f1217]"],
+html.light [class*="bg-[#0e1219]"],
+html.light [class*="bg-[#0b0e14]"],
+html.light [class*="bg-[#08090c]"],
+html.light [class*="bg-[#0d1017]"],
+html.light [class*="bg-[#0a0d14]"] {
   background-color: #f8fafc !important;
 }
 
@@ -64,6 +76,7 @@ html.light .bg-\[\#141b26\],
 html.light .bg-\[\#161a22\],
 html.light .bg-\[\#161c28\],
 html.light .bg-\[\#181d28\],
+html.light .bg-\[\#121620\],
 html.light [class*="bg-[#13171f]"],
 html.light [class*="bg-[#141820]"],
 html.light [class*="bg-[#10141d]"],
@@ -74,6 +87,7 @@ html.light [class*="bg-[#141b26]"],
 html.light [class*="bg-[#161a22]"],
 html.light [class*="bg-[#161c28]"],
 html.light [class*="bg-[#181d28]"],
+html.light [class*="bg-[#121620]"],
 html.light .surface-card,
 html.light [class*="surface-card"] {
   background-color: #ffffff !important;
