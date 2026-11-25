@@ -41,7 +41,7 @@ export default function AboutPage() {
           Empowering Manga Readers with Accurate Releases & Legal Discovery
         </h1>
         <p className="text-sm sm:text-base leading-relaxed text-[#94a1b5] max-w-2xl">
-          MangaPulse is a community-driven release tracker, countdown aggregator, and catalog directory dedicated to Japanese Manga, South Korean Manhwa, and Chinese Manhua.
+          MangaPulse is an independent directory and countdown calendar designed to support the manga industry by connecting fans with official, legal simulpubs. We provide real-time release schedules, library tracking, and direct access to licensed distributors.
         </p>
       </div>
 

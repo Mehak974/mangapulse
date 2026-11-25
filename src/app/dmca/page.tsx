@@ -55,11 +55,20 @@ export default function DmcaPage() {
           <li>An electronic or physical signature of the authorized person.</li>
         </ul>
 
-        <div className="p-4 rounded-lg bg-[#141820] border border-[#1e2430] flex items-center gap-3">
-          <Mail className="w-5 h-5 text-blue-400 shrink-0" />
-          <div>
-            <p className="text-xs font-mono uppercase text-[#5e6b82]">Designated DMCA Agent Email</p>
-            <p className="text-sm font-bold text-white">legal@mangapulse.co</p>
+        <div className="p-4 rounded-lg bg-[#141820] border border-[#1e2430] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Mail className="w-5 h-5 text-blue-400 shrink-0" />
+            <div>
+              <p className="text-xs font-mono uppercase text-[#5e6b82]">Designated DMCA Agent Email</p>
+              <p className="text-sm font-bold text-white">legal@mangapulse.co</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 sm:border-l sm:border-[#1e2430] sm:pl-4">
+            <Mail className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div>
+              <p className="text-xs font-mono uppercase text-[#5e6b82]">Automated Notices & Inquiries</p>
+              <p className="text-sm font-bold text-white">dmca@mangapulse.co</p>
+            </div>
           </div>
         </div>
       </section>
