@@ -18,7 +18,7 @@ export default function DmcaPage() {
 
       <div className="border-b border-[#1e2430] pb-6 space-y-2">
         <div className="inline-flex items-center gap-2 text-xs font-mono text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20">
-          <ShieldCheck className="w-3.5 h-3.5" /> 100% Legal Aggregator Compliance
+          <ShieldCheck className="w-3.5 h-3.5" /> Official Directory & Compliance Protocol
         </div>
         <h1 className="text-3xl font-black text-white">DMCA & Copyright Policy</h1>
         <p className="text-xs text-[#5e6b82]">Last Updated: November 24, 2026</p>

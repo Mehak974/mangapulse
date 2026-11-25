@@ -74,6 +74,33 @@ function persistPagesToFile(): void {
   }, 1000);
 }
 
+// Whitelist patterns for valid public content paths
+const VALID_MANGA_PATH_REGEX = /^\/manga\/[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+const VALID_COUNTDOWN_PATH_REGEX = /^\/release-date\/[a-z0-9]+(?:-[a-z0-9]+)*$/i;
+const ALLOWED_STATIC_PATHS = new Set([
+  "/about",
+  "/contact",
+  "/terms",
+  "/privacy",
+  "/dmca",
+  "/donate",
+  "/browse",
+  "/trending",
+  "/forum",
+]);
+
+/**
+ * Validates that an incoming path strictly matches an indexable catalog route
+ */
+export function isValidTrackPath(path: string): boolean {
+  if (!path || typeof path !== "string") return false;
+  const clean = path.split("?")[0].split("#")[0].trim().toLowerCase();
+  if (ALLOWED_STATIC_PATHS.has(clean)) return true;
+  if (VALID_MANGA_PATH_REGEX.test(clean)) return true;
+  if (VALID_COUNTDOWN_PATH_REGEX.test(clean)) return true;
+  return false;
+}
+
 /**
  * Normalizes and validates incoming URL or path
  */
@@ -105,17 +132,8 @@ export function normalizePagePath(pathOrUrl: string): string | null {
     cleaned = cleaned.slice(0, -1);
   }
 
-  // Filter out system, admin, auth, API and asset paths
-  if (
-    cleaned === "/" ||
-    cleaned.startsWith("/api") ||
-    cleaned.startsWith("/_next") ||
-    cleaned.startsWith("/auth") ||
-    cleaned.startsWith("/settings") ||
-    cleaned.startsWith("/admin") ||
-    cleaned.startsWith("/_not-found") ||
-    /\.(ico|png|jpg|jpeg|svg|webp|json|txt|xml|css|js|map)$/i.test(cleaned)
-  ) {
+  // Check against strict whitelist (blocks arbitrary/spam paths from polluting sitemap)
+  if (!isValidTrackPath(cleaned)) {
     return null;
   }
 
@@ -168,6 +186,11 @@ export async function recordVisitedPage(
     priority,
     changeFrequency,
   };
+
+  if (!existing && inMemoryDiscoveredPages.size >= 3000) {
+    const oldest = inMemoryDiscoveredPages.keys().next().value;
+    if (oldest) inMemoryDiscoveredPages.delete(oldest);
+  }
 
   inMemoryDiscoveredPages.set(canonicalUrl, pageEntry);
 

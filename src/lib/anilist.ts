@@ -59,8 +59,31 @@ export function formatMangaItem(media: any): MangaItem {
   const verified = getVerifiedSchedule(media.id, displayTitle, media.status, media.chapters);
   const nextAiringChapter = calculateMangaReleaseSchedule(media);
 
-  // Set real verified chapter numbers instead of generic null / 100
-  const chapters = media.chapters || verified.latestChapter;
+  // If verified ongoing schedule exists, enforce RELEASING status and consistent latest chapter
+  const isVerifiedOngoing = !verified.isFinished && !verified.isHiatus && verified.targetTimestamp !== null;
+  const status = verified.isFinished
+    ? "FINISHED"
+    : verified.isHiatus
+    ? "HIATUS"
+    : isVerifiedOngoing
+    ? "RELEASING"
+    : media.status || "RELEASING";
+
+  // For ongoing series, use verified latest chapter (prevents AniList 232 error on Chainsaw Man)
+  const chapters = isVerifiedOngoing
+    ? verified.latestChapter
+    : verified.isFinished
+    ? verified.latestChapter || media.chapters
+    : media.chapters || verified.latestChapter;
+
+  // Clean description of HTML tags and raw markdown artifacts (e.g. "Notes: - Nominated...")
+  const cleanDescription = media.description
+    ? media.description
+        .replace(/<[^>]*>/g, "")
+        .replace(/Notes:\s*-\s*/gi, "")
+        .replace(/\n\s*-\s*/g, "\n• ")
+        .trim()
+    : "";
 
   const item: MangaItem = {
     id: media.id,
@@ -69,11 +92,9 @@ export function formatMangaItem(media: any): MangaItem {
     displayTitle,
     coverImage: media.coverImage || {},
     bannerImage: media.bannerImage || null,
-    description: media.description
-      ? media.description.replace(/<[^>]*>/g, "")
-      : "",
+    description: cleanDescription,
     genres: media.genres || [],
-    status: verified.isFinished ? "FINISHED" : verified.isHiatus ? "HIATUS" : media.status || "RELEASING",
+    status,
     averageScore: media.averageScore || null,
     popularity: media.popularity || null,
     chapters,

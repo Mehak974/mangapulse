@@ -15,7 +15,7 @@ import {
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "About Us — The 100% Legal Manga Countdown & Reading Index",
+  title: "About Us — Manga Release Tracker & Official Reading Directory",
   description:
     "Learn about MangaPulse's mission: providing real-time worldwide simulpub countdowns, official publisher directories, and personal library tracking with zero piracy or image hosting.",
   path: "/about",
@@ -81,7 +81,7 @@ export default function AboutPage() {
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-bold text-white">100% Legal & DMCA Compliant</h3>
+            <h3 className="text-base font-bold text-white">Official Directory & DMCA Compliance</h3>
             <p className="text-xs text-[#94a1b5] leading-relaxed">
               We operate under a strict Zero Image Hosting policy. We do not store, scan, or distribute copyrighted manga pages. We index metadata and point users to licensed sources.
             </p>

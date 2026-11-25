@@ -77,20 +77,31 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Security trigger: Prevent users from self-assigning is_supporter or supporter_tier
+-- Security trigger: Prevent users from self-assigning role, bans, or supporter perks
 CREATE OR REPLACE FUNCTION public.protect_profile_roles()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (OLD.is_supporter IS DISTINCT FROM NEW.is_supporter OR OLD.supporter_tier IS DISTINCT FROM NEW.supporter_tier) THEN
-        IF current_setting('role', true) != 'service_role' THEN
+    IF (
+        OLD.is_supporter IS DISTINCT FROM NEW.is_supporter OR 
+        OLD.supporter_tier IS DISTINCT FROM NEW.supporter_tier OR
+        OLD.role IS DISTINCT FROM NEW.role OR
+        OLD.is_banned IS DISTINCT FROM NEW.is_banned OR
+        OLD.is_shadow_banned IS DISTINCT FROM NEW.is_shadow_banned
+    ) THEN
+        IF current_setting('role', true) != 'service_role' 
+           AND current_user NOT IN ('postgres', 'supabase_admin') 
+           AND NOT public.is_admin(auth.uid()) THEN
             NEW.is_supporter := OLD.is_supporter;
             NEW.supporter_tier := OLD.supporter_tier;
+            NEW.role := OLD.role;
+            NEW.is_banned := OLD.is_banned;
+            NEW.is_shadow_banned := OLD.is_shadow_banned;
         END IF;
     END IF;
     NEW.updated_at := timezone('utc'::text, now());
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS tr_protect_profile_roles ON public.profiles;
 CREATE TRIGGER tr_protect_profile_roles

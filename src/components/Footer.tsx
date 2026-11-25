@@ -17,7 +17,7 @@ export default function Footer() {
             Comprehensive release index, chapter countdowns, and official reading directory for Japanese Manga, South Korean Manhwa, and Chinese Manhua.
           </p>
           <div className="text-[11px] font-mono text-[#5e6b82] pt-1">
-            Data synchronized via AniList API & Official Publisher Feeds.
+            Metadata sourced via AniList API. Schedules calculated from publisher release cadences.
           </div>
         </div>
 
@@ -107,7 +107,7 @@ export default function Footer() {
             </li>
             <li>
               <Link href="/dmca" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
-                Zero Image Hosting (DMCA)
+                DMCA Compliance Policy
               </Link>
             </li>
             <li>
@@ -131,7 +131,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-[#1e2430] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#94a3b8]">
         <div>© {new Date().getFullYear()} MangaPulse. All trademarks and copyrighted titles belong to their respective publishers.</div>
-        <div className="font-mono">BUILD 2026.11.23-PROD</div>
+        <div className="font-mono">Independent community directory for manga readers.</div>
       </div>
     </footer>
   );

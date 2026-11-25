@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       params.push(`%${search.toLowerCase()}%`);
       const idx = params.length;
       whereConditions.push(
-        `(LOWER(p.username) LIKE $${idx} OR LOWER(u.email) LIKE $${idx} OR p.last_login_ip LIKE $${idx} OR p.signup_ip LIKE $${idx})`
+        `(LOWER(p.username) LIKE $${idx} OR LOWER(u.email) LIKE $${idx} OR COALESCE(t.last_login_ip, '') LIKE $${idx} OR COALESCE(t.signup_ip, '') LIKE $${idx})`
       );
     }
 
@@ -75,9 +75,9 @@ export async function GET(req: NextRequest) {
           p.supporter_tier,
           p.created_at,
           p.last_login_at,
-          p.last_login_ip,
-          p.last_user_agent,
-          p.signup_ip,
+          COALESCE(t.last_login_ip, '') AS last_login_ip,
+          COALESCE(t.last_user_agent, '') AS last_user_agent,
+          COALESCE(t.signup_ip, '') AS signup_ip,
           p.auth_provider,
           p.is_banned,
           p.is_shadow_banned,
@@ -85,6 +85,7 @@ export async function GET(req: NextRequest) {
           p.banned_at
          FROM public.profiles p
          LEFT JOIN auth.users u ON p.id = u.id
+         LEFT JOIN public.user_security_telemetry t ON p.id = t.user_id
          WHERE ${whereClause}
          ORDER BY p.last_login_at DESC NULLS LAST, p.created_at DESC
          LIMIT $${params.length + 1} OFFSET $${params.length + 2};`,

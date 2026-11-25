@@ -21,9 +21,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   ...buildMetadata({
-    title: "MangaPulse — 100% Legal Manga Tracker & Chapter Release Countdown",
+    title: "MangaPulse — Manga Release Schedule, Chapter Countdown & Official Directory",
     description:
-      "Real-time countdown timers for upcoming chapters of One Piece, Chainsaw Man, Solo Leveling, and Jujutsu Kaisen. Official Where to Read and Buy directory with personal reading library tracking and custom collections.",
+      "Real-time countdown timers for upcoming chapters of One Piece, Chainsaw Man, Solo Leveling, and Jujutsu Kaisen. Official Where to Read directory with personal reading library tracking and custom collections.",
     path: "/",
   }),
   manifest: "/manifest.json",
@@ -112,10 +112,10 @@ export default function RootLayout({
           }}
         />
 
-        {/* Mangareader Analytics */}
+        {/* MangaPulse Analytics */}
         <script
           defer
-          src="https://analytics.mangareader.pro/script.js"
+          src="https://analytics.mangapulse.co/script.js"
           data-website-id="fe98be64-6eec-45cb-9f7a-9bc786d5edc2"
         />
         <script

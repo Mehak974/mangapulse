@@ -41,6 +41,9 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong className="text-white">Local / Guest Storage:</strong> If you use MangaPulse as a guest without creating an account, your library data and preferences remain strictly on your local device via browser <code className="text-slate-300 bg-slate-800 px-1 py-0.5 rounded">localStorage</code> and are never transmitted to our servers.
           </li>
+          <li>
+            <strong className="text-white">Account Security & Telemetry:</strong> To prevent brute-force attacks, abuse, and fraudulent activity, we record standard connection telemetry (IP address and browser user-agent) during account authentication. This data is stored in a private administrative table inaccessible to public profile queries and is retained solely for account protection and security auditing.
+          </li>
         </ul>
 
         <h2 className="text-lg font-bold text-white">3. Third-Party Services & APIs</h2>
