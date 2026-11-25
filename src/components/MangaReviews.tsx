@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Star, ThumbsUp, MessageSquare, PenTool, CheckCircle, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { logActivity } from "@/lib/userStore";
+import { containsLink, NO_LINKS_POLICY_MSG } from "@/lib/linkFilter";
 
 interface Review {
   id: string;
@@ -38,6 +39,7 @@ export default function MangaReviews({
   const [rating, setRating] = useState(9);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewContent, setReviewContent] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [helpfulVoted, setHelpfulVoted] = useState<Set<string>>(new Set());
 
@@ -93,6 +95,12 @@ export default function MangaReviews({
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewContent.trim()) return;
+
+    if (containsLink(reviewTitle) || containsLink(reviewContent)) {
+      setReviewError(NO_LINKS_POLICY_MSG);
+      return;
+    }
+    setReviewError(null);
 
     setSubmitting(true);
     const newRev: Review = {
@@ -210,6 +218,20 @@ export default function MangaReviews({
             </div>
           </div>
 
+          {/* Strict Anti-Piracy Policy Notice */}
+          <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px] leading-tight">
+            <ShieldCheck className="w-4 h-4 flex-shrink-0 text-blue-400" />
+            <span>
+              <strong>Safe Community:</strong> Links and URLs are disabled to protect copyright and ensure verified discussion only.
+            </span>
+          </div>
+
+          {reviewError && (
+            <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">
+              {reviewError}
+            </div>
+          )}
+
           {/* Headline */}
           <div>
             <label className="block text-[11px] text-[#94a1b5] font-mono mb-1">
@@ -218,7 +240,10 @@ export default function MangaReviews({
             <input
               type="text"
               value={reviewTitle}
-              onChange={(e) => setReviewTitle(e.target.value)}
+              onChange={(e) => {
+                setReviewTitle(e.target.value);
+                if (reviewError) setReviewError(null);
+              }}
               placeholder="e.g. Masterclass storytelling, loved the recent arc!"
               className="w-full bg-[#13171f] border border-[#2a3344] focus:border-blue-500 rounded-lg px-3 py-2 text-xs text-white placeholder-[#94a1b5] focus:outline-none"
             />
@@ -232,9 +257,12 @@ export default function MangaReviews({
             <textarea
               rows={4}
               value={reviewContent}
-              onChange={(e) => setReviewContent(e.target.value)}
+              onChange={(e) => {
+                setReviewContent(e.target.value);
+                if (reviewError) setReviewError(null);
+              }}
               required
-              placeholder="What did you think of the art, character development, and weekly pacing?"
+              placeholder="What did you think of the art, character development, and weekly pacing? (Text only, links disabled)"
               className="w-full bg-[#13171f] border border-[#2a3344] focus:border-blue-500 rounded-lg p-3 text-xs text-white placeholder-[#94a1b5] focus:outline-none resize-none"
             />
           </div>

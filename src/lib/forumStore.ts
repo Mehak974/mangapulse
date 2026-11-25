@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { containsLink, NO_LINKS_POLICY_MSG } from "./linkFilter";
 
 export interface ForumComment {
   id: string;
@@ -188,6 +189,14 @@ export async function createForumThread(
   thread: Omit<ForumThread, "id" | "created_at" | "upvotes" | "comments">,
   authorId?: string
 ): Promise<ForumThread> {
+  if (
+    containsLink(thread.title) ||
+    containsLink(thread.content) ||
+    (thread.manga_tag && containsLink(thread.manga_tag))
+  ) {
+    throw new Error(NO_LINKS_POLICY_MSG);
+  }
+
   const localList = getForumThreads();
   const tempId = `thread-${Date.now()}`;
   const newThread: ForumThread = {
@@ -235,6 +244,10 @@ export async function addCommentToThread(
   authorId?: string,
   author_role?: string | null
 ): Promise<ForumComment | null> {
+  if (containsLink(content)) {
+    throw new Error(NO_LINKS_POLICY_MSG);
+  }
+
   const list = getForumThreads();
   const thread = list.find((t) => t.id === threadId);
   if (!thread) return null;

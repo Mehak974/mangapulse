@@ -16,10 +16,12 @@ import {
   Send,
   Flame,
   ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import SupporterAvatar from "@/components/SupporterAvatar";
 import StaffBadge from "@/components/StaffBadge";
+import { containsLink, NO_LINKS_POLICY_MSG } from "@/lib/linkFilter";
 import {
   ForumThread,
   getForumThreads,
@@ -50,9 +52,11 @@ export default function ForumPage() {
   const [newCategory, setNewCategory] = useState<"chapter_drops" | "general" | "where_to_read" | "site_feedback">("chapter_drops");
   const [newTag, setNewTag] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Comment input state
   const [commentText, setCommentText] = useState("");
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   const refreshThreads = () => {
     const list = getForumThreads();
@@ -77,38 +81,64 @@ export default function ForumPage() {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
+    if (
+      containsLink(newTitle) ||
+      containsLink(newContent) ||
+      containsLink(newTag)
+    ) {
+      setCreateError(NO_LINKS_POLICY_MSG);
+      return;
+    }
+    setCreateError(null);
+
     const author = user?.displayName || user?.username || "Reader";
     const author_avatar = user?.avatar_url || null;
 
-    const created = await createForumThread(
-      {
-        category: newCategory,
-        title: newTitle.trim(),
-        content: newContent.trim(),
-        manga_tag: newTag.trim() || null,
-        author_name: author,
-        author_avatar,
-        author_role: user?.role || "USER",
-      },
-      user?.id
-    );
+    try {
+      const created = await createForumThread(
+        {
+          category: newCategory,
+          title: newTitle.trim(),
+          content: newContent.trim(),
+          manga_tag: newTag.trim() || null,
+          author_name: author,
+          author_avatar,
+          author_role: user?.role || "USER",
+        },
+        user?.id
+      );
 
-    setModalOpen(false);
-    setNewTitle("");
-    setNewTag("");
-    setNewContent("");
-    setSelectedThread(created);
+      setModalOpen(false);
+      setNewTitle("");
+      setNewTag("");
+      setNewContent("");
+      setCreateError(null);
+      setSelectedThread(created);
+    } catch (err: any) {
+      setCreateError(err.message || "Failed to post discussion");
+    }
   };
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedThread || !commentText.trim()) return;
 
+    if (containsLink(commentText)) {
+      setCommentError(NO_LINKS_POLICY_MSG);
+      return;
+    }
+    setCommentError(null);
+
     const author = user?.displayName || user?.username || "Reader";
     const author_avatar = user?.avatar_url || null;
 
-    await addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar, user?.id, user?.role || "USER");
-    setCommentText("");
+    try {
+      await addCommentToThread(selectedThread.id, author, commentText.trim(), author_avatar, user?.id, user?.role || "USER");
+      setCommentText("");
+      setCommentError(null);
+    } catch (err: any) {
+      setCommentError(err.message || "Failed to post reply");
+    }
   };
 
   const handleUpvote = (threadId: string, e: React.MouseEvent) => {
@@ -351,23 +381,31 @@ export default function ForumPage() {
                   </div>
 
                   {/* Reply Form */}
-                  <form onSubmit={handleAddComment} className="flex gap-2">
-                    <input
-                      type="text"
-                      required
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Write your reaction or thoughts..."
-                      className="flex-1 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
-                    />
-                    <button
-                      type="submit"
-                      disabled={!commentText.trim()}
-                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Reply</span>
-                    </button>
+                  <form onSubmit={handleAddComment} className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        required
+                        value={commentText}
+                        onChange={(e) => {
+                          setCommentText(e.target.value);
+                          if (commentError) setCommentError(null);
+                        }}
+                        placeholder="Write your reaction or thoughts (links disabled)..."
+                        className="flex-1 px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!commentText.trim()}
+                        className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Reply</span>
+                      </button>
+                    </div>
+                    {commentError && (
+                      <p className="text-red-400 text-xs font-semibold px-1">{commentError}</p>
+                    )}
                   </form>
                 </div>
               </div>
@@ -386,12 +424,29 @@ export default function ForumPage() {
                 <h3 className="font-bold text-sm">Create New Forum Thread</h3>
               </div>
               <button
-                onClick={() => setModalOpen(false)}
+                onClick={() => {
+                  setModalOpen(false);
+                  setCreateError(null);
+                }}
                 className="p-1 rounded text-[#94a1b5] hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Strict Legal Policy Banner */}
+            <div className="mt-4 flex items-center gap-2.5 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-blue-400" />
+              <span>
+                <strong>No-Links Policy:</strong> External URLs, domains, and web links are disabled to prevent unauthorized distribution and keep discussions compliant.
+              </span>
+            </div>
+
+            {createError && (
+              <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">
+                {createError}
+              </div>
+            )}
 
             <form onSubmit={handleCreateThread} className="space-y-4 mt-4 text-xs">
               <div>
@@ -413,7 +468,10 @@ export default function ForumPage() {
                 <input
                   type="text"
                   value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
+                  onChange={(e) => {
+                    setNewTag(e.target.value);
+                    if (createError) setCreateError(null);
+                  }}
                   placeholder="e.g. One Piece, Chainsaw Man, Solo Leveling"
                   className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
                 />
@@ -425,7 +483,10 @@ export default function ForumPage() {
                   type="text"
                   required
                   value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
+                  onChange={(e) => {
+                    setNewTitle(e.target.value);
+                    if (createError) setCreateError(null);
+                  }}
                   placeholder="What is this discussion about?"
                   className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
                 />
@@ -437,7 +498,10 @@ export default function ForumPage() {
                   required
                   rows={5}
                   value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
+                  onChange={(e) => {
+                    setNewContent(e.target.value);
+                    if (createError) setCreateError(null);
+                  }}
                   placeholder="Share your perspective, chapter spoilers, or recommendation rationale..."
                   className="w-full px-3 py-2 rounded-lg bg-[#0c0e12] border border-[#2a3344] text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 resize-none leading-relaxed"
                 />
