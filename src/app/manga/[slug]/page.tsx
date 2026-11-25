@@ -9,7 +9,7 @@ import { buildMetadata, generateBookSchema, generateCountdownSchema, SITE_URL } 
 import { indexDiscoveredPages } from "@/lib/indexnow";
 import MangaDetailActions from "@/components/MangaDetailActions";
 import MangaDetailTabs from "@/components/MangaDetailTabs";
-import { Star } from "lucide-react";
+import { Star, ShieldCheck } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const nextChapter = manga.nextAiringChapter?.episodeOrChapter;
   const description = nextChapter
-    ? `Track ${manga.displayTitle} Chapter ${nextChapter} release countdown. Official simulpub read links on Manga Plus and Viz Media, volumes, and full series details.`
-    : `Read and track ${manga.displayTitle} official releases, volume release dates, chapters, and recommendations on MangaPulse.`;
+    ? `Track ${manga.displayTitle} Chapter ${nextChapter} official release countdown, simulpub schedule, volumes, and licensed publisher directory.`
+    : `Track ${manga.displayTitle} official release schedule, chapter countdowns, volume release dates, and licensed publisher directory on MangaPulse. Zero scanlations or image hosting.`;
 
   return buildMetadata({
-    title: `${manga.displayTitle} — Chapter Countdown, Where to Read & Buy`,
+    title: `${manga.displayTitle} — Chapter Countdown & Official Publisher Directory`,
     description,
     path: `/manga/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
@@ -247,6 +247,12 @@ export default async function MangaDetailPage({ params }: PageProps) {
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 {manga.displayTitle}
               </h1>
+
+              {/* Bot & User Verified Legal Notice */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono">
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                <span>Verified Legal Directory • Zero Image Hosting • Direct Publisher Links</span>
+              </div>
 
               {manga.title.romaji && manga.title.romaji !== manga.displayTitle && (
                 <div className="text-xs font-mono text-[#5e6b82]">

@@ -81,7 +81,7 @@ export default function OfficialActions({ links = [], mangaTitle }: OfficialActi
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
                     : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                 }`}>
-                  {isFree ? "Free Read" : isPurchase ? "Buy Volume" : "Simulpub"}
+                  {isFree ? "Official Read" : isPurchase ? "Buy Volume" : "Simulpub"}
                 </span>
                 <ExternalLink className="w-3.5 h-3.5 text-[#5e6b82] group-hover:text-white transition-colors" />
               </div>

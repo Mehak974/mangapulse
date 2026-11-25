@@ -85,7 +85,7 @@ export function generateBookSchema(manga: MangaItem) {
     "@type": "Book",
     name: manga.displayTitle,
     alternateName: manga.title.romaji || manga.title.native || undefined,
-    description: manga.description || `Read and track ${manga.displayTitle} official releases.`,
+    description: manga.description || `Official release tracker and publisher directory for ${manga.displayTitle}.`,
     image: manga.coverImage.extraLarge || manga.coverImage.large,
     inLanguage: manga.countryOfOrigin === "JP" ? "ja" : manga.countryOfOrigin === "KR" ? "ko" : "en",
     numberOfPages: manga.chapters ? `${manga.chapters} chapters` : undefined,
