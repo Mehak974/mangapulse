@@ -42,6 +42,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        {/* Instant theme execution to prevent dark/light flash and sync state */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("mangapulse_theme");if(t==="light"){document.documentElement.classList.remove("dark");document.documentElement.classList.add("light");}}catch(e){}})();`,
+          }}
+        />
         {/* Schema.org Knowledge Graph */}
         <script
           type="application/ld+json"
