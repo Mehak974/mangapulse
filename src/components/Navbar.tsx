@@ -153,6 +153,7 @@ export default function Navbar() {
             { href: "/", label: "Home" },
             { href: "/dashboard", label: "My Dashboard" },
             { href: "/trending", label: "Trending" },
+            { href: "/guides", label: "Guides" },
             { href: "/forum", label: "Forum" },
             { href: "/library", label: "Library" },
             { href: "/donate", label: "Upgrade", isDonate: true },

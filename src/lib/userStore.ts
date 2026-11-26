@@ -19,6 +19,14 @@ const STORAGE_KEYS = {
   ACTIVITIES: "mangapulse_activities",
 };
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const DEFAULT_PREFERENCES: UserPreferences = {
   defaultView: "grid",
   preferredPublisher: "all",
@@ -511,7 +519,8 @@ export async function deleteLibraryEntry(mangaId: number, userId?: string): Prom
 /* ────────────────────────── COLLECTIONS ────────────────────────── */
 
 export async function getUserCollections(userId?: string): Promise<UserCollection[]> {
-  if (supabase && userId && userId !== "guest") {
+  const isUserUuid = isValidUuid(userId);
+  if (supabase && isUserUuid) {
     try {
       const { data, error } = await supabase
         .from("user_collections")
@@ -519,7 +528,18 @@ export async function getUserCollections(userId?: string): Promise<UserCollectio
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
-      if (!error && data) return data as UserCollection[];
+      if (!error && data) {
+        // Merge Supabase collections with local default collections so they never disappear
+        const localList = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+        const localDefaults = localList.filter((c) => !isValidUuid(c.id));
+        const merged: UserCollection[] = [...(data as UserCollection[])];
+        for (const def of localDefaults) {
+          if (!merged.some((m) => m.name.toLowerCase() === def.name.toLowerCase() || m.id === def.id)) {
+            merged.push(def);
+          }
+        }
+        return merged;
+      }
     } catch (e) {
       console.warn("Supabase collections fetch error:", e);
     }
@@ -589,17 +609,29 @@ export async function deleteCollection(collectionId: string, userId = "guest"): 
 
 export async function toggleMangaInCollection(
   collectionId: string,
-  manga: MangaItem | { id: number; slug: string; displayTitle: string; cover: string },
+  manga: MangaItem | { id: number; slug?: string; displayTitle?: string; cover?: string },
   userId?: string
 ): Promise<boolean> {
   const isUuid = isValidUuid(collectionId);
   const mangaId = Number(manga.id);
+  const mangaSlug =
+    ("slug" in manga && manga.slug) ||
+    (manga as any).manga_slug ||
+    slugify(("displayTitle" in manga && manga.displayTitle) || (manga as any).title?.userPreferred || "manga");
+  const mangaTitle =
+    ("displayTitle" in manga && manga.displayTitle) ||
+    (manga as any).title?.userPreferred ||
+    (manga as any).title?.english ||
+    (manga as any).title?.romaji ||
+    (manga as any).manga_title ||
+    "Untitled Manga";
   const coverUrl =
     "cover" in manga
-      ? manga.cover
-      : manga.coverImage?.extraLarge ||
-        manga.coverImage?.large ||
-        manga.coverImage?.medium ||
+      ? (manga as any).cover
+      : (manga as any).coverImage?.extraLarge ||
+        (manga as any).coverImage?.large ||
+        (manga as any).coverImage?.medium ||
+        (manga as any).manga_cover ||
         "";
 
   let added = false;
@@ -625,8 +657,8 @@ export async function toggleMangaInCollection(
         await supabase.from("collection_manga").insert({
           collection_id: collectionId,
           manga_id: mangaId,
-          manga_slug: manga.slug,
-          manga_title: manga.displayTitle,
+          manga_slug: mangaSlug,
+          manga_title: mangaTitle,
           manga_cover: coverUrl,
         });
         added = true;
@@ -667,8 +699,8 @@ export async function toggleMangaInCollection(
         id: `ci-${Date.now()}`,
         collection_id: collectionId,
         manga_id: mangaId,
-        manga_slug: manga.slug,
-        manga_title: manga.displayTitle,
+        manga_slug: mangaSlug,
+        manga_title: mangaTitle,
         manga_cover: coverUrl,
         added_at: new Date().toISOString(),
       });

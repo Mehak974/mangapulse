@@ -30,6 +30,7 @@ import {
   getRandomCoverPreset,
 } from "@/lib/userStore";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { slugify } from "@/lib/anilist";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -45,7 +46,13 @@ interface AuthContextType {
   // Library
   library: UserLibraryEntry[];
   refreshLibrary: (userId?: string) => Promise<void>;
-  updateLibrary: (entry: Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string }) => Promise<void>;
+  updateLibrary: (
+    entry: Omit<UserLibraryEntry, "id" | "user_id" | "created_at" | "updated_at"> & {
+      id?: string;
+      user_id?: string;
+      notes?: string | null;
+    }
+  ) => Promise<void>;
   importLibraryBatch: (entries: (Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string })[]) => Promise<UserLibraryEntry[]>;
   removeFromLibrary: (mangaId: number) => Promise<void>;
   incrementChapter: (mangaId: number) => Promise<void>;
@@ -535,11 +542,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /* ── Library Actions ── */
   const updateLibrary = async (
-    entry: Omit<UserLibraryEntry, "id" | "created_at" | "updated_at"> & { id?: string }
+    entry: Omit<UserLibraryEntry, "id" | "user_id" | "created_at" | "updated_at"> & {
+      id?: string;
+      user_id?: string;
+      notes?: string | null;
+    }
   ) => {
     await saveLibraryEntry({
       ...entry,
-      user_id: user?.id || "guest",
+      notes: entry.notes ?? null,
+      user_id: entry.user_id || user?.id || "guest",
     });
     await refreshLibrary(user?.id);
   };
@@ -582,13 +594,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const toggleInCollection = async (collectionId: string, manga: MangaItem) => {
     const mangaId = Number(manga.id);
+    const mangaSlug =
+      manga.slug ||
+      (manga as any).manga_slug ||
+      slugify(manga.displayTitle || (manga as any).title?.userPreferred || (manga as any).title?.english || "manga");
+    const mangaTitle =
+      manga.displayTitle ||
+      manga.title?.userPreferred ||
+      manga.title?.english ||
+      manga.title?.romaji ||
+      (manga as any).manga_title ||
+      "Untitled Manga";
     const coverUrl =
       "cover" in (manga as any)
         ? (manga as any).cover
         : manga.coverImage?.extraLarge ||
           manga.coverImage?.large ||
           manga.coverImage?.medium ||
+          (manga as any).manga_cover ||
           "";
+
+    // Check if adding or removing
+    const targetCol = collections.find((c) => c.id === collectionId);
+    const isAdding = !(targetCol?.items || []).some(
+      (it) => String(it.manga_id) === String(mangaId)
+    );
 
     // Optimistic UI update so checkmark changes instantaneously
     setCollections((prev) =>
@@ -606,8 +636,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   id: `ci-${Date.now()}`,
                   collection_id: collectionId,
                   manga_id: mangaId,
-                  manga_slug: manga.slug,
-                  manga_title: manga.displayTitle,
+                  manga_slug: mangaSlug,
+                  manga_title: mangaTitle,
                   manga_cover: coverUrl,
                   added_at: new Date().toISOString(),
                 },
@@ -615,6 +645,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
       })
     );
+
+    // If adding to collection and not already in library, also auto-register in library
+    // as "plan_to_read" so it immediately surfaces on Dashboard and Library views!
+    if (isAdding) {
+      const inLibrary = library.some((l) => Number(l.manga_id) === mangaId);
+      if (!inLibrary) {
+        await updateLibrary({
+          manga_id: mangaId,
+          manga_slug: mangaSlug,
+          manga_title: mangaTitle,
+          manga_cover: coverUrl,
+          status: "plan_to_read",
+          progress_chapter: 0,
+          total_chapters: manga.chapters || null,
+          rating: null,
+          notes: null,
+        });
+      }
+    }
 
     const res = await storeToggleManga(collectionId, manga, user?.id);
     await refreshCollections(user?.id);

@@ -4,6 +4,7 @@ import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
 import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
 import { getVisitedPages } from "@/lib/visitedPages";
+import { EDITORIAL_GUIDES } from "@/data/guidesData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -79,6 +80,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.3,
     },
+    {
+      url: `${baseUrl}/guides`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    ...EDITORIAL_GUIDES.map((g) => ({
+      url: `${baseUrl}/guides/${g.slug}`,
+      lastModified: new Date(g.publishedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
   ];
 
   staticRoutes.forEach(addRoute);

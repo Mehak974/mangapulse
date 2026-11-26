@@ -33,8 +33,8 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/trending" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors">
-                Trending Manga This Week
+              <Link href="/guides" className="py-1.5 inline-flex items-center min-h-[32px] hover:text-white transition-colors text-blue-400">
+                Editorial Guides & Reading Orders
               </Link>
             </li>
             <li>

@@ -114,22 +114,24 @@ export default function LibraryPage() {
 
   // Sort custom collection items
   const sortedCollectionItems = [...(selectedCol?.items || [])].sort((a, b) => {
+    const titleA = a?.manga_title || "";
+    const titleB = b?.manga_title || "";
     if (currentSort === "alphabetical") {
-      return a.manga_title.localeCompare(b.manga_title);
+      return titleA.localeCompare(titleB);
     }
     if (currentSort === "added") {
-      return new Date(b.added_at || 0).getTime() - new Date(a.added_at || 0).getTime();
+      return new Date(b?.added_at || 0).getTime() - new Date(a?.added_at || 0).getTime();
     }
     if (currentSort === "last_read") {
-      const libA = library.find((l) => l.manga_id === a.manga_id);
-      const libB = library.find((l) => l.manga_id === b.manga_id);
+      const libA = library.find((l) => String(l.manga_id) === String(a?.manga_id));
+      const libB = library.find((l) => String(l.manga_id) === String(b?.manga_id));
       const timeA = new Date(libA?.updated_at || libA?.created_at || 0).getTime();
       const timeB = new Date(libB?.updated_at || libB?.created_at || 0).getTime();
       return timeB - timeA;
     }
     if (currentSort === "unread") {
-      const libA = library.find((l) => l.manga_id === a.manga_id);
-      const libB = library.find((l) => l.manga_id === b.manga_id);
+      const libA = library.find((l) => String(l.manga_id) === String(a?.manga_id));
+      const libB = library.find((l) => String(l.manga_id) === String(b?.manga_id));
       const unreadA = Math.max(0, (libA?.total_chapters || 100) - (libA?.progress_chapter || 0));
       const unreadB = Math.max(0, (libB?.total_chapters || 100) - (libB?.progress_chapter || 0));
       return unreadB - unreadA;
@@ -142,10 +144,10 @@ export default function LibraryPage() {
     if (!selectedCol?.items || selectedCol.items.length === 0) return [];
     const genreSet = new Set<string>();
     selectedCol.items.forEach((item) => {
-      const libEntry = library.find((l) => String(l.manga_id) === String(item.manga_id));
+      const libEntry = library.find((l) => String(l.manga_id) === String(item?.manga_id));
       const genres = libEntry?.genres?.length
         ? libEntry.genres
-        : getGenresForManga({ manga_title: item.manga_title } as any);
+        : getGenresForManga({ manga_title: item?.manga_title || "" } as any);
       genres.forEach((g) => {
         if (g && typeof g === "string") genreSet.add(g);
       });
@@ -156,19 +158,20 @@ export default function LibraryPage() {
   // Filter custom collection items by search query and genre
   const filteredCollectionItems = React.useMemo(() => {
     return sortedCollectionItems.filter((item) => {
+      const title = (item?.manga_title || "").toLowerCase();
       // 1. Title search filter
       if (collectionSearchQuery.trim()) {
         const q = collectionSearchQuery.toLowerCase().trim();
-        if (!item.manga_title.toLowerCase().includes(q)) {
+        if (!title.includes(q)) {
           return false;
         }
       }
       // 2. Genre filter
       if (selectedGenre !== "all") {
-        const libEntry = library.find((l) => String(l.manga_id) === String(item.manga_id));
+        const libEntry = library.find((l) => String(l.manga_id) === String(item?.manga_id));
         const genres = libEntry?.genres?.length
           ? libEntry.genres
-          : getGenresForManga({ manga_title: item.manga_title } as any);
+          : getGenresForManga({ manga_title: item?.manga_title || "" } as any);
         if (!genres.some((g) => g.toLowerCase() === selectedGenre.toLowerCase())) {
           return false;
         }
