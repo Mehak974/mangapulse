@@ -18,22 +18,37 @@ export default function ActivityHeatmap({
 }: ActivityHeatmapProps) {
   // Generate past 24 weeks of data (7 days per week = 168 days)
   const { weeks, activeDaysCount, currentStreak } = useMemo(() => {
-    // Map dates to read count
+    // Map dates to read chapter count
     const activityMap: Record<string, number> = {};
     activities.forEach((act) => {
-      const d = act.timestamp ? act.timestamp.split("T")[0] : null;
-      if (d) {
-        activityMap[d] = (activityMap[d] || 0) + 1;
-      }
+      if (!act.timestamp) return;
+      try {
+        const dateObj = new Date(act.timestamp);
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const localKey = `${y}-${m}-${day}`;
+        const isoKey = dateObj.toISOString().split("T")[0];
+
+        const countToAdd = act.chapters_count || 1;
+        activityMap[localKey] = (activityMap[localKey] || 0) + countToAdd;
+        if (isoKey !== localKey) {
+          activityMap[isoKey] = (activityMap[isoKey] || 0) + countToAdd;
+        }
+      } catch {}
     });
 
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const days: { dateStr: string; count: number; level: number; dayOfWeek: number }[] = [];
 
     // Pre-populate 168 days up to today
     for (let i = 167; i >= 0; i--) {
-      const target = new Date(now.getTime() - i * 86400000);
-      const dateStr = target.toISOString().split("T")[0];
+      const target = new Date(today.getTime() - i * 86400000);
+      const y = target.getFullYear();
+      const m = String(target.getMonth() + 1).padStart(2, "0");
+      const dayNum = String(target.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${dayNum}`;
       const count = activityMap[dateStr] || 0;
 
       const finalCount = count;
@@ -54,9 +69,12 @@ export default function ActivityHeatmap({
     }
 
     const activeDays = days.filter((d) => d.count > 0).length;
+
+    // Standard streak calculation: check today first, or preserve yesterday's streak
     let streak = 0;
-    for (let i = days.length - 1; i >= 0; i--) {
-      if (days[i].count > 0) streak++;
+    const startIndex = days[days.length - 1].count > 0 ? days.length - 1 : days.length - 2;
+    for (let i = startIndex; i >= 0; i--) {
+      if (days[i]?.count > 0) streak++;
       else break;
     }
 

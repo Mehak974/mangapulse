@@ -36,6 +36,19 @@ export const VERIFIED_SCHEDULES: VerifiedSchedule[] = [
     dropHourUTC: 15,
     publisher: "T&D Entertainment / Yen Press",
   },
+  {
+    id: 119523,
+    titleMatch: ["the villainess lives again", "agnyeoneun du beon sanda"],
+    latestChapter: 230,
+    nextChapter: 230,
+    totalChapters: 230,
+    isFinished: true,
+    cadence: "finished",
+    magazine: "KakaoPage",
+    dropDayOfWeek: 0,
+    dropHourUTC: 15,
+    publisher: "T&D Entertainment / Tappytoon",
+  },
   // --- Active Weekly Shonen Jump (Sunday 15:00 UTC) ---
   {
     id: 30013,

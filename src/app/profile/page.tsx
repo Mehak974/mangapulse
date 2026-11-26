@@ -212,10 +212,10 @@ export default function ProfilePage() {
       } catch {}
     };
     syncLocal();
-    setActivities(getUserActivities(20));
+    setActivities(getUserActivities(1000));
 
     window.addEventListener("mangapulse-supporter-updated", syncLocal);
-    const handleAct = () => setActivities(getUserActivities(20));
+    const handleAct = () => setActivities(getUserActivities(1000));
     window.addEventListener("mangapulse-activity-logged", handleAct);
 
     return () => {

@@ -153,6 +153,7 @@ export interface ActivityItem {
   manga_cover: string;
   action_type: "read_chapter" | "status_change" | "rated" | "note_added";
   chapter_number?: number;
+  chapters_count?: number;
   new_status?: LibraryStatus;
   rating?: number;
   timestamp: string;

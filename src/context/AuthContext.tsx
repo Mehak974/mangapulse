@@ -25,6 +25,7 @@ import {
   markNotificationRead as storeMarkRead,
   markAllNotificationsRead as storeMarkAllRead,
   addNotification as storeAddNotification,
+  getUserActivities,
   logActivity,
   getRandomAvatarPreset,
   getRandomCoverPreset,
@@ -100,6 +101,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const targetId = userId ?? user?.id;
     const data = await getUserLibrary(targetId);
     setLibrary(data);
+
+    // If there is library progress, ensure activity log has entries so Heatmap, Streak & Weekly Goal register
+    if (typeof window !== "undefined" && data && data.length > 0) {
+      try {
+        const existingActs = getUserActivities(500);
+        const hasAnyReadActivity = existingActs.some((a) => a.action_type === "read_chapter");
+        if (!hasAnyReadActivity) {
+          data.forEach((entry) => {
+            if ((entry.progress_chapter || 0) > 0) {
+              logActivity({
+                manga_id: entry.manga_id,
+                manga_title: entry.manga_title,
+                manga_slug: entry.manga_slug,
+                manga_cover: entry.manga_cover || "",
+                action_type: "read_chapter",
+                chapter_number: entry.progress_chapter,
+                chapters_count: entry.progress_chapter,
+              });
+            }
+          });
+        }
+      } catch {}
+    }
   }, [user?.id]);
 
   const refreshCollections = useCallback(async (userId?: string) => {
@@ -260,7 +284,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 fetch("/api/auth/telemetry", {
                   method: "POST",
                   headers: { Authorization: `Bearer ${session.access_token}` },
-                }).catch(() => {});
+                }).catch(() => { });
               }
             } catch (err) {
               console.warn("Could not fetch server profile:", err);
@@ -346,17 +370,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn("Could not fetch server profile on login:", err);
         }
 
-          if (
-            data.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
-            data.user.email?.toLowerCase() === "mehakiqbal978@gmail.com" ||
-            userRole === "ADMIN"
-          ) {
-            userRole = "ADMIN";
-            isSupporter = true;
-            supporterTier = "patron";
-          }
+        if (
+          data.user.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+          data.user.email?.toLowerCase() === "mehakiqbal978@gmail.com" ||
+          userRole === "ADMIN"
+        ) {
+          userRole = "ADMIN";
+          isSupporter = true;
+          supporterTier = "patron";
+        }
 
-          const u: UserProfile = {
+        const u: UserProfile = {
           id: data.user.id,
           email: data.user.email || email,
           username: dbUsername || data.user.user_metadata?.username || email.split("@")[0],
@@ -548,11 +572,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       notes?: string | null;
     }
   ) => {
+    const prev = library.find((it) => it.manga_id === entry.manga_id);
+    const prevChapter = prev?.progress_chapter || 0;
+    const newChapter = entry.progress_chapter || 0;
+    const delta = newChapter - prevChapter;
+
     await saveLibraryEntry({
       ...entry,
       notes: entry.notes ?? null,
       user_id: entry.user_id || user?.id || "guest",
     });
+
+    // Automatically record reading activity for heatmap, streaks & weekly goal
+    if (newChapter > 0 && newChapter !== prevChapter) {
+      logActivity({
+        manga_id: entry.manga_id,
+        manga_title: entry.manga_title,
+        manga_slug: entry.manga_slug,
+        manga_cover: entry.manga_cover || "",
+        action_type: "read_chapter",
+        chapter_number: newChapter,
+        chapters_count: Math.max(1, delta > 0 ? delta : 1),
+      });
+    }
+
     await refreshLibrary(user?.id);
   };
 
@@ -576,6 +619,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await saveLibraryEntry({
       ...match,
       progress_chapter: nextChapter,
+    });
+    logActivity({
+      manga_id: match.manga_id,
+      manga_title: match.manga_title,
+      manga_slug: match.manga_slug,
+      manga_cover: match.manga_cover || "",
+      action_type: "read_chapter",
+      chapter_number: nextChapter,
+      chapters_count: 1,
     });
     await refreshLibrary(user?.id);
   };
@@ -609,10 +661,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       "cover" in (manga as any)
         ? (manga as any).cover
         : manga.coverImage?.extraLarge ||
-          manga.coverImage?.large ||
-          manga.coverImage?.medium ||
-          (manga as any).manga_cover ||
-          "";
+        manga.coverImage?.large ||
+        manga.coverImage?.medium ||
+        (manga as any).manga_cover ||
+        "";
 
     // Check if adding or removing
     const targetCol = collections.find((c) => c.id === collectionId);
@@ -631,17 +683,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           items: exists
             ? items.filter((it) => String(it.manga_id) !== String(mangaId))
             : [
-                ...items,
-                {
-                  id: `ci-${Date.now()}`,
-                  collection_id: collectionId,
-                  manga_id: mangaId,
-                  manga_slug: mangaSlug,
-                  manga_title: mangaTitle,
-                  manga_cover: coverUrl,
-                  added_at: new Date().toISOString(),
-                },
-              ],
+              ...items,
+              {
+                id: `ci-${Date.now()}`,
+                collection_id: collectionId,
+                manga_id: mangaId,
+                manga_slug: mangaSlug,
+                manga_title: mangaTitle,
+                manga_cover: coverUrl,
+                added_at: new Date().toISOString(),
+              },
+            ],
         };
       })
     );

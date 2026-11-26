@@ -133,7 +133,7 @@ function getLocal<T>(key: string, fallback: T): T {
             localStorage.setItem(key, legacy);
             return parsed as T;
           }
-        } catch {}
+        } catch { }
       }
     }
     return raw ? JSON.parse(raw) : fallback;
@@ -331,7 +331,7 @@ export async function getUserLibrary(userId?: string): Promise<UserLibraryEntry[
         // If Supabase returned 0 items but local storage has tracked/imported items,
         // sync them up to Supabase so they don't get lost on page refresh!
         if (localItems.length > 0) {
-          saveLibraryBatch(localItems, userId).catch(() => {});
+          saveLibraryBatch(localItems, userId).catch(() => { });
           return localItems;
         }
         return [];
@@ -629,10 +629,10 @@ export async function toggleMangaInCollection(
     "cover" in manga
       ? (manga as any).cover
       : (manga as any).coverImage?.extraLarge ||
-        (manga as any).coverImage?.large ||
-        (manga as any).coverImage?.medium ||
-        (manga as any).manga_cover ||
-        "";
+      (manga as any).coverImage?.large ||
+      (manga as any).coverImage?.medium ||
+      (manga as any).manga_cover ||
+      "";
 
   let added = false;
 
@@ -807,16 +807,16 @@ export function getUserActivities(limit = 20): ActivityItem[] {
   return list.slice(0, limit);
 }
 
-export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp">): void {
+export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp"> & { timestamp?: string }): void {
   const list = getLocal<ActivityItem[]>(STORAGE_KEYS.ACTIVITIES, []);
   const item: ActivityItem = {
     ...activity,
     manga_cover: activity.manga_cover || "/placeholder-cover.png",
     id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    timestamp: new Date().toISOString(),
+    timestamp: activity.timestamp || new Date().toISOString(),
   };
   list.unshift(item);
-  if (list.length > 500) list.length = 500;
+  if (list.length > 1000) list.length = 1000;
   setLocal(STORAGE_KEYS.ACTIVITIES, list);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("mangapulse-activity-logged"));

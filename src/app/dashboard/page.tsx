@@ -30,6 +30,7 @@ import SupporterAvatar from "@/components/SupporterAvatar";
 import { fetchPopular, fetchRecommendationsByGenres } from "@/lib/anilist";
 import { getOfficialLinksForManga } from "@/lib/officialLinks";
 import { getUserActivities, logActivity } from "@/lib/userStore";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 
 // Known genre mappings for common series to calculate user interest
 const GENRE_MAP: Record<string, string[]> = {
@@ -137,8 +138,8 @@ export default function DashboardPage() {
     const weeklyActs = activities.filter(
       (a) => a.action_type === "read_chapter" && new Date(a.timestamp).getTime() > oneWeekAgo
     );
-    return Math.min(weeklyGoal, Math.max(weeklyActs.length, readingList.length > 0 ? 8 : 0));
-  }, [activities, weeklyGoal, readingList]);
+    return weeklyActs.reduce((acc, a) => acc + (a.chapters_count || 1), 0);
+  }, [activities]);
 
   // Determine user interests based on genres of titles in user's library and collections
   const userInterests = useMemo(() => {
@@ -200,9 +201,9 @@ export default function DashboardPage() {
     }
 
     loadData();
-    setActivities(getUserActivities(8));
+    setActivities(getUserActivities(1000));
 
-    const handleActUpdate = () => setActivities(getUserActivities(8));
+    const handleActUpdate = () => setActivities(getUserActivities(1000));
     window.addEventListener("mangapulse-activity-logged", handleActUpdate);
     return () => {
       isCancelled = true;
@@ -219,36 +220,66 @@ export default function DashboardPage() {
       manga_cover: entry.manga_cover,
       action_type: "read_chapter",
       chapter_number: (entry.progress_chapter || 0) + 1,
+      chapters_count: 1,
     });
   };
 
   // Up Next items: Reading items
   const upNextList = readingList.slice(0, 4);
 
-  // Upcoming countdowns: ONLY from the user's tracked series
+  // Upcoming countdowns: ONLY from the user's actively tracked ongoing series
   const upcomingCountdowns = useMemo(() => {
     if (allUserManga.length === 0) return [];
     const now = Math.floor(Date.now() / 1000);
 
-    return allUserManga.slice(0, 3).map((item, idx) => {
-      const daysOffset = (idx * 2 + 1) % 7;
-      const targetTime = now + daysOffset * 86400 + 14400;
-      const official = getOfficialLinksForManga({
-        id: item.manga_id,
-        slug: item.manga_slug,
-        displayTitle: item.manga_title,
-      });
-      const platform = official.length > 0 ? official[0].name : "Official Publisher";
-      return {
-        id: item.manga_id,
-        title: item.manga_title,
-        slug: item.manga_slug,
-        cover: item.manga_cover,
-        targetTimestamp: targetTime,
-        chapter: (item.progress_chapter || 0) + 1,
-        platform,
-      };
-    });
+    const list: {
+      id: number;
+      title: string;
+      slug: string;
+      cover: string;
+      targetTimestamp: number;
+      chapter: number;
+      platform: string;
+    }[] = [];
+
+    for (const item of allUserManga) {
+      // Skip completed or dropped series
+      if (item.status === "completed" || item.status === "dropped") continue;
+
+      const verified = getVerifiedSchedule(
+        item.manga_id,
+        item.manga_title,
+        undefined,
+        item.total_chapters
+      );
+
+      // If finished, hiatus, or no target: skip
+      if (verified.isFinished || verified.isHiatus || !verified.targetTimestamp) {
+        continue;
+      }
+
+      if (verified.targetTimestamp > now && verified.targetTimestamp <= now + 7 * 86400) {
+        const official = getOfficialLinksForManga({
+          id: item.manga_id,
+          slug: item.manga_slug,
+          displayTitle: item.manga_title,
+        });
+        const platform = verified.publisher || (official.length > 0 ? official[0].name : "Official Publisher");
+
+        list.push({
+          id: item.manga_id,
+          title: item.manga_title,
+          slug: item.manga_slug,
+          cover: item.manga_cover,
+          targetTimestamp: verified.targetTimestamp,
+          chapter: verified.nextChapter,
+          platform,
+        });
+      }
+    }
+
+    list.sort((a, b) => a.targetTimestamp - b.targetTimestamp);
+    return list.slice(0, 3);
   }, [allUserManga]);
 
   // Weekly Drop Schedule: ONLY for titles the user tracks
@@ -288,7 +319,12 @@ export default function DashboardPage() {
 
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return days.map((day) => {
-      const drops = allUserManga.filter((m) => getDropDay(m.manga_id, m.manga_title) === day);
+      const drops = allUserManga.filter((m) => {
+        if (m.status === "completed" || m.status === "dropped") return false;
+        const verified = getVerifiedSchedule(m.manga_id, m.manga_title, undefined, m.total_chapters);
+        if (verified.isFinished || verified.isHiatus) return false;
+        return getDropDay(m.manga_id, m.manga_title) === day;
+      });
       return { day, drops };
     });
   }, [allUserManga]);
@@ -404,7 +440,11 @@ export default function DashboardPage() {
               {upcomingCountdowns.length}
             </div>
             <div className="text-[11px] text-[#94a1b5] mt-1">
-              {hasUserManga ? "scheduled next 7 days" : "no titles tracked"}
+              {upcomingCountdowns.length > 0
+                ? "scheduled next 7 days"
+                : hasUserManga
+                ? "no drops next 7 days"
+                : "no titles tracked"}
             </div>
           </div>
         </div>
