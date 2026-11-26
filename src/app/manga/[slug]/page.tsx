@@ -38,11 +38,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const nextChapter = manga.nextAiringChapter?.episodeOrChapter;
   const description = nextChapter
-    ? `Track ${manga.displayTitle} Chapter ${nextChapter} official release countdown, simulpub schedule, volumes, and licensed publisher directory.`
-    : `Track ${manga.displayTitle} official release schedule, chapter countdowns, volume release dates, and licensed publisher directory on MangaPulse. Zero scanlations or image hosting.`;
+    ? `Track ${manga.displayTitle} Chapter ${nextChapter} release countdown, schedule, and official where to read directory for Manga Plus, Viz Media, and licensed publishers.`
+    : `Track ${manga.displayTitle} official release schedule, chapter countdowns, volume release dates, and official where to read directory. Zero scanlations or image hosting.`;
 
   return buildMetadata({
-    title: `${manga.displayTitle} — Chapter Countdown & Official Publisher Directory`,
+    title: `${manga.displayTitle} — Chapter Countdown & Official Where to Read`,
     description,
     path: `/manga/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
