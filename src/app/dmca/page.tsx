@@ -55,6 +55,23 @@ export default function DmcaPage() {
           <li>An electronic or physical signature of the authorized person.</li>
         </ul>
 
+        <h2 className="text-lg font-bold text-white">4. Designated Copyright Agent & Operator</h2>
+        <p>
+          In accordance with Title 17 U.S.C. § 512(c)(2), notices of claimed copyright infringement should be sent to the designated agent for <strong>MangaPulse Media</strong>:
+        </p>
+        <ul className="list-disc pl-5 space-y-1 text-xs">
+          <li><strong>Entity:</strong> MangaPulse Media</li>
+          <li><strong>Designated Agent:</strong> Copyright Compliance Department</li>
+          <li><strong>Primary Email:</strong> <a href="mailto:legal@mangapulse.co" className="text-blue-400 hover:underline">legal@mangapulse.co</a></li>
+          <li><strong>Secondary Notices:</strong> <a href="mailto:dmca@mangapulse.co" className="text-blue-400 hover:underline">dmca@mangapulse.co</a></li>
+          <li><strong>Web Inquiry:</strong> <Link href="/contact" className="text-blue-400 hover:underline">mangapulse.co/contact</Link></li>
+        </ul>
+
+        <h2 className="text-lg font-bold text-white">5. Repeat Infringer Policy</h2>
+        <p>
+          In accordance with the DMCA and other applicable global intellectual property laws, MangaPulse has adopted a policy of terminating, in appropriate circumstances and at MangaPulse Media&apos;s sole discretion, registered user accounts, comments, or community forum access of users who are deemed to be repeat infringers or who repeatedly submit links to unauthorized copyrighted works.
+        </p>
+
         <div className="p-4 rounded-lg bg-[#141820] border border-[#1e2430] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-blue-400 shrink-0" />

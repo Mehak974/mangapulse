@@ -156,6 +156,20 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Operator & Publisher Information */}
+      <section className="p-6 rounded-2xl bg-[#13171f] border border-[#2a3344] space-y-3">
+        <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
+          <Globe2 className="w-4 h-4 text-blue-400" />
+          Operator &amp; Publishing Entity
+        </h3>
+        <p className="text-xs leading-relaxed text-[#94a1b5]">
+          MangaPulse is an independent digital publication operated by <strong>MangaPulse Media</strong>. Our editorial team curates verified simulpub schedules, countdown clocks, and licensed publisher directories for Japanese Manga, South Korean Manhwa, and Chinese Manhua. For partnerships, press, or operational inquiries, contact our management team directly at{" "}
+          <a href="mailto:contact@mangapulse.co" className="text-blue-400 hover:text-blue-300 underline font-mono">
+            contact@mangapulse.co
+          </a>.
+        </p>
+      </section>
+
       {/* Community & Contact Callout */}
       <section className="border-t border-[#1e2430] pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

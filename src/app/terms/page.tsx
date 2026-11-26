@@ -38,7 +38,7 @@ export default function TermsOfServicePage() {
       <section className="space-y-4 text-sm leading-relaxed">
         <h2 className="text-lg font-bold text-white">1. Nature of the Service (Release Tracker & Official Directory)</h2>
         <p>
-          MangaPulse operates strictly as an informational index, release schedule tracker, and curated legal directory. MangaPulse <strong>does not host, store, translate, scan, or distribute copyrighted comic images, raw manga files, or scanlations</strong> on its servers.
+          MangaPulse is an online publication and reading directory operated by <strong>MangaPulse Media</strong> (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). MangaPulse operates strictly as an informational index, release schedule tracker, and curated legal directory. MangaPulse <strong>does not host, store, translate, scan, or distribute copyrighted comic images, raw manga files, or scanlations</strong> on its servers.
         </p>
 
         <h2 className="text-lg font-bold text-white">2. User Accounts &amp; Responsibilities</h2>

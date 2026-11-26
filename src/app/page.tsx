@@ -18,6 +18,8 @@ import {
   ChevronRight,
   Crown,
   Sparkles,
+  Zap,
+  Globe2,
 } from "lucide-react";
 
 export const revalidate = 3600; // 1 hour cache
@@ -365,52 +367,64 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Manga Patron Wall of Fame (Community Honors) ── */}
+      {/* ── Community Supporter Program ── */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#10141b] to-[#0c0e12] border border-slate-300/30 relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-slate-200/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-[#13171f] via-[#10141b] to-[#0c0e12] border border-[#2a3344] relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2430] mb-6 relative z-10">
             <div>
               <div className="flex items-center gap-2">
-                <Crown className="w-5 h-5 text-slate-100" />
+                <Crown className="w-5 h-5 text-amber-400" />
                 <h2 className="text-lg font-bold text-white tracking-tight">
-                  Manga Patron Wall of Fame
+                  MangaPulse Community Supporter Program
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-white/10 text-slate-200 border border-white/20">
-                  OFFICIAL PATRONS
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  INDEPENDENT INDEX
                 </span>
               </div>
               <p className="text-xs text-[#94a1b5] mt-1">
-                Honoring our elite champions financing high-speed official chapter countdowns and legal indexing.
+                Help keep MangaPulse 100% free, fast, and dedicated to official legal simulpub indexing without intrusive ad spam.
               </p>
             </div>
 
             <Link
-              href="/donate#halls"
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-slate-200 to-white text-black text-xs font-black shadow-[0_0_14px_rgba(255,255,255,0.7)] hover:scale-105 transition-transform flex items-center gap-1.5 whitespace-nowrap"
+              href="/donate"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold hover:scale-105 transition-transform flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-blue-500/20"
             >
-              <Sparkles className="w-3.5 h-3.5 fill-black" />
-              <span>Join Wall of Fame ($15)</span>
+              <Sparkles className="w-3.5 h-3.5 fill-white" />
+              <span>Explore Supporter Perks</span>
             </Link>
           </div>
 
-          <div className="p-6 rounded-xl bg-[#0c0e12]/60 border border-[#2a3344] text-center max-w-xl mx-auto space-y-3 relative z-10">
-            <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-slate-300/50 flex items-center justify-center mx-auto text-slate-200">
-              <Crown className="w-6 h-6 text-slate-200" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-sm">Become the First Featured Manga Patron</h3>
-              <p className="text-xs text-[#94a1b5] mt-1 leading-relaxed">
-                Voluntary patrons who support MangaPulse on Ko-fi automatically receive the shiny metallic silver crown border, custom profile themes, and their name inscribed right here on the Wall of Fame.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+            <div className="p-4 rounded-xl bg-[#0c0e12]/60 border border-[#1e2430] space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs">
+                <Zap className="w-4 h-4 text-blue-400" />
+                <span>Zero Invasive Pop-ups</span>
+              </div>
+              <p className="text-[11px] text-[#94a1b5] leading-relaxed">
+                Community contributions help cover high-speed server infrastructure, keeping the reader experience clean, fast, and lightweight.
               </p>
             </div>
-            <Link
-              href="/donate"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors"
-            >
-              <span>Upgrade Membership</span>
-            </Link>
+            <div className="p-4 rounded-xl bg-[#0c0e12]/60 border border-[#1e2430] space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs">
+                <Globe2 className="w-4 h-4 text-emerald-400" />
+                <span>Direct Publisher Links</span>
+              </div>
+              <p className="text-[11px] text-[#94a1b5] leading-relaxed">
+                Every release schedule is manually verified against Shueisha, Kodansha, Viz, and official global distributors.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-[#0c0e12]/60 border border-[#1e2430] space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs">
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span>Custom Supporter Perks</span>
+              </div>
+              <p className="text-[11px] text-[#94a1b5] leading-relaxed">
+                Unlock exclusive profile customization, supporter badges, and priority countdown notifications on Discord and Web.
+              </p>
+            </div>
           </div>
         </div>
       </section>

@@ -95,13 +95,13 @@ export default function PrivacyPolicyPage() {
           .
         </p>
 
-        <h2 className="text-lg font-bold text-white">6. Contacting Us</h2>
+        <h2 className="text-lg font-bold text-white">6. Data Controller & Contacting Us</h2>
         <p>
-          If you have any questions regarding this Privacy Policy or your personal data, you may contact our data protection team via our{" "}
+          <strong>MangaPulse Media</strong> acts as the data controller for personal information collected through MangaPulse. If you have any questions regarding this Privacy Policy, your personal data rights under GDPR or CCPA, or wish to request data erasure, you may contact our data protection team via our{" "}
           <Link href="/contact" className="text-blue-400 hover:text-blue-300 underline">
             Contact & Support Page
           </Link>{" "}
-          or by emailing <strong className="text-white">contact@mangapulse.co</strong>.
+          or directly by emailing <strong className="text-white">support@mangapulse.co</strong> or <strong className="text-white">contact@mangapulse.co</strong>.
         </p>
       </section>
     </div>
