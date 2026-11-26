@@ -48,16 +48,19 @@ export default function ChapterTracker({
 
   // Determine effective total chapters from verified publication data, library, or custom override
   const verified = getVerifiedSchedule(mangaId, mangaTitle, undefined, totalChapters);
+  const confirmedTotal =
+    libraryEntry?.total_chapters ||
+    totalChapters ||
+    (verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : null);
+
   const initialMax = Math.max(
     1,
-    libraryEntry?.total_chapters ||
-      totalChapters ||
-      latestChapter ||
-      (verified.isVerifiedInDb ? verified.latestChapter : 0) ||
-      (libraryEntry?.progress_chapter || 0) ||
-      50
+    confirmedTotal || (libraryEntry?.progress_chapter || 0) || 100
   );
   const [maxChapters, setMaxChapters] = useState(initialMax);
+  const [hasConfirmedTotal, setHasConfirmedTotal] = useState(Boolean(confirmedTotal));
+  const [editingTotal, setEditingTotal] = useState(false);
+  const [tempTotal, setTempTotal] = useState(String(initialMax));
 
   // Load custom total chapters from localStorage or library if present
   useEffect(() => {
@@ -67,43 +70,49 @@ export default function ChapterTracker({
         const parsed = parseInt(saved, 10);
         if (parsed > 0) {
           setMaxChapters(parsed);
+          setHasConfirmedTotal(true);
           return;
         }
       }
     } catch {}
 
-    if (libraryEntry?.total_chapters && libraryEntry.total_chapters > 0) {
-      setMaxChapters(libraryEntry.total_chapters);
+    if (confirmedTotal) {
+      setMaxChapters(confirmedTotal);
+      setHasConfirmedTotal(true);
     } else if (libraryEntry?.progress_chapter && libraryEntry.progress_chapter > initialMax) {
       setMaxChapters(libraryEntry.progress_chapter);
     }
-  }, [mangaId, libraryEntry?.total_chapters, libraryEntry?.progress_chapter, initialMax]);
+  }, [mangaId, confirmedTotal, libraryEntry?.progress_chapter, initialMax]);
 
-  const handleSetCustomTotal = async () => {
-    const input = window.prompt(`Enter accurate total chapters for "${mangaTitle}":`, String(maxChapters));
-    if (input) {
-      const parsed = parseInt(input.trim(), 10);
-      if (!isNaN(parsed) && parsed > 0) {
-        setMaxChapters(parsed);
-        try {
-          localStorage.setItem(`mangapulse_total_ch_${mangaId}`, String(parsed));
-        } catch {}
+  const handleSaveInlineTotal = async () => {
+    const parsed = parseInt(tempTotal.trim(), 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      setMaxChapters(parsed);
+      setHasConfirmedTotal(true);
+      setEditingTotal(false);
+      try {
+        localStorage.setItem(`mangapulse_total_ch_${mangaId}`, String(parsed));
+      } catch {}
 
-        if (libraryEntry) {
-          await updateLibrary({
-            ...libraryEntry,
-            total_chapters: parsed,
-          });
-        }
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("mangapulse-total-chapters-updated", {
-              detail: { mangaId, totalChapters: parsed },
-            })
-          );
-        }
+      if (libraryEntry) {
+        await updateLibrary({
+          ...libraryEntry,
+          total_chapters: parsed,
+        });
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("mangapulse-total-chapters-updated", {
+            detail: { mangaId, totalChapters: parsed },
+          })
+        );
       }
     }
+  };
+
+  const handleSetCustomTotal = () => {
+    setTempTotal(String(maxChapters));
+    setEditingTotal(true);
   };
 
   const [readSet, setReadSet] = useState<Set<number>>(new Set());
@@ -358,34 +367,71 @@ export default function ChapterTracker({
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-blue-400" />
           <h2 className="font-bold text-white text-sm uppercase tracking-wider font-mono flex items-center gap-2">
-            <span>Chapter Reading Progress ({readCount} / {maxChapters})</span>
-            <button
-              type="button"
-              onClick={handleSetCustomTotal}
-              className="p-1 rounded hover:bg-[#1a1f2a] text-[#94a1b5] hover:text-white transition-colors"
-              title="Edit accurate total chapter count"
-            >
-              <Edit2 className="w-3.5 h-3.5 text-blue-400" />
-            </button>
+            <span>
+              Chapter Reading Progress ({readCount}
+              {hasConfirmedTotal ? ` / ${maxChapters}` : " read • Ongoing"})
+            </span>
           </h2>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleSetCustomTotal}
-            className="px-2.5 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"
-            title="Set exact total chapters for this series"
-          >
-            <Edit2 className="w-3 h-3 text-blue-400" />
-            <span>Set Total</span>
-          </button>
+          {editingTotal ? (
+            <div className="flex items-center gap-1.5 bg-[#0c0e12] border border-blue-500 rounded-lg px-2 py-1">
+              <span className="text-[11px] text-[#94a1b5] font-mono">Total:</span>
+              <input
+                type="number"
+                min="1"
+                max="9999"
+                value={tempTotal}
+                onChange={(e) => setTempTotal(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveInlineTotal();
+                  if (e.key === "Escape") setEditingTotal(false);
+                }}
+                className="w-16 bg-[#13171f] border border-[#2a3344] rounded px-1.5 py-0.5 text-white font-mono text-xs focus:outline-none"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleSaveInlineTotal}
+                className="text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-2 py-0.5 rounded transition-colors"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingTotal(false)}
+                className="text-[11px] text-[#94a1b5] hover:text-white px-1"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleSetCustomTotal}
+              className="px-2.5 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"
+              title="Set exact total chapters for this series"
+            >
+              <Edit2 className="w-3 h-3 text-blue-400" />
+              <span>{hasConfirmedTotal ? `Total: ${maxChapters} ch` : "Set Total Chapters"}</span>
+            </button>
+          )}
+
           <button
             onClick={() => setMaxChapters((prev) => prev + 10)}
             className="px-2 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"
             title="Extend chapter index by 10 chapters"
           >
             <Plus className="w-3 h-3 text-blue-400" />
-            <span>+10 Chapters</span>
+            <span>+10</span>
+          </button>
+          <button
+            onClick={() => setMaxChapters((prev) => prev + 50)}
+            className="px-2 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"
+            title="Extend chapter index by 50 chapters"
+          >
+            <Plus className="w-3 h-3 text-blue-400" />
+            <span>+50</span>
           </button>
           <span className="text-xs font-mono font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
             {progressPercent}% Complete
@@ -626,6 +672,34 @@ export default function ChapterTracker({
               </div>
             );
           })}
+
+          {filteredChapters.length === 0 && (
+            <div className="col-span-full py-8 text-center text-xs text-[#94a1b5] space-y-3">
+              <div>No chapters found matching &quot;{searchQuery}&quot; in range 1–{maxChapters}.</div>
+              {Number(searchQuery) > maxChapters && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = Number(searchQuery);
+                      setMaxChapters(target);
+                      setHasConfirmedTotal(true);
+                      try {
+                        localStorage.setItem(`mangapulse_total_ch_${mangaId}`, String(target));
+                      } catch {}
+                      if (libraryEntry) {
+                        updateLibrary({ ...libraryEntry, total_chapters: target });
+                      }
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shadow-lg"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Expand Tracker to Chapter {searchQuery}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
