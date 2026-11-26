@@ -10,6 +10,8 @@ import { indexDiscoveredPages } from "@/lib/indexnow";
 import { recordVisitedPage } from "@/lib/visitedPages";
 import MangaDetailActions from "@/components/MangaDetailActions";
 import MangaDetailTabs from "@/components/MangaDetailTabs";
+import OfficialActions from "@/components/OfficialActions";
+import { getOfficialLinksForManga } from "@/lib/officialLinks";
 import { Star, ShieldCheck } from "lucide-react";
 
 interface PageProps {
@@ -77,6 +79,7 @@ export default async function MangaDetailPage({ params }: PageProps) {
 
   const bookSchema = generateBookSchema(manga);
   const countdownSchema = generateCountdownSchema(manga);
+  const officialLinks = getOfficialLinksForManga(manga);
 
   return (
     <div className="pb-20 space-y-12">
@@ -272,6 +275,9 @@ export default async function MangaDetailPage({ params }: PageProps) {
 
               {/* User Reading & Collection Actions */}
               <MangaDetailActions manga={manga} />
+
+              {/* Official Licensed Publishers & Retailers */}
+              <OfficialActions links={officialLinks} mangaTitle={manga.displayTitle} />
             </div>
 
             {/* Interactive Section Tabs: Overview | Stats | Reviews */}

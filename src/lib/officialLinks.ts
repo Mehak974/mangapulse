@@ -1,4 +1,5 @@
 import { MangaItem, OfficialLink } from "@/types/manga";
+import { getSeriesAffiliateOverride } from "@/data/affiliateOverrides";
 
 /**
  * Generates verified 100% legal official action links for any manga or manhwa series.
@@ -9,6 +10,8 @@ export function getOfficialLinksForManga(manga: Partial<MangaItem>): OfficialLin
   const title = manga.title?.english || manga.title?.romaji || manga.displayTitle || "";
   const encodedTitle = encodeURIComponent(title);
   const isKorean = manga.countryOfOrigin === "KR";
+  const amazonTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || "mangapulse-20";
+  const customAffiliate = getSeriesAffiliateOverride(manga.slug, manga.id, title);
 
   if (isKorean) {
     // ── KOREAN MANHWA / WEBTOON PUBLISHERS ──
@@ -39,19 +42,36 @@ export function getOfficialLinksForManga(manga: Partial<MangaItem>): OfficialLin
       icon: "tappytoon",
     });
 
+    // 4. Lezhin Comics Official
+    links.push({
+      name: "Lezhin Comics",
+      url: `https://www.lezhin.com/en/search?q=${encodedTitle}&utm_source=mangapulse&utm_medium=referral&utm_campaign=tracker`,
+      badge: "Official Webtoon License",
+      type: "free",
+      icon: "lezhin",
+    });
+
+    // 5. Manta Comics
+    links.push({
+      name: "Manta Comics",
+      url: `https://manta.net/en/search?keyword=${encodedTitle}&utm_source=mangapulse&utm_medium=referral&utm_campaign=tracker`,
+      badge: "Official Subscription Simulpub",
+      type: "subscription",
+      icon: "manta",
+    });
+
     // 4. Amazon Books & Kindle (Paperback / eBook)
-    const amazonTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG;
-    const amazonUrl = amazonTag
-      ? `https://www.amazon.com/s?k=${encodedTitle}+manhwa&i=stripbooks&tag=${amazonTag}`
-      : `https://www.amazon.com/s?k=${encodedTitle}+manhwa&i=stripbooks`;
+    const amazonUrl = customAffiliate?.amazonUrl
+      ? customAffiliate.amazonUrl
+      : `https://www.amazon.com/s?k=${encodedTitle}+manhwa&i=stripbooks&tag=${amazonTag}`;
 
     links.push({
       name: "Amazon Books & Kindle",
       url: amazonUrl,
-      badge: "Paperback & Kindle",
+      badge: customAffiliate?.badge || "Paperback & Kindle",
       type: "purchase",
       icon: "amazon",
-      isAffiliate: Boolean(amazonTag),
+      isAffiliate: true,
     });
   } else {
     // ── JAPANESE MANGA PUBLISHERS ──
@@ -92,18 +112,17 @@ export function getOfficialLinksForManga(manga: Partial<MangaItem>): OfficialLin
     });
 
     // 5. Amazon (Physical Manga & Kindle Editions)
-    const amazonTag = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG;
-    const amazonUrl = amazonTag
-      ? `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks&tag=${amazonTag}`
-      : `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks`;
+    const amazonUrl = customAffiliate?.amazonUrl
+      ? customAffiliate.amazonUrl
+      : `https://www.amazon.com/s?k=${encodedTitle}+manga&i=stripbooks&tag=${amazonTag}`;
 
     links.push({
       name: "Amazon Books & Kindle",
       url: amazonUrl,
-      badge: "Paperback & Kindle",
+      badge: customAffiliate?.badge || "Paperback & Kindle",
       type: "purchase",
       icon: "amazon",
-      isAffiliate: Boolean(amazonTag),
+      isAffiliate: true,
     });
   }
 
