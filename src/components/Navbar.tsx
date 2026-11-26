@@ -24,6 +24,7 @@ import {
   Sun,
   Moon,
   Shield,
+  Loader2,
 } from "lucide-react";
 import { searchManga } from "@/lib/anilist";
 import { MangaItem } from "@/types/manga";
@@ -85,28 +86,30 @@ export default function Navbar() {
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
+      setIsSearching(false);
       setIsOpen(false);
       return;
     }
 
+    setIsSearching(true);
+    setIsOpen(true);
+
     const timer = setTimeout(async () => {
-      setIsSearching(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=6`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`);
         if (res.ok) {
           const json = await res.json();
           setResults(json.results || []);
         } else {
-          const fallback = await searchManga(query, 6);
+          const fallback = await searchManga(query, 8);
           setResults(fallback);
         }
-        setIsOpen(true);
       } catch (err) {
         console.error("Search failed:", err);
       } finally {
         setIsSearching(false);
       }
-    }, 200);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -184,18 +187,30 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Inline Search Bar (hidden on tablet/mobile) */}
-        <div ref={dropdownRef} className="hidden xl:block relative flex-1 max-w-xs xl:max-w-sm ml-auto">
+        <div ref={dropdownRef} className="hidden xl:block relative flex-1 max-w-sm xl:max-w-md 2xl:max-w-lg ml-auto">
           <div className="relative flex items-center">
             <Search className="absolute left-3 w-4 h-4 text-[#94a3b8] pointer-events-none" />
             <input
               ref={inputRef}
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => {
-                if (results.length > 0) setIsOpen(true);
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (e.target.value.trim()) {
+                  setIsSearching(true);
+                  setIsOpen(true);
+                }
               }}
-              placeholder="Search manga, authors, magazines..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.trim()) {
+                  setIsOpen(false);
+                  router.push(`/trending?search=${encodeURIComponent(query.trim())}`);
+                }
+              }}
+              onFocus={() => {
+                if (query.trim()) setIsOpen(true);
+              }}
+              placeholder="Search manga, authors, magazines... (Press Enter to view all)"
               className="w-full bg-[#13171f] hover:bg-[#1a1f2a] focus:bg-[#1a1f2a] border border-[#2a3344] focus:border-white/40 rounded-lg pl-9 pr-8 py-1.5 text-xs text-white placeholder-[#94a3b8] focus:outline-none transition-all font-sans"
             />
             {query ? (
@@ -203,6 +218,7 @@ export default function Navbar() {
                 onClick={() => {
                   setQuery("");
                   setResults([]);
+                  setIsOpen(false);
                 }}
                 className="absolute right-2.5 text-[#94a3b8] hover:text-white"
               >
@@ -215,48 +231,88 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Autocomplete Dropdown */}
+          {/* Autocomplete Dropdown - Wide and spacious */}
           {isOpen && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#13171f] border border-[#2a3344] rounded-lg shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
+            <div className="absolute right-0 top-full mt-2 w-[500px] sm:w-[560px] xl:w-[620px] max-w-[calc(100vw-2rem)] bg-[#13171f] border border-[#2a3344] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
               {results.length > 0 ? (
-                results.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/manga/${item.slug}`}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 p-2.5 hover:bg-[#1a1f2a] transition-colors"
-                  >
-                    <div className="w-9 h-12 rounded bg-[#0c0e12] overflow-hidden flex-shrink-0 border border-[#2a3344]">
-                      <img
-                        src={item.coverImage.medium || item.coverImage.large || ""}
-                        alt={item.displayTitle}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-xs text-white truncate">
-                        {item.displayTitle}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#cbd5e1]">
-                        <span>{item.genres[0] || "Manga"}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-amber-400">
-                          <Star className="w-3 h-3 fill-amber-400" />
-                          {item.averageScore ? (item.averageScore / 20).toFixed(1) : "—"}
-                        </span>
-                      </div>
-                    </div>
+                <>
+                  <div className="max-h-[400px] overflow-y-auto divide-y divide-[#1e2430]">
+                    {results.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={`/manga/${item.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3.5 p-3 hover:bg-[#1a1f2a] transition-colors group"
+                      >
+                        <div className="w-11 h-16 rounded-md bg-[#0c0e12] overflow-hidden flex-shrink-0 border border-[#2a3344]">
+                          <img
+                            src={item.coverImage.medium || item.coverImage.large || ""}
+                            alt={item.displayTitle}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="font-bold text-xs sm:text-sm text-white group-hover:text-blue-400 transition-colors line-clamp-1">
+                            {item.displayTitle}
+                          </div>
+                          {item.title?.romaji && item.title.romaji !== item.displayTitle && (
+                            <div className="text-[11px] text-[#5e6b82] line-clamp-1 font-mono">
+                              {item.title.romaji}
+                            </div>
+                          )}
+                          <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-[#cbd5e1]">
+                            <span className="px-1.5 py-0.5 rounded bg-[#1e2430] text-[#94a1b5] text-[10px] font-mono">
+                              {item.countryOfOrigin === "KR" ? "Manhwa" : "Manga"}
+                            </span>
+                            <span>{item.genres[0] || "Manga"}</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 text-amber-400 font-semibold font-mono">
+                              <Star className="w-3 h-3 fill-amber-400" />
+                              {item.averageScore ? (item.averageScore / 20).toFixed(1) : "—"}
+                            </span>
+                          </div>
+                        </div>
 
-                    {item.nextAiringChapter && (
-                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        Ch {item.nextAiringChapter.episodeOrChapter}
-                      </span>
-                    )}
-                  </Link>
-                ))
+                        {item.nextAiringChapter ? (
+                          <span className="text-[10px] font-mono font-medium px-2 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 flex-shrink-0">
+                            Ch {item.nextAiringChapter.episodeOrChapter}
+                          </span>
+                        ) : item.chapters ? (
+                          <span className="text-[10px] font-mono text-[#94a1b5] px-2 py-1 rounded bg-[#0c0e12] border border-[#1e2430] flex-shrink-0">
+                            {item.chapters} Chs
+                          </span>
+                        ) : null}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* View All Matches Footer */}
+                  <div className="p-2.5 bg-[#0c0e12] flex items-center justify-between text-[11px] text-[#94a1b5] border-t border-[#1e2430]">
+                    <span>Showing top {results.length} matches</span>
+                    <Link
+                      href={`/trending?search=${encodeURIComponent(query.trim())}`}
+                      onClick={() => setIsOpen(false)}
+                      className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"
+                    >
+                      <span>View all results for &quot;{query}&quot; →</span>
+                    </Link>
+                  </div>
+                </>
               ) : (
-                <div className="py-4 text-center text-xs text-[#94a3b8]">
-                  {isSearching ? "Searching index..." : "No manga found."}
+                <div className="py-8 text-center text-xs text-[#94a3b8]">
+                  {isSearching ? (
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                      <span>Searching catalogue for &quot;{query}&quot;...</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <p>No titles found matching &quot;{query}&quot;</p>
+                      <p className="text-[11px] text-[#5e6b82]">
+                        Try searching by romanized or native title, or press Enter to search the catalog.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -444,8 +500,21 @@ export default function Navbar() {
               ref={tabletInputRef}
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search manga, authors, magazines..."
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (e.target.value.trim()) {
+                  setIsSearching(true);
+                  setIsOpen(true);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.trim()) {
+                  setIsOpen(false);
+                  setTabletSearchOpen(false);
+                  router.push(`/trending?search=${encodeURIComponent(query.trim())}`);
+                }
+              }}
+              placeholder="Search manga, authors, magazines... (Press Enter to view all)"
               className="w-full bg-[#13171f] hover:bg-[#1a1f2a] focus:bg-[#1a1f2a] border border-[#2a3344] focus:border-white/40 rounded-lg pl-9 pr-9 py-2 text-xs text-white placeholder-[#94a3b8] focus:outline-none transition-all font-sans"
             />
             <button
@@ -464,49 +533,73 @@ export default function Navbar() {
 
           {/* Autocomplete Dropdown for Tablet */}
           {isOpen && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#13171f] border border-[#2a3344] rounded-lg shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
+            <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#13171f] border border-[#2a3344] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
               {results.length > 0 ? (
-                results.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/manga/${item.slug}`}
-                    onClick={() => {
-                      setIsOpen(false);
-                      setTabletSearchOpen(false);
-                    }}
-                    className="flex items-center gap-3 p-2.5 hover:bg-[#1a1f2a] transition-colors"
-                  >
-                    <div className="w-9 h-12 rounded bg-[#0c0e12] overflow-hidden flex-shrink-0 border border-[#2a3344]">
-                      <img
-                        src={item.coverImage.medium || item.coverImage.large || ""}
-                        alt={item.displayTitle}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-xs text-white truncate">
-                        {item.displayTitle}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#cbd5e1]">
-                        <span>{item.genres[0] || "Manga"}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-amber-400">
-                          <Star className="w-3 h-3 fill-amber-400" />
-                          {item.averageScore ? (item.averageScore / 20).toFixed(1) : "—"}
-                        </span>
-                      </div>
-                    </div>
+                <>
+                  <div className="max-h-[360px] overflow-y-auto divide-y divide-[#1e2430]">
+                    {results.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={`/manga/${item.slug}`}
+                        onClick={() => {
+                          setIsOpen(false);
+                          setTabletSearchOpen(false);
+                        }}
+                        className="flex items-center gap-3 p-2.5 hover:bg-[#1a1f2a] transition-colors"
+                      >
+                        <div className="w-10 h-14 rounded bg-[#0c0e12] overflow-hidden flex-shrink-0 border border-[#2a3344]">
+                          <img
+                            src={item.coverImage.medium || item.coverImage.large || ""}
+                            alt={item.displayTitle}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-xs text-white truncate">
+                            {item.displayTitle}
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#cbd5e1]">
+                            <span>{item.genres[0] || "Manga"}</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 text-amber-400">
+                              <Star className="w-3 h-3 fill-amber-400" />
+                              {item.averageScore ? (item.averageScore / 20).toFixed(1) : "—"}
+                            </span>
+                          </div>
+                        </div>
 
-                    {item.nextAiringChapter && (
-                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        Ch {item.nextAiringChapter.episodeOrChapter}
-                      </span>
-                    )}
-                  </Link>
-                ))
+                        {item.nextAiringChapter ? (
+                          <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            Ch {item.nextAiringChapter.episodeOrChapter}
+                          </span>
+                        ) : null}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="p-2.5 bg-[#0c0e12] flex items-center justify-between text-[11px] text-[#94a1b5]">
+                    <span>{results.length} matches</span>
+                    <Link
+                      href={`/trending?search=${encodeURIComponent(query.trim())}`}
+                      onClick={() => {
+                        setIsOpen(false);
+                        setTabletSearchOpen(false);
+                      }}
+                      className="text-blue-400 hover:text-blue-300 font-medium"
+                    >
+                      View all results →
+                    </Link>
+                  </div>
+                </>
               ) : (
-                <div className="py-4 text-center text-xs text-[#94a3b8]">
-                  {isSearching ? "Searching index..." : "No manga found."}
+                <div className="py-6 text-center text-xs text-[#94a3b8]">
+                  {isSearching ? (
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                      <span>Searching for &quot;{query}&quot;...</span>
+                    </div>
+                  ) : (
+                    "No manga found matching your query."
+                  )}
                 </div>
               )}
             </div>

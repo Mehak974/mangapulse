@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Filter,
@@ -68,8 +69,10 @@ const SORTS = [
   { label: "Title (A-Z)", value: "TITLE_ROMAJI" },
 ];
 
-export default function TrendingPage() {
-  const [search, setSearch] = useState("");
+function TrendingContent() {
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams.get("search") || searchParams.get("q") || "";
+  const [search, setSearch] = useState(urlSearch);
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [selectedFormat, setSelectedFormat] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -78,6 +81,13 @@ export default function TrendingPage() {
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useEffect(() => {
+    if (urlSearch && urlSearch !== search) {
+      setSearch(urlSearch);
+      setPage(1);
+    }
+  }, [urlSearch]);
 
   const activeFilterCount =
     (search ? 1 : 0) +
@@ -449,5 +459,19 @@ export default function TrendingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TrendingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen py-24 flex items-center justify-center text-sm text-[#94a1b5]">
+          Loading directory...
+        </div>
+      }
+    >
+      <TrendingContent />
+    </Suspense>
   );
 }
