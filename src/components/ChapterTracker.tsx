@@ -14,6 +14,7 @@ import {
 import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 import { logActivity } from "@/lib/userStore";
 import { slugify } from "@/lib/anilist";
+import { useAuth } from "@/context/AuthContext";
 import {
   Check,
   CheckSquare,
@@ -26,6 +27,7 @@ import {
   RotateCcw,
   Plus,
   Layers,
+  Edit2,
 } from "lucide-react";
 
 interface ChapterTrackerProps {
@@ -41,13 +43,39 @@ export default function ChapterTracker({
   totalChapters,
   latestChapter,
 }: ChapterTrackerProps) {
-  // Determine effective total chapters from verified publication data
+  const { library, updateLibrary } = useAuth();
+
+  // Determine effective total chapters from verified publication data or custom override
   const verified = getVerifiedSchedule(mangaId, mangaTitle, undefined, totalChapters);
   const initialMax = Math.max(
     1,
     totalChapters || latestChapter || verified.latestChapter || 100
   );
   const [maxChapters, setMaxChapters] = useState(initialMax);
+
+  // Load custom total chapters from localStorage if saved by user
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`mangapulse_total_ch_${mangaId}`);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (parsed > 0) setMaxChapters(parsed);
+      }
+    } catch {}
+  }, [mangaId]);
+
+  const handleSetCustomTotal = () => {
+    const input = window.prompt(`Enter accurate total chapters for "${mangaTitle}":`, String(maxChapters));
+    if (input) {
+      const parsed = parseInt(input.trim(), 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setMaxChapters(parsed);
+        try {
+          localStorage.setItem(`mangapulse_total_ch_${mangaId}`, String(parsed));
+        } catch {}
+      }
+    }
+  };
 
   const [readSet, setReadSet] = useState<Set<number>>(new Set());
   const [selectedSet, setSelectedSet] = useState<Set<number>>(new Set());
@@ -174,9 +202,27 @@ export default function ChapterTracker({
   const readCount = readSet.size;
   const progressPercent = Math.min(100, Math.round((readCount / maxChapters) * 100));
 
+  // Helper to sync read progress to user library entry
+  const syncToLibrary = (updated: Set<number>) => {
+    const highest = updated.size > 0 ? Math.max(...Array.from(updated)) : 0;
+    const match = library.find((it) => it.manga_id === mangaId);
+    if (match) {
+      updateLibrary({
+        ...match,
+        progress_chapter: highest,
+      });
+    }
+  };
+
   // Toggle single chapter
   const handleToggleChapter = (num: number) => {
     const isNowRead = toggleChapterRead(mangaId, num);
+    const updated = new Set(readSet);
+    if (isNowRead) updated.add(num);
+    else updated.delete(num);
+    setReadSet(updated);
+    syncToLibrary(updated);
+
     if (isNowRead) {
       logActivity({
         manga_id: mangaId,
@@ -204,6 +250,11 @@ export default function ChapterTracker({
   const handleMarkSelectedRead = () => {
     const arr = Array.from(selectedSet);
     markChaptersRead(mangaId, arr);
+    const updated = new Set(readSet);
+    arr.forEach((n) => updated.add(n));
+    setReadSet(updated);
+    syncToLibrary(updated);
+
     if (arr.length > 0) {
       logActivity({
         manga_id: mangaId,
@@ -218,12 +269,22 @@ export default function ChapterTracker({
   };
 
   const handleMarkSelectedUnread = () => {
-    markChaptersUnread(mangaId, Array.from(selectedSet));
+    const arr = Array.from(selectedSet);
+    markChaptersUnread(mangaId, arr);
+    const updated = new Set(readSet);
+    arr.forEach((n) => updated.delete(n));
+    setReadSet(updated);
+    syncToLibrary(updated);
     setSelectedSet(new Set());
   };
 
   const handleMarkAllBelowRead = (num: number) => {
     markAllBelowRead(mangaId, num);
+    const updated = new Set(readSet);
+    for (let i = 1; i <= num; i++) updated.add(i);
+    setReadSet(updated);
+    syncToLibrary(updated);
+
     logActivity({
       manga_id: mangaId,
       manga_title: mangaTitle,
@@ -237,16 +298,27 @@ export default function ChapterTracker({
 
   const handleMarkAllBelowUnread = (num: number) => {
     markAllBelowUnread(mangaId, num);
+    const updated = new Set(readSet);
+    for (let i = 1; i <= num; i++) updated.delete(i);
+    setReadSet(updated);
+    syncToLibrary(updated);
     setActiveMenuChapter(null);
   };
 
   const handleMarkAllRead = () => {
     markAllChaptersRead(mangaId, maxChapters);
+    const updated = new Set<number>();
+    for (let i = 1; i <= maxChapters; i++) updated.add(i);
+    setReadSet(updated);
+    syncToLibrary(updated);
   };
 
   const handleClearAll = () => {
     if (window.confirm("Reset all read chapter progress for this series?")) {
       clearAllChaptersRead(mangaId);
+      const updated = new Set<number>();
+      setReadSet(updated);
+      syncToLibrary(updated);
     }
   };
 
@@ -256,12 +328,28 @@ export default function ChapterTracker({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1e2430] gap-3">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-blue-400" />
-          <h2 className="font-bold text-white text-sm uppercase tracking-wider font-mono">
-            Chapter Reading Progress ({readCount} / {maxChapters})
+          <h2 className="font-bold text-white text-sm uppercase tracking-wider font-mono flex items-center gap-2">
+            <span>Chapter Reading Progress ({readCount} / {maxChapters})</span>
+            <button
+              type="button"
+              onClick={handleSetCustomTotal}
+              className="p-1 rounded hover:bg-[#1a1f2a] text-[#94a1b5] hover:text-white transition-colors"
+              title="Edit accurate total chapter count"
+            >
+              <Edit2 className="w-3.5 h-3.5 text-blue-400" />
+            </button>
           </h2>
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleSetCustomTotal}
+            className="px-2.5 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"
+            title="Set exact total chapters for this series"
+          >
+            <Edit2 className="w-3 h-3 text-blue-400" />
+            <span>Set Total</span>
+          </button>
           <button
             onClick={() => setMaxChapters((prev) => prev + 10)}
             className="px-2 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-[11px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] flex items-center gap-1 transition-colors"

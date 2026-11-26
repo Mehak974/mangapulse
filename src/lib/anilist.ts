@@ -1,5 +1,6 @@
 import { MangaItem, MangaTitle, ReleaseSchedule } from "@/types/manga";
 import { getOfficialLinksForManga } from "./officialLinks";
+import { getExpandedSearchTerms, rankMangaSearchResults } from "./searchResolver";
 
 const ANILIST_ENDPOINT = "https://graphql.anilist.co";
 
@@ -35,6 +36,12 @@ import { getVerifiedSchedule, getVerifiedScheduleItem, VerifiedSchedule } from "
  * Releasing series drop on their specific magazine day (Sun, Mon, Tue, Wed, Thu, Fri, Sat, or Monthly).
  */
 export function calculateMangaReleaseSchedule(media: any): ReleaseSchedule | null {
+  const isFinished =
+    media?.status === "FINISHED" ||
+    media?.status === "CANCELLED" ||
+    (typeof media?.status === "string" && (media.status.toUpperCase() === "FINISHED" || media.status.toUpperCase() === "CANCELLED"));
+  if (isFinished) return null;
+
   const displayTitle = getDisplayTitle(media.title);
   const verified = getVerifiedSchedule(media.id, displayTitle, media.status, media.chapters);
 
@@ -57,17 +64,24 @@ export function formatMangaItem(media: any): MangaItem {
   const slug = `${slugify(displayTitle)}-${media.id}`;
 
   const verified = getVerifiedSchedule(media.id, displayTitle, media.status, media.chapters);
-  const nextAiringChapter = calculateMangaReleaseSchedule(media);
 
   // If verified ongoing schedule exists, enforce RELEASING status and consistent latest chapter
-  const isVerifiedOngoing = !verified.isFinished && !verified.isHiatus && verified.targetTimestamp !== null;
-  const status = verified.isFinished
+  const isFinishedMedia =
+    verified.isFinished ||
+    media.status === "FINISHED" ||
+    media.status === "CANCELLED" ||
+    (typeof media.status === "string" && (media.status.toUpperCase() === "FINISHED" || media.status.toUpperCase() === "CANCELLED"));
+
+  const isVerifiedOngoing = !isFinishedMedia && !verified.isHiatus && verified.targetTimestamp !== null;
+  const status = isFinishedMedia
     ? "FINISHED"
     : verified.isHiatus
     ? "HIATUS"
     : isVerifiedOngoing
     ? "RELEASING"
     : media.status || "RELEASING";
+
+  const nextAiringChapter = status === "FINISHED" ? null : calculateMangaReleaseSchedule(media);
 
   // For ongoing series, use verified latest chapter (prevents AniList 232 error on Chainsaw Man)
   const chapters = isVerifiedOngoing
@@ -339,12 +353,35 @@ export async function fetchBrowseManga(filters: BrowseFilters = {}): Promise<{
   if (filters.country && filters.country !== "All") variables.country = filters.country;
 
   try {
-    const data = await fetchAnilistGraphQL<any>(BROWSE_MANGA_QUERY, variables);
-    const mediaList = data?.Page?.media || [];
+    let data = await fetchAnilistGraphQL<any>(BROWSE_MANGA_QUERY, variables);
+    let mediaList = data?.Page?.media || [];
+
+    // If search returned 0 results, resolve prefix expansions (e.g. "duk" -> "duke")
+    if (mediaList.length === 0 && filters.search && filters.search.trim()) {
+      const cleanSearch = filters.search.trim().toLowerCase();
+      const expansions = getExpandedSearchTerms(cleanSearch);
+      if (expansions.length > 0) {
+        for (const exp of expansions.slice(0, 2)) {
+          const expData = await fetchAnilistGraphQL<any>(BROWSE_MANGA_QUERY, {
+            ...variables,
+            search: exp,
+          });
+          const expMedia = expData?.Page?.media || [];
+          if (expMedia.length > 0) {
+            mediaList = expMedia;
+            data = expData;
+            break;
+          }
+        }
+      }
+    }
+
     const pageInfo = data?.Page?.pageInfo || { currentPage: page, hasNextPage: false, total: mediaList.length };
+    const formatted = mediaList.map(formatMangaItem);
+    const ranked = filters.search ? rankMangaSearchResults(formatted, filters.search) : formatted;
 
     return {
-      items: mediaList.map(formatMangaItem),
+      items: ranked,
       pageInfo,
     };
   } catch (err) {
@@ -536,13 +573,34 @@ export async function fetchRecommendationsByGenres(
 // Search manga titles
 export async function searchManga(query: string, perPage = 6): Promise<MangaItem[]> {
   if (!query || query.trim().length === 0) return [];
-  const data = await fetchAnilistGraphQL<any>(SEARCH_MANGA_QUERY, {
-    search: query.trim(),
+  const clean = query.trim();
+  let data = await fetchAnilistGraphQL<any>(SEARCH_MANGA_QUERY, {
+    search: clean,
     perPage,
   });
 
-  if (!data?.Page?.media) return [];
-  return data.Page.media.map(formatMangaItem);
+  let list = data?.Page?.media || [];
+
+  // If search produced 0 results, resolve prefix expansions (e.g. "duk" -> "duke")
+  if (list.length === 0) {
+    const expansions = getExpandedSearchTerms(clean);
+    if (expansions.length > 0) {
+      for (const exp of expansions.slice(0, 2)) {
+        const expData = await fetchAnilistGraphQL<any>(SEARCH_MANGA_QUERY, {
+          search: exp,
+          perPage: Math.max(perPage, 12),
+        });
+        const expMedia = expData?.Page?.media || [];
+        if (expMedia.length > 0) {
+          list = expMedia;
+          break;
+        }
+      }
+    }
+  }
+
+  const formatted = list.map(formatMangaItem);
+  return rankMangaSearchResults(formatted, clean).slice(0, perPage);
 }
 
 // Curated fallback series so development and cold-starts are instantaneous

@@ -140,7 +140,7 @@ export default async function MangaDetailPage({ params }: PageProps) {
               <div className="flex justify-between">
                 <span className="text-[#94a1b5]">Total Chapters</span>
                 <span className="font-mono font-semibold text-white">
-                  {manga.chapters ? `${manga.chapters} Chapters` : "Ongoing"}
+                  {manga.chapters ? `${manga.chapters} Chapters` : manga.status === "FINISHED" ? "Completed" : "Publishing (Ongoing)"}
                 </span>
               </div>
 

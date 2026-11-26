@@ -66,7 +66,7 @@ export default function MangaCard({ manga, showCountdown = true }: MangaCardProp
           </div>
 
           {/* Bottom Countdown pill */}
-          {showCountdown && manga.nextAiringChapter && (
+          {showCountdown && manga.status !== "FINISHED" && manga.nextAiringChapter && (
             <div className="absolute bottom-2 inset-x-2 flex justify-center pointer-events-auto">
               <Link href={`/release-date/${manga.slug}`}>
                 <CountdownTimer

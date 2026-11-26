@@ -187,9 +187,22 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop Inline Search Bar (hidden on tablet/mobile) */}
-        <div ref={dropdownRef} className="hidden xl:block relative flex-1 max-w-sm xl:max-w-md 2xl:max-w-lg ml-auto">
+        <div ref={dropdownRef} className="hidden xl:block relative flex-1 max-w-md xl:max-w-xl 2xl:max-w-2xl ml-auto">
           <div className="relative flex items-center">
-            <Search className="absolute left-3 w-4 h-4 text-[#94a3b8] pointer-events-none" />
+            <button
+              type="button"
+              onClick={() => {
+                if (query.trim()) {
+                  setIsOpen(false);
+                  router.push(`/browse?search=${encodeURIComponent(query.trim())}`);
+                }
+              }}
+              className="absolute left-2.5 p-1 text-[#94a3b8] hover:text-white transition-colors cursor-pointer"
+              aria-label="Search and Browse"
+              title="Search and browse catalog"
+            >
+              <Search className="w-4 h-4" />
+            </button>
             <input
               ref={inputRef}
               type="text"
@@ -204,14 +217,14 @@ export default function Navbar() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && query.trim()) {
                   setIsOpen(false);
-                  router.push(`/trending?search=${encodeURIComponent(query.trim())}`);
+                  router.push(`/browse?search=${encodeURIComponent(query.trim())}`);
                 }
               }}
               onFocus={() => {
                 if (query.trim()) setIsOpen(true);
               }}
-              placeholder="Search manga, authors, magazines... (Press Enter to view all)"
-              className="w-full bg-[#13171f] hover:bg-[#1a1f2a] focus:bg-[#1a1f2a] border border-[#2a3344] focus:border-white/40 rounded-lg pl-9 pr-8 py-1.5 text-xs text-white placeholder-[#94a3b8] focus:outline-none transition-all font-sans"
+              placeholder="Search manga, authors, magazines... (Press Enter or click search icon)"
+              className="w-full bg-[#13171f] hover:bg-[#1a1f2a] focus:bg-[#1a1f2a] border border-[#2a3344] focus:border-white/40 rounded-lg pl-9 pr-8 py-2 text-xs text-white placeholder-[#94a3b8] focus:outline-none transition-all font-sans"
             />
             {query ? (
               <button
@@ -231,9 +244,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Autocomplete Dropdown - Wide and spacious */}
+          {/* Autocomplete Dropdown - Wide, spacious and multi-column friendly */}
           {isOpen && (
-            <div className="absolute right-0 top-full mt-2 w-[500px] sm:w-[560px] xl:w-[620px] max-w-[calc(100vw-2rem)] bg-[#13171f] border border-[#2a3344] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
+            <div className="absolute right-0 top-full mt-2 w-[640px] sm:w-[700px] xl:w-[760px] 2xl:w-[820px] max-w-[calc(100vw-2rem)] bg-[#13171f] border border-[#2a3344] rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-[#1e2430]">
               {results.length > 0 ? (
                 <>
                   <div className="max-h-[400px] overflow-y-auto divide-y divide-[#1e2430]">
@@ -287,14 +300,14 @@ export default function Navbar() {
                   </div>
 
                   {/* View All Matches Footer */}
-                  <div className="p-2.5 bg-[#0c0e12] flex items-center justify-between text-[11px] text-[#94a1b5] border-t border-[#1e2430]">
+                  <div className="p-3 bg-[#0c0e12] flex items-center justify-between text-xs text-[#94a1b5] border-t border-[#1e2430]">
                     <span>Showing top {results.length} matches</span>
                     <Link
-                      href={`/trending?search=${encodeURIComponent(query.trim())}`}
+                      href={`/browse?search=${encodeURIComponent(query.trim())}`}
                       onClick={() => setIsOpen(false)}
-                      className="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1"
+                      className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1"
                     >
-                      <span>View all results for &quot;{query}&quot; →</span>
+                      <span>View all results in Browse Directory →</span>
                     </Link>
                   </div>
                 </>
@@ -495,7 +508,21 @@ export default function Navbar() {
           className="max-w-7xl mx-auto xl:hidden w-full pt-2.5 pb-1 border-t border-[#1e2430] mt-2 relative animate-in fade-in slide-in-from-top-2 duration-150"
         >
           <div className="relative flex items-center">
-            <Search className="absolute left-3 w-4 h-4 text-[#94a3b8] pointer-events-none" />
+            <button
+              type="button"
+              onClick={() => {
+                if (query.trim()) {
+                  setIsOpen(false);
+                  setTabletSearchOpen(false);
+                  router.push(`/browse?search=${encodeURIComponent(query.trim())}`);
+                }
+              }}
+              className="absolute left-2.5 p-1 text-[#94a3b8] hover:text-white transition-colors cursor-pointer"
+              aria-label="Search and Browse"
+              title="Search and browse"
+            >
+              <Search className="w-4 h-4" />
+            </button>
             <input
               ref={tabletInputRef}
               type="text"
@@ -511,10 +538,10 @@ export default function Navbar() {
                 if (e.key === "Enter" && query.trim()) {
                   setIsOpen(false);
                   setTabletSearchOpen(false);
-                  router.push(`/trending?search=${encodeURIComponent(query.trim())}`);
+                  router.push(`/browse?search=${encodeURIComponent(query.trim())}`);
                 }
               }}
-              placeholder="Search manga, authors, magazines... (Press Enter to view all)"
+              placeholder="Search manga, authors, magazines... (Press Enter or tap search)"
               className="w-full bg-[#13171f] hover:bg-[#1a1f2a] focus:bg-[#1a1f2a] border border-[#2a3344] focus:border-white/40 rounded-lg pl-9 pr-9 py-2 text-xs text-white placeholder-[#94a3b8] focus:outline-none transition-all font-sans"
             />
             <button
@@ -579,7 +606,7 @@ export default function Navbar() {
                   <div className="p-2.5 bg-[#0c0e12] flex items-center justify-between text-[11px] text-[#94a1b5]">
                     <span>{results.length} matches</span>
                     <Link
-                      href={`/trending?search=${encodeURIComponent(query.trim())}`}
+                      href={`/browse?search=${encodeURIComponent(query.trim())}`}
                       onClick={() => {
                         setIsOpen(false);
                         setTabletSearchOpen(false);

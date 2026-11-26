@@ -36,13 +36,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
+  const isFinished = manga.status === "FINISHED";
+
   const chapterNum =
     manga.nextAiringChapter?.episodeOrChapter ||
     (manga.chapters ? manga.chapters + 1 : "Upcoming");
 
+  const title = isFinished
+    ? `${manga.displayTitle} — All Chapters Released & Reading Directory`
+    : `${manga.displayTitle} Chapter ${chapterNum} Release Date & Live Countdown`;
+
+  const description = isFinished
+    ? `Official serialization for ${manga.displayTitle} has completed with all ${manga.chapters ? `${manga.chapters} ` : ""}chapters released. Read legally on authorized platforms with zero scans.`
+    : `Confirmed release schedule and exact worldwide countdown for ${manga.displayTitle} Chapter ${chapterNum}. Official simultaneous drop times for JST, EST, GMT, and where to read on Manga Plus.`;
+
   return buildMetadata({
-    title: `${manga.displayTitle} Chapter ${chapterNum} Release Date & Live Countdown`,
-    description: `Confirmed release schedule and exact worldwide countdown for ${manga.displayTitle} Chapter ${chapterNum}. Official simultaneous drop times for JST, EST, GMT, and where to read on Manga Plus.`,
+    title,
+    description,
     path: `/release-date/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
   });
@@ -223,19 +233,27 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
         <div className="space-y-3 text-xs leading-relaxed text-[#94a1b5]">
           <div className="p-3.5 rounded-lg bg-[#0c0e12] border border-[#1e2430]">
             <div className="font-bold text-white mb-1">
-              Where can I read {manga.displayTitle} Chapter {chapterNum} legally for free?
+              {manga.status === "FINISHED"
+                ? `Is ${manga.displayTitle} officially completed?`
+                : `Where can I read ${manga.displayTitle} Chapter ${chapterNum} legally for free?`}
             </div>
             <div>
-              Shueisha&apos;s official MANGA Plus service provides the latest 3 chapters free of charge with simultaneous English translation. You do not need to register an account or provide payment information.
+              {manga.status === "FINISHED"
+                ? `Yes, official serialization for ${manga.displayTitle} has concluded with all ${manga.chapters ? `${manga.chapters} ` : ""}chapters released. You can read the complete series on authorized publisher directories linked above.`
+                : `Shueisha's official MANGA Plus service provides the latest 3 chapters free of charge with simultaneous English translation. You do not need to register an account or provide payment information.`}
             </div>
           </div>
 
           <div className="p-3.5 rounded-lg bg-[#0c0e12] border border-[#1e2430]">
             <div className="font-bold text-white mb-1">
-              Is {manga.displayTitle} on break or delayed this week?
+              {manga.status === "FINISHED"
+                ? `Will there be any new chapters of ${manga.displayTitle}?`
+                : `Is ${manga.displayTitle} on break or delayed this week?`}
             </div>
             <div>
-              Our countdown timer synchronizes automatically with official publisher airing schedules. If the magazine announces a scheduled creative break or national holiday hiatus (such as Obon or Golden Week in Japan), the countdown timer updates to reflect the new verified date.
+              {manga.status === "FINISHED"
+                ? `The main story serialization has completed in full. Any future special side stories, epilogues, or volume print editions will be cataloged on this official directory.`
+                : `Our countdown timer synchronizes automatically with official publisher airing schedules. If the magazine announces a scheduled creative break or national holiday hiatus, the countdown timer updates to reflect the new verified date.`}
             </div>
           </div>
 
@@ -244,7 +262,7 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
               Why should I read official releases rather than fan scanlations?
             </div>
             <div>
-              Official simulpubs on MANGA Plus and Viz Media ensure high-resolution original digital raster scans, verified professional translations, zero malware/popunder advertisements, and direct royalties to the original mangaka and creators.
+              Official simulpubs on licensed platforms ensure high-resolution original digital raster scans, verified professional translations, zero malware/popunder advertisements, and direct royalties to the original creators.
             </div>
           </div>
         </div>

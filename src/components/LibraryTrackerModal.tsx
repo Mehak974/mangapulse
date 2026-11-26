@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MangaItem, LibraryStatus, UserLibraryEntry } from "@/types/manga";
 import { useAuth } from "@/context/AuthContext";
+import { markAllBelowRead, clearAllChaptersRead } from "@/lib/chapterStore";
 import { X, Check, Trash2, Bookmark } from "lucide-react";
 
 interface ModalProps {
@@ -53,6 +54,14 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
         country_of_origin: manga.countryOfOrigin || undefined,
         format: (manga as any).format || undefined,
       });
+
+      // Synchronize reading progress with chapterStore so ChapterTracker updates immediately
+      if (progress > 0) {
+        markAllBelowRead(manga.id, progress);
+      } else {
+        clearAllChaptersRead(manga.id);
+      }
+
       onClose();
     } catch (err) {
       console.error("Save error:", err);

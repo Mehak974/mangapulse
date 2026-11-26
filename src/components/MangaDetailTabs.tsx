@@ -75,7 +75,7 @@ export default function MangaDetailTabs({
       {activeTab === "overview" && (
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Countdown Box / Series Status */}
-          {manga.nextAiringChapter ? (
+          {manga.status !== "FINISHED" && manga.nextAiringChapter ? (
             <div className="space-y-2">
               <CountdownTimer
                 targetTimestamp={manga.nextAiringChapter.airingAt}

@@ -22,6 +22,20 @@ export interface VerifiedSchedule {
 }
 
 export const VERIFIED_SCHEDULES: VerifiedSchedule[] = [
+  // --- Completed Classics & Top Manhwa ---
+  {
+    id: 104973,
+    titleMatch: ["the reason why raeliana ended up at the duke's mansion", "raeliana"],
+    latestChapter: 158,
+    nextChapter: 158,
+    totalChapters: 158,
+    isFinished: true,
+    cadence: "finished",
+    magazine: "KakaoPage",
+    dropDayOfWeek: 0,
+    dropHourUTC: 15,
+    publisher: "T&D Entertainment / Yen Press",
+  },
   // --- Active Weekly Shonen Jump (Sunday 15:00 UTC) ---
   {
     id: 30013,
@@ -780,7 +794,8 @@ export function getVerifiedSchedule(
   }
 
   // Fallback for general uncatalogued titles
-  const isFinished = mediaStatus === "FINISHED" || mediaStatus === "CANCELLED";
+  const cleanStatus = (mediaStatus || "").toUpperCase();
+  const isFinished = cleanStatus === "FINISHED" || cleanStatus === "CANCELLED";
   if (isFinished) {
     const chapters = totalChapters || 50;
     return {

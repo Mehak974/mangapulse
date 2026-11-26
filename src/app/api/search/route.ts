@@ -4,6 +4,7 @@ import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
 import { MangaItem } from "@/types/manga";
 import { SITE_URL } from "@/lib/seo";
 import { indexDiscoveredPages } from "@/lib/indexnow";
+import { getExpandedSearchTerms, rankMangaSearchResults } from "@/lib/searchResolver";
 
 // 60-second in-memory query cache to shield AniList GraphQL rate limits (90 req/min)
 interface CacheEntry {
@@ -61,15 +62,32 @@ export async function GET(request: Request) {
   }
 
   try {
-    const rawResults = await searchManga(cleanQuery, limit);
+    let rawResults = await searchManga(cleanQuery, Math.max(limit, 10));
+
+    // If zero or very few results, check prefix expansions (e.g. "duk" -> "duke")
+    if (rawResults.length < 3) {
+      const expansions = getExpandedSearchTerms(cleanQuery);
+      if (expansions.length > 0) {
+        const expansionFetches = await Promise.all(
+          expansions.slice(0, 2).map((exp) => searchManga(exp, Math.max(limit, 12)))
+        );
+        const mergedExpansions = expansionFetches.flat();
+        rawResults = [...rawResults, ...mergedExpansions];
+      }
+    }
+
     const delisted = await getAllDelistedSlugs();
-    const results = delisted.length > 0
+    const filtered = delisted.length > 0
       ? rawResults.filter(
           (m) =>
             !delisted.includes(m.slug.toLowerCase()) &&
             !delisted.includes(slugify(m.displayTitle))
         )
       : rawResults;
+
+    // Rank results so entries starting with the query come first
+    const rankedResults = rankMangaSearchResults(filtered, cleanQuery);
+    const results = rankedResults.slice(0, limit);
 
     // Enforce strict LRU cap of 200 items before insertion to prevent memory bloat
     while (searchCache.size >= 200) {
