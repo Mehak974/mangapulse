@@ -83,12 +83,11 @@ export function formatMangaItem(media: any): MangaItem {
 
   const nextAiringChapter = status === "FINISHED" ? null : calculateMangaReleaseSchedule(media);
 
-  // For ongoing series, use verified latest chapter (prevents AniList 232 error on Chainsaw Man)
-  const chapters = isVerifiedOngoing
+  // Chapter counts: prioritize verified database, then AniList media.chapters.
+  // NEVER inject hallucinated fallback numbers.
+  const chapters = verified.isVerifiedInDb
     ? verified.latestChapter
-    : verified.isFinished
-    ? verified.latestChapter || media.chapters
-    : media.chapters || verified.latestChapter;
+    : media.chapters || null;
 
   // Clean description of HTML tags and raw markdown artifacts (e.g. "Notes: - Nominated...")
   const cleanDescription = media.description

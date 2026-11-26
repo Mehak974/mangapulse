@@ -15,12 +15,22 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
   const { user, library, updateLibrary, removeFromLibrary } = useAuth();
   const [status, setStatus] = useState<LibraryStatus>("reading");
   const [progress, setProgress] = useState<number>(0);
+  const [totalChapters, setTotalChapters] = useState<number | null>(manga.chapters ?? null);
   const [rating, setRating] = useState<number>(0);
   const [notes, setNotes] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
 
   useEffect(() => {
+    let custom: number | null = null;
+    try {
+      const saved = localStorage.getItem(`mangapulse_total_ch_${manga.id}`);
+      if (saved) {
+        const p = parseInt(saved, 10);
+        if (p > 0) custom = p;
+      }
+    } catch {}
+
     const match = library.find((it) => it.manga_id === manga.id);
     if (match) {
       setExistingId(match.id);
@@ -28,8 +38,11 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
       setProgress(match.progress_chapter);
       setRating(match.rating || 0);
       setNotes(match.notes || "");
+      setTotalChapters(match.total_chapters || custom || manga.chapters || null);
+    } else if (custom) {
+      setTotalChapters(custom);
     }
-  }, [manga.id, library]);
+  }, [manga.id, library, manga.chapters]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -47,13 +60,26 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
           "",
         status,
         progress_chapter: progress,
-        total_chapters: manga.chapters ?? null,
+        total_chapters: totalChapters,
         rating: rating > 0 ? rating : null,
         notes: notes.trim() || null,
         genres: manga.genres,
         country_of_origin: manga.countryOfOrigin || undefined,
         format: (manga as any).format || undefined,
       });
+
+      if (totalChapters) {
+        try {
+          localStorage.setItem(`mangapulse_total_ch_${manga.id}`, String(totalChapters));
+        } catch {}
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("mangapulse-total-chapters-updated", {
+              detail: { mangaId: manga.id, totalChapters },
+            })
+          );
+        }
+      }
 
       // Synchronize reading progress with chapterStore so ChapterTracker updates immediately
       if (progress > 0) {
@@ -145,14 +171,14 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
             <div className="flex items-center justify-between font-mono text-[11px] text-[#94a1b5] uppercase mb-1.5">
               <span>Chapter Progress</span>
               <span className="text-white font-bold">
-                Ch. {progress} {manga.chapters ? `/ ${manga.chapters}` : ""}
+                Ch. {progress} {totalChapters ? `/ ${totalChapters}` : ""}
               </span>
             </div>
             <div className="flex items-center gap-3">
               <input
                 type="range"
                 min="0"
-                max={manga.chapters || 1200}
+                max={totalChapters || Math.max(progress + 50, 100)}
                 value={progress}
                 onChange={(e) => setProgress(parseInt(e.target.value) || 0)}
                 className="w-full accent-blue-500 h-1.5 bg-[#0c0e12] rounded cursor-pointer"
@@ -160,11 +186,43 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
               <input
                 type="number"
                 min="0"
-                max={manga.chapters || 2500}
+                max={totalChapters || 2500}
                 value={progress}
                 onChange={(e) => setProgress(Math.max(0, parseInt(e.target.value) || 0))}
                 className="w-16 bg-[#0c0e12] border border-[#2a3344] rounded px-2 py-1 text-center font-mono text-xs font-bold text-white focus:outline-none focus:border-blue-500"
               />
+            </div>
+          </div>
+
+          {/* Accurate Total Chapters */}
+          <div>
+            <div className="flex items-center justify-between font-mono text-[11px] text-[#94a1b5] uppercase mb-1.5">
+              <span>Total Chapters</span>
+              <span className="text-[10px] text-[#5a6578] font-normal lowercase">(set or correct total count)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max="9999"
+                placeholder={manga.chapters ? String(manga.chapters) : "e.g. 158"}
+                value={totalChapters ?? ""}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setTotalChapters(isNaN(val) || val <= 0 ? null : val);
+                }}
+                className="w-full bg-[#0c0e12] border border-[#2a3344] rounded px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 placeholder:text-[#5e6b82]"
+              />
+              {totalChapters && (
+                <button
+                  type="button"
+                  onClick={() => setTotalChapters(null)}
+                  className="px-2.5 py-1.5 text-[10px] font-mono text-[#94a1b5] hover:text-white border border-[#2a3344] rounded hover:bg-[#1a1f2a] transition-colors"
+                  title="Reset to default"
+                >
+                  Reset
+                </button>
+              )}
             </div>
           </div>
 

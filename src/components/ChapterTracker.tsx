@@ -44,27 +44,42 @@ export default function ChapterTracker({
   latestChapter,
 }: ChapterTrackerProps) {
   const { library, updateLibrary } = useAuth();
+  const libraryEntry = useMemo(() => library.find((it) => it.manga_id === mangaId), [library, mangaId]);
 
-  // Determine effective total chapters from verified publication data or custom override
+  // Determine effective total chapters from verified publication data, library, or custom override
   const verified = getVerifiedSchedule(mangaId, mangaTitle, undefined, totalChapters);
   const initialMax = Math.max(
     1,
-    totalChapters || latestChapter || verified.latestChapter || 100
+    libraryEntry?.total_chapters ||
+      totalChapters ||
+      latestChapter ||
+      (verified.isVerifiedInDb ? verified.latestChapter : 0) ||
+      (libraryEntry?.progress_chapter || 0) ||
+      50
   );
   const [maxChapters, setMaxChapters] = useState(initialMax);
 
-  // Load custom total chapters from localStorage if saved by user
+  // Load custom total chapters from localStorage or library if present
   useEffect(() => {
     try {
       const saved = localStorage.getItem(`mangapulse_total_ch_${mangaId}`);
       if (saved) {
         const parsed = parseInt(saved, 10);
-        if (parsed > 0) setMaxChapters(parsed);
+        if (parsed > 0) {
+          setMaxChapters(parsed);
+          return;
+        }
       }
     } catch {}
-  }, [mangaId]);
 
-  const handleSetCustomTotal = () => {
+    if (libraryEntry?.total_chapters && libraryEntry.total_chapters > 0) {
+      setMaxChapters(libraryEntry.total_chapters);
+    } else if (libraryEntry?.progress_chapter && libraryEntry.progress_chapter > initialMax) {
+      setMaxChapters(libraryEntry.progress_chapter);
+    }
+  }, [mangaId, libraryEntry?.total_chapters, libraryEntry?.progress_chapter, initialMax]);
+
+  const handleSetCustomTotal = async () => {
     const input = window.prompt(`Enter accurate total chapters for "${mangaTitle}":`, String(maxChapters));
     if (input) {
       const parsed = parseInt(input.trim(), 10);
@@ -73,6 +88,20 @@ export default function ChapterTracker({
         try {
           localStorage.setItem(`mangapulse_total_ch_${mangaId}`, String(parsed));
         } catch {}
+
+        if (libraryEntry) {
+          await updateLibrary({
+            ...libraryEntry,
+            total_chapters: parsed,
+          });
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("mangapulse-total-chapters-updated", {
+              detail: { mangaId, totalChapters: parsed },
+            })
+          );
+        }
       }
     }
   };

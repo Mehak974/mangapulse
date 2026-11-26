@@ -698,6 +698,7 @@ export function getVerifiedSchedule(
 ): {
   isFinished: boolean;
   isHiatus: boolean;
+  isVerifiedInDb: boolean;
   latestChapter: number;
   nextChapter: number;
   targetTimestamp: number | null;
@@ -724,6 +725,7 @@ export function getVerifiedSchedule(
       return {
         isFinished: true,
         isHiatus: false,
+        isVerifiedInDb: true,
         latestChapter: total,
         nextChapter: total,
         targetTimestamp: null,
@@ -737,6 +739,7 @@ export function getVerifiedSchedule(
       return {
         isFinished: false,
         isHiatus: true,
+        isVerifiedInDb: true,
         latestChapter: found.latestChapter,
         nextChapter: found.nextChapter,
         targetTimestamp: null,
@@ -797,6 +800,7 @@ export function getVerifiedSchedule(
     return {
       isFinished: false,
       isHiatus: false,
+      isVerifiedInDb: true,
       latestChapter,
       nextChapter,
       targetTimestamp,
@@ -810,10 +814,11 @@ export function getVerifiedSchedule(
   const cleanStatus = (mediaStatus || "").toUpperCase();
   const isFinished = cleanStatus === "FINISHED" || cleanStatus === "CANCELLED";
   if (isFinished) {
-    const chapters = totalChapters || 50;
+    const chapters = totalChapters || 0;
     return {
       isFinished: true,
       isHiatus: false,
+      isVerifiedInDb: false,
       latestChapter: chapters,
       nextChapter: chapters,
       targetTimestamp: null,
@@ -841,13 +846,14 @@ export function getVerifiedSchedule(
     targetDate.setUTCDate(targetDate.getUTCDate() + 7);
   }
 
-  const estimatedCurrent = totalChapters || Math.max(30, (id % 150) + 20);
+  const estimatedCurrent = totalChapters || 0;
 
   return {
     isFinished: false,
     isHiatus: false,
+    isVerifiedInDb: false,
     latestChapter: estimatedCurrent,
-    nextChapter: estimatedCurrent + 1,
+    nextChapter: estimatedCurrent > 0 ? estimatedCurrent + 1 : 1,
     targetTimestamp: Math.floor(targetDate.getTime() / 1000),
     magazine: "Weekly Serialization",
     cadenceText: "Weekly Simulpub",

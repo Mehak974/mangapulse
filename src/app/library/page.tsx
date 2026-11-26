@@ -22,10 +22,12 @@ import {
   Search,
   Filter,
   X,
+  Edit2,
 } from "lucide-react";
-import { LibraryStatus, MangaDisplaySettings } from "@/types/manga";
+import { LibraryStatus, MangaDisplaySettings, MangaItem } from "@/types/manga";
 import DisplaySettingsBar from "@/components/DisplaySettingsBar";
 import ImportModal from "@/components/ImportModal";
+import LibraryTrackerModal from "@/components/LibraryTrackerModal";
 import { getDisplaySettings, DEFAULT_DISPLAY_SETTINGS } from "@/lib/chapterStore";
 import { getGenresForManga } from "@/lib/profileStats";
 
@@ -47,6 +49,7 @@ export default function LibraryPage() {
   } = useAuth();
 
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [editingManga, setEditingManga] = useState<MangaItem | null>(null);
 
   const [activeTab, setActiveTab] = useState<LibraryStatus | "all" | "collections">("all");
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
@@ -132,8 +135,8 @@ export default function LibraryPage() {
     if (currentSort === "unread") {
       const libA = library.find((l) => String(l.manga_id) === String(a?.manga_id));
       const libB = library.find((l) => String(l.manga_id) === String(b?.manga_id));
-      const unreadA = Math.max(0, (libA?.total_chapters || 100) - (libA?.progress_chapter || 0));
-      const unreadB = Math.max(0, (libB?.total_chapters || 100) - (libB?.progress_chapter || 0));
+      const unreadA = Math.max(0, (libA?.total_chapters || 0) - (libA?.progress_chapter || 0));
+      const unreadB = Math.max(0, (libB?.total_chapters || 0) - (libB?.progress_chapter || 0));
       return unreadB - unreadA;
     }
     return 0;
@@ -203,8 +206,8 @@ export default function LibraryPage() {
       return timeB - timeA;
     }
     if (currentSort === "unread") {
-      const unreadA = Math.max(0, (a.total_chapters || 100) - a.progress_chapter);
-      const unreadB = Math.max(0, (b.total_chapters || 100) - b.progress_chapter);
+      const unreadA = Math.max(0, (a.total_chapters || 0) - a.progress_chapter);
+      const unreadB = Math.max(0, (b.total_chapters || 0) - b.progress_chapter);
       return unreadB - unreadA;
     }
     return 0;
@@ -709,8 +712,8 @@ export default function LibraryPage() {
           {sortedLibraryItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {sortedLibraryItems.map((entry) => {
-                const total = entry.total_chapters || 100;
-                const unread = Math.max(0, total - entry.progress_chapter);
+                const total = entry.total_chapters;
+                const unread = total ? Math.max(0, total - entry.progress_chapter) : null;
 
                 return (
                   <div
@@ -771,7 +774,7 @@ export default function LibraryPage() {
 
                         {/* Unread count & Score display (if enabled) */}
                         <div className="flex items-center gap-2 mt-1.5">
-                          {displaySettings.showUnreadCount && (
+                          {displaySettings.showUnreadCount && unread !== null && (
                             <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
                               {unread} unread
                             </span>
@@ -788,6 +791,26 @@ export default function LibraryPage() {
 
                       {/* Actions Row */}
                       <div className="flex items-center justify-between pt-2 border-t border-[#1e2430] text-[11px]">
+                        <button
+                          onClick={() =>
+                            setEditingManga({
+                              id: entry.manga_id,
+                              slug: entry.manga_slug,
+                              title: { userPreferred: entry.manga_title },
+                              displayTitle: entry.manga_title,
+                              coverImage: { large: entry.manga_cover },
+                              genres: entry.genres || [],
+                              status: entry.status === "completed" ? "FINISHED" : "RELEASING",
+                              chapters: entry.total_chapters ?? null,
+                            } as any)
+                          }
+                          className="text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors font-medium"
+                          title="Edit reading progress or set accurate total chapters"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>Tracker</span>
+                        </button>
+
                         <button
                           onClick={() =>
                             openCollectionPicker({
@@ -845,6 +868,14 @@ export default function LibraryPage() {
         onClose={() => setImportModalOpen(false)}
         onSuccess={() => refreshLibrary()}
       />
+
+      {/* Library Tracker Modal */}
+      {editingManga && (
+        <LibraryTrackerModal
+          manga={editingManga}
+          onClose={() => setEditingManga(null)}
+        />
+      )}
     </div>
   );
 }

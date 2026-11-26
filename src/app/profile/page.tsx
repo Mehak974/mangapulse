@@ -1536,7 +1536,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-[#13171f] border border-[#1e2430]">
-                    <div className="text-[11px] font-mono text-[#94a1b5] uppercase">Total Chapters</div>
+                    <div className="text-[11px] font-mono text-[#94a1b5] uppercase">Chapters Read</div>
                     <div className="text-3xl font-black text-blue-400 font-mono mt-1">{totalChapters}</div>
                     <div className="text-[10px] text-[#5e6b82] mt-1">read across library</div>
                   </div>

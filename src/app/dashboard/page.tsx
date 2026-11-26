@@ -554,9 +554,9 @@ export default function DashboardPage() {
               {upNextList.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {upNextList.map((entry) => {
-                    const total = entry.total_chapters || 100;
+                    const total = entry.total_chapters;
                     const progress = entry.progress_chapter || 0;
-                    const percent = Math.min(100, Math.round((progress / total) * 100));
+                    const percent = total && total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
 
                     return (
                       <div
