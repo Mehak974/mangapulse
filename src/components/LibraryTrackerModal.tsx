@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MangaItem, LibraryStatus, UserLibraryEntry } from "@/types/manga";
 import { useAuth } from "@/context/AuthContext";
 import { markAllBelowRead, clearAllChaptersRead } from "@/lib/chapterStore";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 import { X, Check, Trash2, Bookmark } from "lucide-react";
 
 interface ModalProps {
@@ -22,12 +23,19 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
   const [existingId, setExistingId] = useState<string | null>(null);
 
   useEffect(() => {
+    const verified = getVerifiedSchedule(manga.id, manga.displayTitle, undefined, manga.chapters || undefined);
+    const verifiedTotal = verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : null;
+
     let custom: number | null = null;
     try {
       const saved = localStorage.getItem(`mangapulse_total_ch_${manga.id}`);
       if (saved) {
         const p = parseInt(saved, 10);
-        if (p > 0) custom = p;
+        if (verifiedTotal && p < verifiedTotal) {
+          localStorage.removeItem(`mangapulse_total_ch_${manga.id}`);
+        } else if (p > 0) {
+          custom = p;
+        }
       }
     } catch {}
 
@@ -38,11 +46,11 @@ export default function LibraryTrackerModal({ manga, onClose }: ModalProps) {
       setProgress(match.progress_chapter);
       setRating(match.rating || 0);
       setNotes(match.notes || "");
-      setTotalChapters(match.total_chapters || custom || manga.chapters || null);
-    } else if (custom) {
-      setTotalChapters(custom);
+      setTotalChapters(verifiedTotal || match.total_chapters || custom || manga.chapters || null);
+    } else if (verifiedTotal || custom) {
+      setTotalChapters(verifiedTotal || custom);
     }
-  }, [manga.id, library, manga.chapters]);
+  }, [manga.id, library, manga.chapters, manga.displayTitle]);
 
   const handleSave = async () => {
     setSaving(true);

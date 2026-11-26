@@ -30,6 +30,7 @@ import ImportModal from "@/components/ImportModal";
 import LibraryTrackerModal from "@/components/LibraryTrackerModal";
 import { getDisplaySettings, DEFAULT_DISPLAY_SETTINGS } from "@/lib/chapterStore";
 import { getGenresForManga } from "@/lib/profileStats";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 
 export default function LibraryPage() {
   const {
@@ -135,8 +136,12 @@ export default function LibraryPage() {
     if (currentSort === "unread") {
       const libA = library.find((l) => String(l.manga_id) === String(a?.manga_id));
       const libB = library.find((l) => String(l.manga_id) === String(b?.manga_id));
-      const unreadA = Math.max(0, (libA?.total_chapters || 0) - (libA?.progress_chapter || 0));
-      const unreadB = Math.max(0, (libB?.total_chapters || 0) - (libB?.progress_chapter || 0));
+      const verA = libA ? getVerifiedSchedule(libA.manga_id, libA.manga_title, undefined, libA.total_chapters || undefined) : null;
+      const verB = libB ? getVerifiedSchedule(libB.manga_id, libB.manga_title, undefined, libB.total_chapters || undefined) : null;
+      const totalA = (verA?.isVerifiedInDb && (verA.totalChapters || verA.latestChapter)) ? (verA.totalChapters || verA.latestChapter) : (libA?.total_chapters || 0);
+      const totalB = (verB?.isVerifiedInDb && (verB.totalChapters || verB.latestChapter)) ? (verB.totalChapters || verB.latestChapter) : (libB?.total_chapters || 0);
+      const unreadA = Math.max(0, (totalA || 0) - (libA?.progress_chapter || 0));
+      const unreadB = Math.max(0, (totalB || 0) - (libB?.progress_chapter || 0));
       return unreadB - unreadA;
     }
     return 0;
@@ -206,8 +211,12 @@ export default function LibraryPage() {
       return timeB - timeA;
     }
     if (currentSort === "unread") {
-      const unreadA = Math.max(0, (a.total_chapters || 0) - a.progress_chapter);
-      const unreadB = Math.max(0, (b.total_chapters || 0) - b.progress_chapter);
+      const verA = getVerifiedSchedule(a.manga_id, a.manga_title, undefined, a.total_chapters || undefined);
+      const verB = getVerifiedSchedule(b.manga_id, b.manga_title, undefined, b.total_chapters || undefined);
+      const totalA = (verA.isVerifiedInDb && (verA.totalChapters || verA.latestChapter)) ? (verA.totalChapters || verA.latestChapter) : (a.total_chapters || 0);
+      const totalB = (verB.isVerifiedInDb && (verB.totalChapters || verB.latestChapter)) ? (verB.totalChapters || verB.latestChapter) : (b.total_chapters || 0);
+      const unreadA = Math.max(0, (totalA || 0) - a.progress_chapter);
+      const unreadB = Math.max(0, (totalB || 0) - b.progress_chapter);
       return unreadB - unreadA;
     }
     return 0;
@@ -712,7 +721,10 @@ export default function LibraryPage() {
           {sortedLibraryItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {sortedLibraryItems.map((entry) => {
-                const total = entry.total_chapters;
+                const verified = getVerifiedSchedule(entry.manga_id, entry.manga_title, undefined, entry.total_chapters || undefined);
+                const total = verified.isVerifiedInDb && (verified.totalChapters || verified.latestChapter)
+                  ? (verified.totalChapters || verified.latestChapter)
+                  : entry.total_chapters;
                 const unread = total ? Math.max(0, total - entry.progress_chapter) : null;
 
                 return (
@@ -759,7 +771,7 @@ export default function LibraryPage() {
                         <div className="flex items-center justify-between gap-2 mt-2">
                           <div className="text-xs font-mono text-[#94a1b5]">
                             Ch. <span className="font-bold text-white">{entry.progress_chapter}</span>
-                            {displaySettings.showLatestChapter && entry.total_chapters ? ` / ${entry.total_chapters}` : ""}
+                            {displaySettings.showLatestChapter && total ? ` / ${total}` : ""}
                           </div>
 
                           <button

@@ -32,6 +32,7 @@ import {
 } from "@/lib/userStore";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { slugify } from "@/lib/anilist";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -100,15 +101,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshLibrary = useCallback(async (userId?: string) => {
     const targetId = userId ?? user?.id;
     const data = await getUserLibrary(targetId);
-    setLibrary(data);
+
+    // Auto-reconcile stale total_chapters in library entries using authoritative verified database
+    let hasReconciled = false;
+    const reconciled = (data || []).map((entry) => {
+      const verified = getVerifiedSchedule(entry.manga_id, entry.manga_title, undefined, entry.total_chapters || undefined);
+      const verifiedTotal = verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : null;
+      if (verifiedTotal && (!entry.total_chapters || entry.total_chapters < verifiedTotal)) {
+        hasReconciled = true;
+        return {
+          ...entry,
+          total_chapters: verifiedTotal,
+        };
+      }
+      return entry;
+    });
+
+    if (hasReconciled && typeof window !== "undefined") {
+      saveLibraryBatch(reconciled, targetId).catch(() => {});
+    }
+
+    setLibrary(reconciled);
 
     // If there is library progress, ensure activity log has entries so Heatmap, Streak & Weekly Goal register
-    if (typeof window !== "undefined" && data && data.length > 0) {
+    if (typeof window !== "undefined" && reconciled && reconciled.length > 0) {
       try {
         const existingActs = getUserActivities(500);
         const hasAnyReadActivity = existingActs.some((a) => a.action_type === "read_chapter");
         if (!hasAnyReadActivity) {
-          data.forEach((entry) => {
+          reconciled.forEach((entry) => {
             if ((entry.progress_chapter || 0) > 0) {
               logActivity({
                 manga_id: entry.manga_id,
@@ -122,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           });
         }
-      } catch {}
+      } catch { }
     }
   }, [user?.id]);
 
@@ -703,6 +724,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isAdding) {
       const inLibrary = library.some((l) => Number(l.manga_id) === mangaId);
       if (!inLibrary) {
+        const verified = getVerifiedSchedule(mangaId, mangaTitle, undefined, manga.chapters || undefined);
+        const resolvedTotal = verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : (manga.chapters || null);
         await updateLibrary({
           manga_id: mangaId,
           manga_slug: mangaSlug,
@@ -710,7 +733,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           manga_cover: coverUrl,
           status: "plan_to_read",
           progress_chapter: 0,
-          total_chapters: manga.chapters || null,
+          total_chapters: resolvedTotal,
           rating: null,
           notes: null,
         });

@@ -48,10 +48,12 @@ export default function ChapterTracker({
 
   // Determine effective total chapters from verified publication data, library, or custom override
   const verified = getVerifiedSchedule(mangaId, mangaTitle, undefined, totalChapters);
+  const verifiedTotal = verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : null;
   const confirmedTotal =
+    verifiedTotal ||
     libraryEntry?.total_chapters ||
     totalChapters ||
-    (verified.isVerifiedInDb ? (verified.totalChapters || verified.latestChapter) : null);
+    null;
 
   const initialMax = Math.max(
     1,
@@ -68,7 +70,10 @@ export default function ChapterTracker({
       const saved = localStorage.getItem(`mangapulse_total_ch_${mangaId}`);
       if (saved) {
         const parsed = parseInt(saved, 10);
-        if (parsed > 0) {
+        if (verifiedTotal && parsed < verifiedTotal) {
+          // Stale cache from previous unverified/modulo fallback: purge
+          localStorage.removeItem(`mangapulse_total_ch_${mangaId}`);
+        } else if (parsed > 0) {
           setMaxChapters(parsed);
           setHasConfirmedTotal(true);
           return;
@@ -82,7 +87,7 @@ export default function ChapterTracker({
     } else if (libraryEntry?.progress_chapter && libraryEntry.progress_chapter > initialMax) {
       setMaxChapters(libraryEntry.progress_chapter);
     }
-  }, [mangaId, confirmedTotal, libraryEntry?.progress_chapter, initialMax]);
+  }, [mangaId, confirmedTotal, verifiedTotal, libraryEntry?.progress_chapter, initialMax]);
 
   const handleSaveInlineTotal = async () => {
     const parsed = parseInt(tempTotal.trim(), 10);
@@ -248,6 +253,7 @@ export default function ChapterTracker({
       updateLibrary({
         ...match,
         progress_chapter: highest,
+        total_chapters: Math.max(match.total_chapters || 0, maxChapters),
       });
     }
   };

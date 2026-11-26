@@ -554,7 +554,10 @@ export default function DashboardPage() {
               {upNextList.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {upNextList.map((entry) => {
-                    const total = entry.total_chapters;
+                    const verified = getVerifiedSchedule(entry.manga_id, entry.manga_title, undefined, entry.total_chapters || undefined);
+                    const total = verified.isVerifiedInDb && (verified.totalChapters || verified.latestChapter)
+                      ? (verified.totalChapters || verified.latestChapter)
+                      : entry.total_chapters;
                     const progress = entry.progress_chapter || 0;
                     const percent = total && total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
 
@@ -583,7 +586,7 @@ export default function DashboardPage() {
                             </Link>
                             <div className="text-[11px] font-mono text-[#94a1b5] mt-1">
                               Chapter {progress}{" "}
-                              <span className="text-[#94a1b5]/70">/ {entry.total_chapters || "?"}</span>
+                              <span className="text-[#94a1b5]/70">/ {total || "?"}</span>
                             </div>
                             <div className="w-full bg-[#1a1f2a] h-1.5 rounded-full overflow-hidden mt-2">
                               <div
