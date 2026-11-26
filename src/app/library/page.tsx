@@ -19,11 +19,15 @@ import {
   Eye,
   Download,
   ArrowUpDown,
+  Search,
+  Filter,
+  X,
 } from "lucide-react";
 import { LibraryStatus, MangaDisplaySettings } from "@/types/manga";
 import DisplaySettingsBar from "@/components/DisplaySettingsBar";
 import ImportModal from "@/components/ImportModal";
 import { getDisplaySettings, DEFAULT_DISPLAY_SETTINGS } from "@/lib/chapterStore";
+import { getGenresForManga } from "@/lib/profileStats";
 
 export default function LibraryPage() {
   const {
@@ -50,6 +54,9 @@ export default function LibraryPage() {
   const [newColDesc, setNewColDesc] = useState("");
   const [showCreateCol, setShowCreateCol] = useState(false);
   const [displaySettings, setDisplaySettings] = useState<MangaDisplaySettings>(DEFAULT_DISPLAY_SETTINGS);
+  const [collectionSearchQuery, setCollectionSearchQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState<string>("all");
+  const [collectionsSearchQuery, setCollectionsSearchQuery] = useState("");
 
   // Per-collection and per-tab sorting
   type LibrarySortOption = "alphabetical" | "added" | "last_read" | "unread";
@@ -129,6 +136,55 @@ export default function LibraryPage() {
     }
     return 0;
   });
+
+  // Extract all unique genres from items in selected collection
+  const collectionGenres = React.useMemo(() => {
+    if (!selectedCol?.items || selectedCol.items.length === 0) return [];
+    const genreSet = new Set<string>();
+    selectedCol.items.forEach((item) => {
+      const libEntry = library.find((l) => String(l.manga_id) === String(item.manga_id));
+      const genres = libEntry?.genres?.length
+        ? libEntry.genres
+        : getGenresForManga({ manga_title: item.manga_title } as any);
+      genres.forEach((g) => {
+        if (g && typeof g === "string") genreSet.add(g);
+      });
+    });
+    return Array.from(genreSet).sort();
+  }, [selectedCol?.items, library]);
+
+  // Filter custom collection items by search query and genre
+  const filteredCollectionItems = React.useMemo(() => {
+    return sortedCollectionItems.filter((item) => {
+      // 1. Title search filter
+      if (collectionSearchQuery.trim()) {
+        const q = collectionSearchQuery.toLowerCase().trim();
+        if (!item.manga_title.toLowerCase().includes(q)) {
+          return false;
+        }
+      }
+      // 2. Genre filter
+      if (selectedGenre !== "all") {
+        const libEntry = library.find((l) => String(l.manga_id) === String(item.manga_id));
+        const genres = libEntry?.genres?.length
+          ? libEntry.genres
+          : getGenresForManga({ manga_title: item.manga_title } as any);
+        if (!genres.some((g) => g.toLowerCase() === selectedGenre.toLowerCase())) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [sortedCollectionItems, collectionSearchQuery, selectedGenre, library]);
+
+  // Filter all collections cards
+  const filteredCollections = React.useMemo(() => {
+    if (!collectionsSearchQuery.trim()) return collections;
+    const q = collectionsSearchQuery.toLowerCase().trim();
+    return collections.filter(
+      (c) => c.name.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q)
+    );
+  }, [collections, collectionsSearchQuery]);
 
   // Sort general library items
   const sortedLibraryItems = [...filteredItems].sort((a, b) => {
@@ -324,12 +380,21 @@ export default function LibraryPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#1e2430] gap-3">
                 <div>
                   <button
-                    onClick={() => setSelectedCollectionId(null)}
-                    className="text-xs font-mono text-blue-400 hover:underline mb-1 inline-block"
+                    onClick={() => {
+                      setSelectedCollectionId(null);
+                      setCollectionSearchQuery("");
+                      setSelectedGenre("all");
+                    }}
+                    className="text-xs font-mono text-blue-400 hover:underline mb-1 inline-block cursor-pointer"
                   >
                     ← Back to All Collections
                   </button>
-                  <h2 className="text-xl font-bold text-white">{selectedCol.name}</h2>
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-xl font-bold text-white">{selectedCol.name}</h2>
+                    <span className="font-mono text-[10px] text-[#94a1b5] px-2 py-0.5 rounded bg-[#0c0e12] border border-[#1e2430]">
+                      {selectedCol.items?.length || 0} Titles
+                    </span>
+                  </div>
                   {selectedCol.description && (
                     <p className="text-xs text-[#94a1b5] mt-0.5">{selectedCol.description}</p>
                   )}
@@ -362,9 +427,110 @@ export default function LibraryPage() {
                 </div>
               </div>
 
-              {sortedCollectionItems && sortedCollectionItems.length > 0 ? (
+              {/* Collection Toolbar: Search & Genre Filter */}
+              <div className="space-y-3 p-3.5 rounded-xl bg-[#0c0e12] border border-[#1e2430]">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  {/* Search Bar */}
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-[#5e6b82] absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder={`Search within "${selectedCol.name}" by title...`}
+                      value={collectionSearchQuery}
+                      onChange={(e) => setCollectionSearchQuery(e.target.value)}
+                      className="w-full bg-[#13171f] border border-[#2a3344] rounded-lg pl-9 pr-8 py-2 text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500 transition-colors"
+                    />
+                    {collectionSearchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setCollectionSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5e6b82] hover:text-white cursor-pointer"
+                        title="Clear search"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Genre Filter Dropdown */}
+                  {collectionGenres.length > 0 && (
+                    <div className="flex items-center gap-1.5 bg-[#13171f] border border-[#2a3344] px-2.5 py-1.5 rounded-lg flex-shrink-0">
+                      <Filter className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                      <span className="text-[11px] font-mono text-[#94a1b5]">Genre:</span>
+                      <select
+                        value={selectedGenre}
+                        onChange={(e) => setSelectedGenre(e.target.value)}
+                        className="bg-transparent text-xs text-white outline-none cursor-pointer font-semibold"
+                      >
+                        <option value="all" className="bg-[#141b26] text-white">
+                          All Genres ({selectedCol.items?.length || 0})
+                        </option>
+                        {collectionGenres.map((g) => (
+                          <option key={g} value={g} className="bg-[#141b26] text-white">
+                            {g}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Genre Filter Pills */}
+                {collectionGenres.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+                    <span className="text-[#5e6b82] font-mono mr-1">Filter:</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGenre("all")}
+                      className={`px-2 py-0.5 rounded-md font-mono text-[10px] transition-colors cursor-pointer ${
+                        selectedGenre === "all"
+                          ? "bg-blue-600 text-white font-bold"
+                          : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#1e2430]"
+                      }`}
+                    >
+                      All
+                    </button>
+                    {collectionGenres.slice(0, 10).map((genre) => (
+                      <button
+                        key={genre}
+                        type="button"
+                        onClick={() => setSelectedGenre(selectedGenre === genre ? "all" : genre)}
+                        className={`px-2 py-0.5 rounded-md text-[10px] transition-colors cursor-pointer ${
+                          selectedGenre === genre
+                            ? "bg-blue-600 text-white font-bold"
+                            : "bg-[#13171f] text-[#94a1b5] hover:text-white border border-[#1e2430]"
+                        }`}
+                      >
+                        {genre}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Active Filter Indicator */}
+                {(collectionSearchQuery || selectedGenre !== "all") && (
+                  <div className="flex items-center justify-between text-[11px] text-[#94a1b5] pt-1.5 border-t border-[#1e2430]">
+                    <span>
+                      Showing <strong>{filteredCollectionItems.length}</strong> of {sortedCollectionItems.length} titles
+                      {selectedGenre !== "all" && <span> in <em>{selectedGenre}</em></span>}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCollectionSearchQuery("");
+                        setSelectedGenre("all");
+                      }}
+                      className="text-blue-400 hover:text-blue-300 font-mono text-[10px] underline cursor-pointer"
+                    >
+                      Reset Filters
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {filteredCollectionItems && filteredCollectionItems.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {sortedCollectionItems.map((m) => (
+                  {filteredCollectionItems.map((m) => (
                     <div
                       key={m.manga_id}
                       className="surface-card rounded-xl overflow-hidden border border-[#1e2430] p-2.5 flex flex-col justify-between gap-2"
@@ -388,63 +554,129 @@ export default function LibraryPage() {
                     </div>
                   ))}
                 </div>
-              ) : (
+              ) : selectedCol.items?.length === 0 ? (
                 <div className="py-12 text-center text-xs text-[#5e6b82]">
-                  This collection is empty. Click &quot;+ List&quot; on any manga card to add titles.
+                  This collection is empty. Click &quot;Collection&quot; on any manga card to add titles.
+                </div>
+              ) : (
+                <div className="py-12 text-center text-xs text-[#5e6b82] space-y-2">
+                  <p>No manga in this collection match your current filters.</p>
+                  <button
+                    onClick={() => {
+                      setCollectionSearchQuery("");
+                      setSelectedGenre("all");
+                    }}
+                    className="px-3 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-blue-400 text-xs font-semibold border border-[#2a3344] transition-colors cursor-pointer"
+                  >
+                    Clear Filters
+                  </button>
                 </div>
               )}
             </div>
           ) : (
-            /* All Collections Cards Grid */
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {collections.map((col) => (
-                <div
-                  key={col.id}
-                  onClick={() => setSelectedCollectionId(col.id)}
-                  className="surface-card rounded-xl p-5 border border-[#2a3344] hover:border-[#3d4960] transition-colors cursor-pointer flex flex-col justify-between gap-4 group"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
-                        {col.name}
-                      </h3>
-                      <span className="font-mono text-[10px] text-[#94a1b5] px-1.5 py-0.5 rounded bg-[#0c0e12] border border-[#1e2430]">
-                        {col.items?.length || 0} Titles
-                      </span>
-                    </div>
-                    {col.description && (
-                      <p className="text-xs text-[#94a1b5] line-clamp-2 leading-relaxed">
-                        {col.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Thumbnail Previews */}
-                  <div className="flex items-center gap-1.5 pt-2 border-t border-[#1e2430]">
-                    {col.items && col.items.length > 0 ? (
-                      col.items.slice(0, 4).map((it) => (
-                        <div
-                          key={it.manga_id}
-                          className="w-9 h-12 rounded bg-black overflow-hidden border border-[#2a3344]"
-                        >
-                          <img
-                            src={it.manga_cover}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <span className="text-[11px] text-[#5e6b82] font-mono">
-                        No titles added yet
-                      </span>
-                    )}
-                    <span className="ml-auto text-xs font-mono text-[#94a1b5] group-hover:text-white flex items-center">
-                      Open →
-                    </span>
-                  </div>
+            /* All Collections Cards Grid with Collection Search */
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="w-4 h-4 text-[#5e6b82] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search collections by name..."
+                    value={collectionsSearchQuery}
+                    onChange={(e) => setCollectionsSearchQuery(e.target.value)}
+                    className="w-full bg-[#0c0e12] border border-[#2a3344] rounded-lg pl-9 pr-8 py-2 text-xs text-white placeholder-[#5e6b82] focus:outline-none focus:border-blue-500"
+                  />
+                  {collectionsSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setCollectionsSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5e6b82] hover:text-white cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              ))}
+                <div className="text-xs text-[#94a1b5] font-mono">
+                  {filteredCollections.length} {filteredCollections.length === 1 ? "collection" : "collections"}
+                </div>
+              </div>
+
+              {filteredCollections.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {filteredCollections.map((col) => (
+                    <div
+                      key={col.id}
+                      onClick={() => {
+                        setSelectedCollectionId(col.id);
+                        setCollectionSearchQuery("");
+                        setSelectedGenre("all");
+                      }}
+                      className="surface-card rounded-xl p-5 border border-[#2a3344] hover:border-[#3d4960] transition-colors cursor-pointer flex flex-col justify-between gap-4 group"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-bold text-white text-sm group-hover:text-blue-400 transition-colors">
+                            {col.name}
+                          </h3>
+                          <span className="font-mono text-[10px] text-[#94a1b5] px-1.5 py-0.5 rounded bg-[#0c0e12] border border-[#1e2430]">
+                            {col.items?.length || 0} Titles
+                          </span>
+                        </div>
+                        {col.description && (
+                          <p className="text-xs text-[#94a1b5] line-clamp-2 leading-relaxed">
+                            {col.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Thumbnail Previews */}
+                      <div className="flex items-center gap-1.5 pt-2 border-t border-[#1e2430]">
+                        {col.items && col.items.length > 0 ? (
+                          col.items.slice(0, 4).map((it) => (
+                            <div
+                              key={it.manga_id}
+                              className="w-9 h-12 rounded bg-black overflow-hidden border border-[#2a3344]"
+                            >
+                              <img
+                                src={it.manga_cover}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-[11px] text-[#5e6b82] font-mono">
+                            No titles added yet
+                          </span>
+                        )}
+                        <span className="ml-auto text-xs font-mono text-[#94a1b5] group-hover:text-white flex items-center">
+                          Open →
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : collections.length === 0 ? (
+                <div className="py-12 text-center text-xs text-[#5e6b82] space-y-2">
+                  <p>You haven&apos;t created any custom collections yet.</p>
+                  <button
+                    onClick={() => setShowCreateCol(true)}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors"
+                  >
+                    + Create First Collection
+                  </button>
+                </div>
+              ) : (
+                <div className="py-12 text-center text-xs text-[#5e6b82] space-y-2">
+                  <p>No collections found matching &quot;{collectionsSearchQuery}&quot;.</p>
+                  <button
+                    onClick={() => setCollectionsSearchQuery("")}
+                    className="px-3 py-1 rounded bg-[#1a1f2a] hover:bg-[#252f40] text-blue-400 text-xs font-semibold border border-[#2a3344] transition-colors cursor-pointer"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

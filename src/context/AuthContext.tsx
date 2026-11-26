@@ -52,7 +52,7 @@ interface AuthContextType {
 
   // Collections
   collections: UserCollection[];
-  createCollection: (name: string, description?: string) => Promise<void>;
+  createCollection: (name: string, description?: string) => Promise<UserCollection>;
   deleteCollection: (id: string) => Promise<void>;
   toggleInCollection: (collectionId: string, manga: MangaItem) => Promise<boolean>;
 
@@ -569,9 +569,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   /* ── Collections Actions ── */
-  const createCollection = async (name: string, description?: string) => {
-    await storeCreateCollection(name, description, user?.id);
+  const createCollection = async (name: string, description?: string): Promise<UserCollection> => {
+    const col = await storeCreateCollection(name, description, user?.id);
     await refreshCollections(user?.id);
+    return col;
   };
 
   const deleteCollection = async (id: string) => {
@@ -580,7 +581,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleInCollection = async (collectionId: string, manga: MangaItem) => {
-    const res = await storeToggleManga(collectionId, manga);
+    const mangaId = Number(manga.id);
+    const coverUrl =
+      "cover" in (manga as any)
+        ? (manga as any).cover
+        : manga.coverImage?.extraLarge ||
+          manga.coverImage?.large ||
+          manga.coverImage?.medium ||
+          "";
+
+    // Optimistic UI update so checkmark changes instantaneously
+    setCollections((prev) =>
+      prev.map((col) => {
+        if (col.id !== collectionId) return col;
+        const items = col.items || [];
+        const exists = items.some((it) => String(it.manga_id) === String(mangaId));
+        return {
+          ...col,
+          items: exists
+            ? items.filter((it) => String(it.manga_id) !== String(mangaId))
+            : [
+                ...items,
+                {
+                  id: `ci-${Date.now()}`,
+                  collection_id: collectionId,
+                  manga_id: mangaId,
+                  manga_slug: manga.slug,
+                  manga_title: manga.displayTitle,
+                  manga_cover: coverUrl,
+                  added_at: new Date().toISOString(),
+                },
+              ],
+        };
+      })
+    );
+
+    const res = await storeToggleManga(collectionId, manga, user?.id);
     await refreshCollections(user?.id);
     return res;
   };

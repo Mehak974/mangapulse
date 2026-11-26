@@ -159,25 +159,25 @@ export default function MangaDetailTabs({
             </div>
           </div>
 
-          {/* Readers Also Track (8 recommendations) inside Overview */}
+          {/* Readers Also Track (6 recommendations) inside Overview */}
           {recommendations.length > 0 && (
             <div className="space-y-4 pt-4 border-t border-[#1e2430]">
               <div className="flex items-center justify-between pb-2 border-b border-[#1e2430]">
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                    Readers Also Track ({Math.min(8, recommendations.length)} Recommendations)
+                    Readers Also Track ({Math.min(6, recommendations.length)} Recommendations)
                   </h3>
                   <p className="text-[11px] text-[#94a1b5] mt-0.5">
                     Licensed series with overlapping demographic and themes
                   </p>
                 </div>
                 <span className="text-[11px] font-mono text-[#94a1b5]">
-                  AniList Recommendation Index
+                  Verified Recommendation Index
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
-                {recommendations.slice(0, 8).map((rec) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                {recommendations.slice(0, 6).map((rec) => (
                   <MangaCard key={rec.id} manga={rec} showCountdown={false} />
                 ))}
               </div>

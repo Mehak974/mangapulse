@@ -159,7 +159,7 @@ export default async function MangaDetailPage({ params }: PageProps) {
               )}
 
               <div className="flex justify-between">
-                <span className="text-[#94a1b5]">AniList Score</span>
+                <span className="text-[#94a1b5]">Rating</span>
                 <span className="font-mono font-bold text-amber-400">
                   {ratingFormatted ? `${ratingFormatted} / 5.0` : "—"}
                 </span>

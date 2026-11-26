@@ -589,41 +589,95 @@ export async function deleteCollection(collectionId: string, userId = "guest"): 
 
 export async function toggleMangaInCollection(
   collectionId: string,
-  manga: MangaItem | { id: number; slug: string; displayTitle: string; cover: string }
+  manga: MangaItem | { id: number; slug: string; displayTitle: string; cover: string },
+  userId?: string
 ): Promise<boolean> {
-  const list = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
-  const targetCol = list.find((c) => c.id === collectionId);
-  if (!targetCol) return false;
-
-  targetCol.items = targetCol.items || [];
-  const existingIdx = targetCol.items.findIndex((it) => it.manga_id === manga.id);
+  const isUuid = isValidUuid(collectionId);
+  const mangaId = Number(manga.id);
+  const coverUrl =
+    "cover" in manga
+      ? manga.cover
+      : manga.coverImage?.extraLarge ||
+        manga.coverImage?.large ||
+        manga.coverImage?.medium ||
+        "";
 
   let added = false;
-  if (existingIdx >= 0) {
-    targetCol.items.splice(existingIdx, 1);
-    added = false;
-  } else {
-    const coverUrl =
-      "cover" in manga
-        ? manga.cover
-        : manga.coverImage.extraLarge ||
-          manga.coverImage.large ||
-          manga.coverImage.medium ||
-          "";
 
-    targetCol.items.push({
-      id: `ci-${Date.now()}`,
-      collection_id: collectionId,
-      manga_id: manga.id,
-      manga_slug: manga.slug,
-      manga_title: manga.displayTitle,
-      manga_cover: coverUrl,
-      added_at: new Date().toISOString(),
-    });
-    added = true;
+  // 1. Supabase persistence for authenticated users with UUID collections
+  if (supabase && isUuid) {
+    try {
+      const { data: existing } = await supabase
+        .from("collection_manga")
+        .select("id")
+        .eq("collection_id", collectionId)
+        .eq("manga_id", mangaId)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from("collection_manga")
+          .delete()
+          .eq("collection_id", collectionId)
+          .eq("manga_id", mangaId);
+        added = false;
+      } else {
+        await supabase.from("collection_manga").insert({
+          collection_id: collectionId,
+          manga_id: mangaId,
+          manga_slug: manga.slug,
+          manga_title: manga.displayTitle,
+          manga_cover: coverUrl,
+        });
+        added = true;
+      }
+    } catch (e) {
+      console.warn("Supabase toggle collection manga error:", e);
+    }
   }
 
-  setLocal(STORAGE_KEYS.COLLECTIONS, list);
+  // 2. LocalStorage persistence (synced cache)
+  const list = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+  let targetCol = list.find((c) => c.id === collectionId);
+
+  if (!targetCol && isUuid) {
+    targetCol = {
+      id: collectionId,
+      user_id: userId || "local",
+      name: "Collection",
+      description: null,
+      is_private: false,
+      created_at: new Date().toISOString(),
+      items: [],
+    };
+    list.push(targetCol);
+  }
+
+  if (targetCol) {
+    targetCol.items = targetCol.items || [];
+    const existingIdx = targetCol.items.findIndex(
+      (it) => String(it.manga_id) === String(mangaId)
+    );
+
+    if (existingIdx >= 0) {
+      targetCol.items.splice(existingIdx, 1);
+      if (!isUuid) added = false;
+    } else {
+      targetCol.items.push({
+        id: `ci-${Date.now()}`,
+        collection_id: collectionId,
+        manga_id: mangaId,
+        manga_slug: manga.slug,
+        manga_title: manga.displayTitle,
+        manga_cover: coverUrl,
+        added_at: new Date().toISOString(),
+      });
+      if (!isUuid) added = true;
+    }
+
+    setLocal(STORAGE_KEYS.COLLECTIONS, list);
+  }
+
   return added;
 }
 
