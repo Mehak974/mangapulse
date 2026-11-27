@@ -9,8 +9,9 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId") || undefined;
     const email = searchParams.get("email") || undefined;
     const role = searchParams.get("role") || undefined;
+    const createdAt = searchParams.get("createdAt") || undefined;
 
-    const stats = getPromoStats(userId, email, role);
+    const stats = getPromoStats(userId, email, role, createdAt);
     return NextResponse.json(stats);
   } catch (err: any) {
     return NextResponse.json(
@@ -23,13 +24,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, email, role } = body || {};
+    const { userId, email, role, createdAt } = body || {};
 
     if (!userId) {
       return NextResponse.json({ error: "Missing required userId" }, { status: 400 });
     }
 
-    const result = await claimFoundingPatronSlot(userId, email, role);
+    const result = await claimFoundingPatronSlot(userId, email, role, createdAt);
     return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json(

@@ -44,6 +44,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<UserProfile | null>;
   refreshProfile: () => Promise<void>;
+  applySupporterUpgrade: (tier: string) => Promise<void>;
 
   // Library
   library: UserLibraryEntry[];
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (hasReconciled && typeof window !== "undefined") {
-      saveLibraryBatch(reconciled, targetId).catch(() => {});
+      saveLibraryBatch(reconciled, targetId).catch(() => { });
     }
 
     setLibrary(reconciled);
@@ -339,6 +340,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else if (event === "SIGNED_OUT") {
             setUser(null);
             setStoredUser(null);
+            setLibrary([]);
+            setCollections([]);
+            setNotifications([]);
           }
         }
       );
@@ -414,6 +418,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         setUser(u);
         setStoredUser(u);
+        setLibrary([]);
+        setCollections([]);
+        setNotifications([]);
         await Promise.all([refreshLibrary(u.id), refreshCollections(u.id), refreshNotifications(u.id)]);
         return { success: true };
       }
@@ -461,6 +468,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
           setUser(u);
           setStoredUser(u);
+          setLibrary([]);
+          setCollections([]);
+          setNotifications([]);
+          await Promise.all([refreshLibrary(u.id), refreshCollections(u.id), refreshNotifications(u.id)]);
           return { success: true };
         }
       }
@@ -510,6 +521,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setUser(null);
     setStoredUser(null);
+    setLibrary([]);
+    setCollections([]);
+    setNotifications([]);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("mangapulse_library");
+      localStorage.removeItem("mangapulse_collections");
+      localStorage.removeItem("mangapulse_notifications");
+      localStorage.removeItem("mangapulse_activities");
+      window.dispatchEvent(new Event("mangapulse-profile-updated"));
+    }
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -584,6 +605,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn("Could not refresh profile:", err);
     }
   }, []);
+
+  const applySupporterUpgrade = useCallback(async (tier: string) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated: UserProfile = {
+        ...prev,
+        is_supporter: true,
+        supporter_tier: tier,
+      };
+      setStoredUser(updated);
+      return updated;
+    });
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("mangapulse-profile-updated"));
+      window.dispatchEvent(new Event("mangapulse-supporter-updated"));
+    }
+    await refreshProfile();
+  }, [refreshProfile]);
 
   /* ── Library Actions ── */
   const updateLibrary = async (
@@ -794,6 +833,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateProfile,
         refreshProfile,
+        applySupporterUpgrade,
 
         library,
         refreshLibrary: (uid?: string) => refreshLibrary(uid ?? user?.id),

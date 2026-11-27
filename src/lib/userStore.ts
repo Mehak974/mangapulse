@@ -119,23 +119,23 @@ export function getRandomCoverPreset(): string {
   return COVER_PRESETS[idx].url;
 }
 
+// Scoped key helper to isolate each user's library and collections per device
+export function getUserScopedKey(baseKey: string, userId?: string | null): string {
+  if (userId && isValidUuid(userId)) {
+    return `${baseKey}_${userId}`;
+  }
+  const current = getStoredUser();
+  if (current?.id && isValidUuid(current.id)) {
+    return `${baseKey}_${current.id}`;
+  }
+  return `${baseKey}_guest`;
+}
+
 // Safe LocalStorage helpers
 function getLocal<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
     const raw = localStorage.getItem(key);
-    if (!raw && key === STORAGE_KEYS.LIBRARY) {
-      const legacy = localStorage.getItem("mangareader_library_v1") || localStorage.getItem("mangapulse_user_library");
-      if (legacy) {
-        try {
-          const parsed = JSON.parse(legacy);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            localStorage.setItem(key, legacy);
-            return parsed as T;
-          }
-        } catch { }
-      }
-    }
     return raw ? JSON.parse(raw) : fallback;
   } catch {
     return fallback;
@@ -313,7 +313,8 @@ function isValidUuid(id?: string | null): boolean {
 }
 
 export async function getUserLibrary(userId?: string): Promise<UserLibraryEntry[]> {
-  const localItems = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.LIBRARY, userId);
+  const localItems = getLocal<UserLibraryEntry[]>(scopedKey, []);
 
   if (supabase && isValidUuid(userId)) {
     try {
@@ -324,17 +325,8 @@ export async function getUserLibrary(userId?: string): Promise<UserLibraryEntry[
         .order("updated_at", { ascending: false });
 
       if (!error && data) {
-        if (data.length > 0) {
-          setLocal(STORAGE_KEYS.LIBRARY, data);
-          return data as UserLibraryEntry[];
-        }
-        // If Supabase returned 0 items but local storage has tracked/imported items,
-        // sync them up to Supabase so they don't get lost on page refresh!
-        if (localItems.length > 0) {
-          saveLibraryBatch(localItems, userId).catch(() => { });
-          return localItems;
-        }
-        return [];
+        setLocal(scopedKey, data);
+        return data as UserLibraryEntry[];
       }
     } catch (e) {
       console.warn("Supabase library fetch error:", e);
@@ -385,7 +377,8 @@ export async function saveLibraryEntry(
     }
   }
 
-  const list = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.LIBRARY, entry.user_id);
+  const list = getLocal<UserLibraryEntry[]>(scopedKey, []);
   const idx = list.findIndex((it) => it.manga_id === entry.manga_id);
 
   const full: UserLibraryEntry = savedDbRecord || {
@@ -407,7 +400,7 @@ export async function saveLibraryEntry(
   if (idx >= 0) list[idx] = full;
   else list.unshift(full);
 
-  setLocal(STORAGE_KEYS.LIBRARY, list);
+  setLocal(scopedKey, list);
   return full;
 }
 
@@ -419,6 +412,7 @@ export async function saveLibraryBatch(
   const now = new Date().toISOString();
   const targetUserId = userId || "guest";
   const isTargetUserValidUuid = isValidUuid(userId);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.LIBRARY, targetUserId);
 
   // 1. Bulk upsert to Supabase if logged in with valid UUID
   if (supabase && isTargetUserValidUuid) {
@@ -462,7 +456,7 @@ export async function saveLibraryBatch(
         .order("updated_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
-        setLocal(STORAGE_KEYS.LIBRARY, data);
+        setLocal(scopedKey, data);
         return data as UserLibraryEntry[];
       }
     } catch (e) {
@@ -471,7 +465,7 @@ export async function saveLibraryBatch(
   }
 
   // 2. Local storage bulk sync
-  const list = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []);
+  const list = getLocal<UserLibraryEntry[]>(scopedKey, []);
   for (const entry of entries) {
     const idx = list.findIndex((it) => it.manga_id === entry.manga_id);
     const full: UserLibraryEntry = {
@@ -493,7 +487,7 @@ export async function saveLibraryBatch(
     else list.unshift(full);
   }
 
-  setLocal(STORAGE_KEYS.LIBRARY, list);
+  setLocal(scopedKey, list);
   return list;
 }
 
@@ -510,15 +504,17 @@ export async function deleteLibraryEntry(mangaId: number, userId?: string): Prom
     }
   }
 
-  const list = getLocal<UserLibraryEntry[]>(STORAGE_KEYS.LIBRARY, []).filter(
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.LIBRARY, userId);
+  const list = getLocal<UserLibraryEntry[]>(scopedKey, []).filter(
     (it) => it.manga_id !== mangaId
   );
-  setLocal(STORAGE_KEYS.LIBRARY, list);
+  setLocal(scopedKey, list);
 }
 
 /* ────────────────────────── COLLECTIONS ────────────────────────── */
 
 export async function getUserCollections(userId?: string): Promise<UserCollection[]> {
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.COLLECTIONS, userId);
   const isUserUuid = isValidUuid(userId);
   if (supabase && isUserUuid) {
     try {
@@ -530,7 +526,7 @@ export async function getUserCollections(userId?: string): Promise<UserCollectio
 
       if (!error && data) {
         // Merge Supabase collections with local default collections so they never disappear
-        const localList = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+        const localList = getLocal<UserCollection[]>(scopedKey, DEFAULT_COLLECTIONS);
         const localDefaults = localList.filter((c) => !isValidUuid(c.id));
         const merged: UserCollection[] = [...(data as UserCollection[])];
         for (const def of localDefaults) {
@@ -538,6 +534,7 @@ export async function getUserCollections(userId?: string): Promise<UserCollectio
             merged.push(def);
           }
         }
+        setLocal(scopedKey, merged);
         return merged;
       }
     } catch (e) {
@@ -545,7 +542,7 @@ export async function getUserCollections(userId?: string): Promise<UserCollectio
     }
   }
 
-  return getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+  return getLocal<UserCollection[]>(scopedKey, DEFAULT_COLLECTIONS);
 }
 
 export async function createCollection(
@@ -582,9 +579,10 @@ export async function createCollection(
     }
   }
 
-  const list = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.COLLECTIONS, userId);
+  const list = getLocal<UserCollection[]>(scopedKey, DEFAULT_COLLECTIONS);
   list.unshift(newCol);
-  setLocal(STORAGE_KEYS.COLLECTIONS, list);
+  setLocal(scopedKey, list);
   return newCol;
 }
 
@@ -601,10 +599,11 @@ export async function deleteCollection(collectionId: string, userId = "guest"): 
     }
   }
 
-  const list = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS).filter(
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.COLLECTIONS, userId);
+  const list = getLocal<UserCollection[]>(scopedKey, DEFAULT_COLLECTIONS).filter(
     (c) => c.id !== collectionId
   );
-  setLocal(STORAGE_KEYS.COLLECTIONS, list);
+  setLocal(scopedKey, list);
 }
 
 export async function toggleMangaInCollection(
@@ -669,7 +668,8 @@ export async function toggleMangaInCollection(
   }
 
   // 2. LocalStorage persistence (synced cache)
-  const list = getLocal<UserCollection[]>(STORAGE_KEYS.COLLECTIONS, DEFAULT_COLLECTIONS);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.COLLECTIONS, userId);
+  const list = getLocal<UserCollection[]>(scopedKey, DEFAULT_COLLECTIONS);
   let targetCol = list.find((c) => c.id === collectionId);
 
   if (!targetCol && isUuid) {
@@ -707,7 +707,7 @@ export async function toggleMangaInCollection(
       if (!isUuid) added = true;
     }
 
-    setLocal(STORAGE_KEYS.COLLECTIONS, list);
+    setLocal(scopedKey, list);
   }
 
   return added;
@@ -716,34 +716,39 @@ export async function toggleMangaInCollection(
 /* ────────────────────────── NOTIFICATIONS ────────────────────────── */
 
 export async function getUserNotifications(userId?: string): Promise<NotificationItem[]> {
-  return getLocal<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.NOTIFICATIONS, userId);
+  return getLocal<NotificationItem[]>(scopedKey, INITIAL_NOTIFICATIONS);
 }
 
-export function markNotificationRead(id: string): void {
-  const list = getLocal<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
+export function markNotificationRead(id: string, userId?: string): void {
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.NOTIFICATIONS, userId);
+  const list = getLocal<NotificationItem[]>(scopedKey, INITIAL_NOTIFICATIONS);
   const item = list.find((n) => n.id === id);
   if (item) {
     item.is_read = true;
-    setLocal(STORAGE_KEYS.NOTIFICATIONS, list);
+    setLocal(scopedKey, list);
   }
 }
 
-export function markAllNotificationsRead(): void {
-  const list = getLocal<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
+export function markAllNotificationsRead(userId?: string): void {
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.NOTIFICATIONS, userId);
+  const list = getLocal<NotificationItem[]>(scopedKey, INITIAL_NOTIFICATIONS);
   list.forEach((n) => (n.is_read = true));
-  setLocal(STORAGE_KEYS.NOTIFICATIONS, list);
+  setLocal(scopedKey, list);
 }
 
 export function addNotification(
   title: string,
   message: string,
   url?: string,
-  mangaId?: number
+  mangaId?: number,
+  userId?: string
 ): NotificationItem {
-  const list = getLocal<NotificationItem[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.NOTIFICATIONS, userId);
+  const list = getLocal<NotificationItem[]>(scopedKey, INITIAL_NOTIFICATIONS);
   const item: NotificationItem = {
     id: `notif-${Date.now()}`,
-    user_id: "local",
+    user_id: userId || "local",
     manga_id: mangaId || null,
     title,
     message,
@@ -753,62 +758,24 @@ export function addNotification(
     created_at: new Date().toISOString(),
   };
   list.unshift(item);
-  setLocal(STORAGE_KEYS.NOTIFICATIONS, list);
+  setLocal(scopedKey, list);
   return item;
 }
 
 /* ────────────────────────── ACTIVITIES ────────────────────────── */
 
-export function getUserActivities(limit = 20): ActivityItem[] {
-  const list = getLocal<ActivityItem[]>(STORAGE_KEYS.ACTIVITIES, []);
+export function getUserActivities(limit = 20, userId?: string): ActivityItem[] {
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.ACTIVITIES, userId);
+  const list = getLocal<ActivityItem[]>(scopedKey, []);
   if (list.length === 0) {
-    // Only return demo seed on localhost development, NEVER in production!
-    const isLocalhost =
-      typeof window !== "undefined" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1" ||
-        window.location.hostname.endsWith(".localhost"));
-    if (isLocalhost && process.env.NODE_ENV !== "production") {
-      return [
-        {
-          id: "act-init-1",
-          manga_id: 30013,
-          manga_title: "One Piece",
-          manga_slug: "one-piece",
-          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx30013-ulvx9q4Sg1ba.jpg",
-          action_type: "read_chapter",
-          chapter_number: 1120,
-          timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-        },
-        {
-          id: "act-init-2",
-          manga_id: 105778,
-          manga_title: "Chainsaw Man",
-          manga_slug: "chainsaw-man",
-          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx105778-FdzPn3S1t0rB.jpg",
-          action_type: "status_change",
-          new_status: "reading",
-          timestamp: new Date(Date.now() - 3600000 * 8).toISOString(),
-        },
-        {
-          id: "act-init-3",
-          manga_id: 101517,
-          manga_title: "Jujutsu Kaisen",
-          manga_slug: "jujutsu-kaisen",
-          manga_cover: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx101517-76bUvW7vLz1B.jpg",
-          action_type: "rated",
-          rating: 9.5,
-          timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-        },
-      ];
-    }
     return [];
   }
   return list.slice(0, limit);
 }
 
-export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp"> & { timestamp?: string }): void {
-  const list = getLocal<ActivityItem[]>(STORAGE_KEYS.ACTIVITIES, []);
+export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp"> & { timestamp?: string; user_id?: string }): void {
+  const scopedKey = getUserScopedKey(STORAGE_KEYS.ACTIVITIES, activity.user_id);
+  const list = getLocal<ActivityItem[]>(scopedKey, []);
   const item: ActivityItem = {
     ...activity,
     manga_cover: activity.manga_cover || "/placeholder-cover.png",
@@ -817,7 +784,7 @@ export function logActivity(activity: Omit<ActivityItem, "id" | "timestamp"> & {
   };
   list.unshift(item);
   if (list.length > 1000) list.length = 1000;
-  setLocal(STORAGE_KEYS.ACTIVITIES, list);
+  setLocal(scopedKey, list);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("mangapulse-activity-logged"));
   }

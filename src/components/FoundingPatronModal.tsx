@@ -5,8 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Crown, Sparkles, X, Check, ShieldCheck, Zap, BookOpen } from "lucide-react";
 
 export default function FoundingPatronModal() {
-  const { user, updateProfile } = useAuth();
+  const { user, applySupporterUpgrade } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isFounding, setIsFounding] = useState(false);
   const [remainingSlots, setRemainingSlots] = useState<number>(11);
   const [isClaiming, setIsClaiming] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -30,18 +31,18 @@ export default function FoundingPatronModal() {
 
     if (alreadyClaimedLocal || alreadyDismissed) return;
 
-    // If user already has Patron or is a paying supporter, do not interrupt
-    if (user.is_supporter && user.supporter_tier === "patron") return;
+    // Query live promo status with user creation date
+    const queryUrl = `/api/promo/founding-patron?userId=${encodeURIComponent(user.id)}&email=${encodeURIComponent(user.email || "")}&role=${encodeURIComponent(user.role || "")}&createdAt=${encodeURIComponent(user.created_at || "")}`;
 
-    // Query live promo status
-    fetch(`/api/promo/founding-patron?userId=${encodeURIComponent(user.id)}&email=${encodeURIComponent(user.email || "")}&role=${encodeURIComponent(user.role || "")}`)
+    fetch(queryUrl)
       .then((res) => res.json())
       .then((data) => {
         if (data && typeof data.remainingSlots === "number") {
           setRemainingSlots(data.remainingSlots);
+          setIsFounding(Boolean(data.isFoundingCohort));
           if (data.isEligible && data.remainingSlots > 0) {
             // Delay slightly after mount for a smooth arrival experience
-            const timer = setTimeout(() => setIsOpen(true), 800);
+            const timer = setTimeout(() => setIsOpen(true), 600);
             return () => clearTimeout(timer);
           }
         }
@@ -68,16 +69,14 @@ export default function FoundingPatronModal() {
           userId: user.id,
           email: user.email,
           role: user.role,
+          createdAt: user.created_at,
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        // Upgrade client state immediately
-        await updateProfile({
-          is_supporter: true,
-          supporter_tier: "patron",
-        });
+        // Upgrade client state immediately across AuthContext and localStorage
+        await applySupporterUpgrade("patron");
 
         localStorage.setItem(`mangapulse_founding_patron_claimed_${user.id}`, "true");
         setIsSuccess(true);
@@ -103,7 +102,7 @@ export default function FoundingPatronModal() {
         {/* Close Button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-lg bg-[#1a202c]/80 hover:bg-[#2d3748] border border-[#2a3344] text-[#94a1b5] hover:text-white transition-colors flex items-center justify-center z-10"
+          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-lg bg-[#1a202c]/80 hover:bg-[#2d3748] border border-[#2a3344] text-[#94a1b5] hover:text-white transition-colors flex items-center justify-center z-10 cursor-pointer"
           aria-label="Close promotion dialog"
         >
           <X className="w-4 h-4" />
@@ -120,15 +119,26 @@ export default function FoundingPatronModal() {
             </div>
 
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/25">
-              <span>🎉 Special Launch Promotion</span>
+              <span>{isFounding ? "👑 Founding Pioneer Reward" : "🎉 Special Launch Promotion"}</span>
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
-              Congratulations! You Fall Under Our Special Promotion
+              {isFounding
+                ? "Welcome Back! Claim Your 1-Month VIP Patron Mode"
+                : "Congratulations! You Fall Under Our Special Promotion"}
             </h2>
 
             <p className="text-xs sm:text-sm text-[#94a1b5] leading-relaxed max-w-md">
-              You are eligible for <strong className="text-white">1st Month Free Upgrade</strong> to VIP Manga Patron! Enjoy 30 days of founding member perks with zero credit card required.
+              {isFounding ? (
+                <>
+                  As one of MangaPulse&apos;s first 9 registered pioneers, you helped launch the platform! Enjoy{" "}
+                  <strong className="text-white">1st Month Free Upgrade</strong> to VIP Manga Patron with zero credit card required.
+                </>
+              ) : (
+                <>
+                  You are eligible for <strong className="text-white">1st Month Free Upgrade</strong> to VIP Manga Patron! Enjoy 30 days of founding member perks with zero credit card required.
+                </>
+              )}
             </p>
           </div>
 
@@ -137,16 +147,20 @@ export default function FoundingPatronModal() {
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-white flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>Founding Member Passes</span>
+                <span>{isFounding ? "Founding Pioneer Pass" : "Open Founding Passes"}</span>
               </span>
               <span className="font-mono text-amber-400 font-bold">
-                {remainingSlots} of 20 spots remaining
+                {isFounding ? `${remainingSlots} of 9 spots remaining` : `${remainingSlots} of 11 spots remaining`}
               </span>
             </div>
             <div className="w-full bg-[#1e2430] h-2 rounded-full overflow-hidden">
               <div
                 className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 h-full rounded-full transition-all duration-700"
-                style={{ width: `${Math.round(((20 - remainingSlots) / 20) * 100)}%` }}
+                style={{
+                  width: isFounding
+                    ? `${Math.round(((9 - remainingSlots) / 9) * 100)}%`
+                    : `${Math.round(((11 - remainingSlots) / 11) * 100)}%`,
+                }}
               />
             </div>
           </div>
@@ -206,16 +220,20 @@ export default function FoundingPatronModal() {
                 className="w-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-sm py-3.5 px-6 rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
               >
                 <Crown className="w-4 h-4" />
-                <span>{isClaiming ? "Activating Patron Mode..." : "Enjoy Patron Mode — Claim 1st Month Free"}</span>
+                <span>
+                  {isClaiming
+                    ? "Activating VIP Patron..."
+                    : "Enjoy Patron Mode — Activate 1st Month Free"}
+                </span>
               </button>
 
               <div className="flex items-center justify-center gap-4 text-[11px] text-[#5e6b82]">
-                <span>Zero payment info required</span>
+                <span>Zero credit card required</span>
                 <span>•</span>
                 <button
                   type="button"
                   onClick={handleDismiss}
-                  className="hover:text-[#94a1b5] transition-colors underline underline-offset-2"
+                  className="hover:text-[#94a1b5] transition-colors underline underline-offset-2 cursor-pointer"
                 >
                   Maybe later
                 </button>
