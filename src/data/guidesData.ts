@@ -28,248 +28,382 @@ export interface GuideArticle {
 
 export const EDITORIAL_GUIDES: GuideArticle[] = [
   {
-    slug: "official-manga-simulpub-guide-2026",
-    title: "The Complete Guide to Legal Manga Simulpubs in 2026: MANGA Plus, Viz Media, and K Manga Compared",
-    summary: "Everything you need to know about how official Japanese manga simulpubs work, free chapter access policies, simultaneous timezone drops, and why legal reading directly supports mangaka.",
-    category: "Industry Guide",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 24, 2026",
-    readTime: "8 min read",
-    coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop",
-    tags: ["Simulpub", "MANGA Plus", "Viz Media", "Kodansha", "Legal Reading"],
-    sections: [
+    "slug": "official-manga-simulpub-guide-2026",
+    "title": "The Complete Guide to Legal Manga Simulpubs in 2026: MANGA Plus, Viz Media, and K Manga Compared",
+    "summary": "Everything you need to know about how official Japanese manga simulpubs work, free chapter access policies, simultaneous timezone drops, and why legal reading directly supports mangaka.",
+    "category": "Industry Guide",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 24, 2026",
+    "readTime": "12 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/30013-hbbRZqC5MjYh.jpg",
+    "tags": [
+      "Simulpub",
+      "MANGA Plus",
+      "Viz Media",
+      "Kodansha",
+      "Legal Reading"
+    ],
+    "sections": [
       {
-        heading: "1. The Evolution of Simultaneous Publishing (Simulpub)",
-        body: [
+        "heading": "1. The Evolution of Simultaneous Publishing (Simulpub)",
+        "body": [
           "For decades, international manga fans had to endure months—sometimes years—of latency between a chapter's debut in Japanese print magazines like Weekly Shonen Jump, Weekly Shonen Magazine, or Young Jump, and its licensed English release abroad. This delay was the primary driver of unauthorized scanlations and aggregator websites.",
           "Starting in 2019 and maturing into the standard industry model by 2026, major Japanese publishing powerhouses (Shueisha, Kodansha, Kadokawa, and Shogakukan) launched direct-to-consumer global simulpub services. Today, new chapters of flagship series like One Piece, Chainsaw Man, Sakamoto Days, and Blue Lock are professionally translated and published worldwide at the exact same second the magazine hits shelves in Tokyo (00:00 JST / 15:00 UTC).",
+          "Simulpubs have permanently transformed the cultural consumption of manga. Social media discussions, reaction videos, and community theories now occur in real time globally, eliminating spoilers that previously plagued international fans who had to wait months for volume localizations."
         ],
-        callout: {
-          title: "Global Simulpub Drop Times",
-          text: "Weekly Shonen Jump releases every Sunday at 15:00 UTC (10:00 AM EST / 00:00 JST Monday). Shonen Jump+ digital series (Chainsaw Man, Dandadan) drop on Tuesdays at the same hour.",
-        },
+        "callout": {
+          "title": "Global Simulpub Drop Times",
+          "text": "Weekly Shonen Jump releases every Sunday at 15:00 UTC (10:00 AM EST / 00:00 JST Monday). Shonen Jump+ digital series (Chainsaw Man, Dandadan) drop on Tuesdays at the same hour."
+        }
       },
       {
-        heading: "2. Platform Comparison: Where and How to Read Legally",
-        body: [
-          "Understanding the access policies of each legal provider helps readers maximize free content while knowing when a micro-subscription offers superior value:",
+        "heading": "2. The Big Three Platforms: MANGA Plus, Viz Media, and K Manga",
+        "body": [
+          "Understanding where to read legally requires familiarizing oneself with the primary licensing portals. Shueisha operates MANGA Plus, offering global access to Weekly Shonen Jump, Jump+, Young Jump, and Ultra Jump titles. Viz Media manages the North American Shonen Jump digital vault and localized graphic novels. Kodansha launched K Manga to bring Fairy Tail, Attack on Titan, Blue Lock, and Vinland Saga into an official simulpub ecosystem.",
+          "Each platform balances free promotional access against affordable subscription vaults designed for binge-reading older catalogue series."
         ],
-        table: {
-          headers: ["Platform", "Owner", "Key Series", "Free Access Model", "Pricing"],
-          rows: [
-            ["MANGA Plus", "Shueisha", "One Piece, Chainsaw Man, Dandadan, Kagurabachi", "First 3 & Last 3 chapters free on web; mobile app unlocks 1 free read of all chapters", "Free (Web/App) or $1.99–$4.99/mo Max Tier"],
-            ["Viz Media (Shonen Jump)", "Viz Media", "Jujutsu Kaisen, My Hero Academia, Bleach, Naruto", "3 latest chapters free on web & app", "$2.99/month for 15,000+ chapter vault"],
-            ["K Manga", "Kodansha", "Blue Lock, Attack on Titan, Rent-a-Girlfriend, Wind Breaker", "Daily free tickets & first few chapters", "Freemium / Coin-based ticket system"],
-            ["BookWalker Global", "Kadokawa", "Delicious in Dungeon, Overlord, Eminence in Shadow", "Occasional free volume campaigns & previews", "Direct digital volume purchases"],
+        "table": {
+          "headers": [
+            "Platform",
+            "Publisher",
+            "Flagship Titles",
+            "Free Chapter Policy",
+            "Subscription / Pricing"
           ],
-        },
+          "rows": [
+            [
+              "MANGA Plus",
+              "Shueisha",
+              "One Piece, Chainsaw Man, Dandadan, Kagurabachi",
+              "First 3 & Last 3 chapters free on web; mobile app unlocks 1 free read of all chapters",
+              "Free (Web/App) or $1.99–$4.99/mo Max Tier"
+            ],
+            [
+              "Viz Shonen Jump",
+              "Viz Media",
+              "Jujutsu Kaisen, My Hero Academia, Bleach",
+              "Latest 3 chapters 100% free; 100 chapters/day backlog archive access",
+              "$2.99/month digital vault subscription"
+            ],
+            [
+              "K Manga",
+              "Kodansha",
+              "Blue Lock, Vinland Saga, Tokyo Revengers, Rent-a-Girlfriend",
+              "Free daily point tickets for catalog titles; latest chapters ticket/point gated",
+              "Coin / Ticket point economy model"
+            ]
+          ]
+        }
       },
       {
-        heading: "3. The 'First 3 & Latest 3' Access Model Explained",
-        body: [
-          "A frequent question among newcomers is why legal platforms make the newest chapters free while gating the middle volumes. This strategy is deliberately modeled after traditional broadcast television and magazine syndication.",
+        "heading": "3. The Economic Impact on Original Creators",
+        "body": [
           "Publishers treat current simulpubs as promotional loss-leaders: active readers stay engaged week-to-week for free on ad-supported platforms like MANGA Plus, which in turn drives massive merchandise, anime viewership, and physical tankobon volume sales. If a reader wishes to binge the archived backlog, affordable subscription vaults (like Viz's $2.99/month tier) or digital volume purchases (on BookWalker or Amazon Kindle) provide clean, high-resolution scans without invasive pop-up ads or malware.",
-        ],
+          "Every read on an official platform directly counts toward verified readership metrics that publishers use to renew serializations, greenlight anime adaptations, and allocate production budgets for studio assistants."
+        ]
       },
       {
-        heading: "4. Why Official Outbound Links Directly Protect the Industry",
-        body: [
-          "Unlike unauthorized aggregator sites that rip images, compress pages, and inject aggressive advertising scripts, official platforms directly compensate the authors, translators, and editorial staff who produce the stories we cherish.",
-          "Every click, page view, and subscription on verified services sends concrete royalty signals to publisher licensing committees. By utilizing countdown directories like MangaPulse that funnel readers straight to verified publisher links, fans actively help sustain creator livelihoods and ensure long-running serializations remain commercially viable.",
-        ],
-      },
-    ],
+        "heading": "4. Global Timezone Conversion Guide",
+        "body": [
+          "Because Japanese magazines publish on Mondays at midnight JST, the worldwide simulpub occurs simultaneously during daytime or evening hours across the Western Hemisphere:",
+          "• UTC: Sunday at 15:00 UTC (Standard Reference)",
+          "• US Eastern Time (EDT/EST): Sunday at 11:00 AM (EDT) / 10:00 AM (EST)",
+          "• US Pacific Time (PDT/PST): Sunday at 08:00 AM (PDT) / 07:00 AM (PST)",
+          "• Central European Time (CET/CEST): Sunday at 17:00 (CEST) / 16:00 (CET)",
+          "• India Standard Time (IST): Sunday at 20:30 IST",
+          "• Japan Standard Time (JST): Monday at 00:00 JST (Midnight)"
+        ]
+      }
+    ]
   },
   {
-    slug: "chainsaw-man-reading-order-and-release-guide",
-    title: "Chainsaw Man Complete Reading Order: Public Safety Arc, Academy Saga, and Chapter Release Schedule",
-    summary: "A comprehensive guide to Tatsuki Fujimoto's dark fantasy masterpiece: understanding Part 1 vs Part 2, bi-weekly release cadences, key devil contracts, and where to follow official Tuesday chapter drops.",
-    category: "Reading Guide",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 23, 2026",
-    readTime: "7 min read",
-    coverImage: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
-    tags: ["Chainsaw Man", "Tatsuki Fujimoto", "Shonen Jump+", "Reading Order"],
-    sections: [
-      {
-        heading: "1. Structure: Public Safety Saga vs. Academy Saga",
-        body: [
-          "Chainsaw Man is divided into two distinct narrative sagas with radically different thematic focus, pacing, and publication venues:",
-          "• Part 1: Public Safety Arc (Chapters 1–97): Serialized in Weekly Shonen Jump from December 2018 to December 2020. Follows Denji's induction into Public Safety Devil Hunters under the enigmatic Makima, concluding the Control Devil arc.",
-          "• Part 2: Academy Saga (Chapter 98–Present): Launched on Shonen Jump+ in July 2022. Shifts focus to Asa Mitaka, a high school outcast who forms a dual-consciousness pact with Yoru, the War Devil, before Denji's inevitable re-emergence into the plot.",
-        ],
-      },
-      {
-        heading: "2. Understanding Fujimoto's Bi-Weekly Schedule Rhythm",
-        body: [
-          "Unlike Weekly Shonen Jump's strict 7-day schedule, Part 2 publishes digitally on Shonen Jump+. This platform allows creator Tatsuki Fujimoto greater creative flexibility with page counts and release frequency.",
-          "While most chapters drop on a weekly cadence, Fujimoto frequently alternates between one-week and two-week production cycles. MangaPulse tracks these official announcements in real time, calculating countdown timers directly against publisher schedule adjustments to keep readers updated without guessing.",
-        ],
-        callout: {
-          title: "Simulpub Timing for Chainsaw Man",
-          text: "Official chapters drop Tuesdays at 15:00 UTC / 08:00 AM PDT simultaneously on MANGA Plus and the Viz Media Shonen Jump portal.",
-        },
-      },
-      {
-        heading: "3. Where to Read Official Chainsaw Man Chapters",
-        body: [
-          "• Active Simulpub: The three latest chapters (e.g. Chapters 190, 191, 192) are always available 100% free on MANGA Plus without registration.",
-          "• Complete Backlog: The entire 97-chapter Public Safety saga and Part 1 archive can be read on Viz Media with an active $2.99/mo Shonen Jump subscription.",
-          "• Physical Tankobon: Volumes 1 through 18 are published in English by Viz Media and available across all major book retailers.",
-        ],
-      },
+    "slug": "chainsaw-man-reading-order-and-release-guide",
+    "title": "Chainsaw Man Complete Reading Order: Public Safety Arc, Academy Saga & Release Cadence",
+    "summary": "A comprehensive roadmap for Tatsuki Fujimoto's dark urban fantasy: Part 1 vs Part 2 structure, biweekly Jump+ schedules, anime adaptation boundaries, and official reading sources.",
+    "category": "Reading Guide",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 23, 2026",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/105778-ppHaMwown6c9.jpg",
+    "tags": [
+      "Chainsaw Man",
+      "Tatsuki Fujimoto",
+      "Reading Order",
+      "Shonen Jump+",
+      "Denji"
     ],
-  },
-  {
-    slug: "one-piece-final-saga-reading-guide",
-    title: "One Piece Final Saga Guide: Egghead Island, Elbaf Lore, and Eiichiro Oda's 2026 Release Schedule",
-    summary: "Navigating Eiichiro Oda's monumental Final Saga: understanding Void Century lore drops, the 3-weeks-on 1-week-off publication cadence, and official Sunday simulpub timing.",
-    category: "Series Analysis",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 22, 2026",
-    readTime: "9 min read",
-    coverImage: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
-    tags: ["One Piece", "Eiichiro Oda", "Final Saga", "Weekly Shonen Jump"],
-    sections: [
+    "sections": [
       {
-        heading: "1. The Scope of the Final Saga",
-        body: [
-          "Following the climactic raid on Onigashima in the Wano Country arc, Eiichiro Oda officially declared the start of One Piece's Final Saga with Chapter 1054 in July 2022. Rather than a single island arc, the Final Saga represents the systematic resolution of every narrative mystery planted over 28 years of continuous publication.",
-          "The saga opened with the groundbreaking Egghead Island arc (Chapters 1058–1125), revealing Dr. Vegapunk, the true origin of Devil Fruits, the Ancient Weapons, and the broadcast that changed the world balance. As the Straw Hat Pirates navigate toward the mythical giant kingdom of Elbaf, the narrative stakes have reached an unprecedented peak.",
+        "heading": "1. The Two Halves of Chainsaw Man",
+        "body": [
+          "Tatsuki Fujimoto's genre-deconstructing phenomenon is cleanly bifurcated into two distinct narrative halves that function as companion sagas with contrasting protagonists, narrative pacing, and thematic focal points.",
+          "Part 1: Public Safety Arc (Chapters 1–97 / Volumes 1–11): Serialized in Weekly Shonen Jump from December 2018 to December 2020. This arc follows Denji, a debt-ridden teen fused with the Chainsaw Devil Pochita, who is recruited into Makima's Experimental Public Safety Division 4 alongside Aki Hayakawa and the Blood Fiend Power.",
+          "Part 2: Academy Arc (Chapter 98 onward / Volume 12 onward): Transitioned to Shueisha's digital Shonen Jump+ platform in July 2022. Part 2 shifts perspective to Asa Mitaka, an introverted high school girl forced into a symbiotic pact with Yoru, the War Devil, seeking to defeat Chainsaw Man."
         ],
+        "callout": {
+          "title": "Anime vs. Manga Starting Point",
+          "text": "Season 1 of MAPPA's anime adaptation covers Chapters 1 through 38 (ending after the Katana Man Arc). To continue directly into the manga narrative, begin reading at Chapter 39 (the Bomb Girl Arc starring Reze)."
+        }
       },
       {
-        heading: "2. Demystifying Oda's Scheduled Break Rhythm",
-        body: [
-          "One of the most common points of confusion for readers is the frequency of 'break weeks'. In modern Weekly Shonen Jump, Eiichiro Oda operates under a medically mandated schedule designed to protect author health:",
-          "• Author Breaks: Oda typically produces three consecutive chapters, followed by a planned one-week break.",
-          "• Magazine Holidays: In addition to author breaks, Weekly Shonen Jump pauses for four national Japanese holiday periods each year: Golden Week (May), Obon Festival (August), and double Christmas/New Year holiday issues (December/January).",
-          "Understanding this rhythm ensures readers know that a gap week does not signify a hiatus or delays—it is part of the planned production calendar reflected accurately in MangaPulse's countdown engine.",
+        "heading": "2. Complete Arc Breakdown & Progression Table",
+        "body": [
+          "To navigate Fujimoto's rapid-fire narrative shifts, refer to the verified arc breakdown below:"
         ],
-        callout: {
-          title: "Sunday Release Hour",
-          text: "Official One Piece chapters release Sundays at 15:00 UTC (11:00 AM EDT / 00:00 JST Monday) exclusively on MANGA Plus by Shueisha and Viz Media.",
-        },
-      },
-      {
-        heading: "3. Official Reading Platforms & Free Chapter Access",
-        body: [
-          "• MANGA Plus: Read the three latest chapters completely free on both web browser and mobile app.",
-          "• Viz Media Vault: Access the entire 1,100+ chapter library with a single low-cost membership.",
-          "• Official Outbound Reading: All chapter releases on MangaPulse link directly to these licensed distributors, ensuring zero exposure to intrusive ad networks or scanlation inaccuracies.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "where-to-legally-read-korean-manhwa-guide",
-    title: "Where to Legally Read Korean Manhwa in 2026: WEBTOON, Tapas, and Tappytoon Breakdown",
-    summary: "A practical guide to the booming world of South Korean vertical webtoons: comparing coin economies, daily pass mechanics, localization quality, and the best legal platforms for Solo Leveling, Omniscient Reader, and Tower of God.",
-    category: "Platform Comparison",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 21, 2026",
-    readTime: "7 min read",
-    coverImage: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1200&auto=format&fit=crop",
-    tags: ["Manhwa", "Webtoon", "Tapas", "Tappytoon", "Korean Comics"],
-    sections: [
-      {
-        heading: "1. The Rise of the Vertical Scroll Format",
-        body: [
-          "Unlike traditional Japanese manga formatted for right-to-left black-and-white page turns, South Korean manhwa is engineered from the ground up for mobile vertical scrolling with full-color digital illustration. Supported by powerhouse webtoon studios like Redice Studio and publisher giants like Naver and Kakao, manhwa has become a dominant global storytelling medium.",
-        ],
-      },
-      {
-        heading: "2. Comparing the Top Legal Manhwa Services",
-        body: [
-          "Different Korean platforms utilize distinct monetization and unlock systems:",
-        ],
-        table: {
-          headers: ["Platform", "Owner", "Key Series", "Free Model", "Monetization"],
-          rows: [
-            ["WEBTOON", "Naver Corp", "Tower of God, Lore Olympus, Omniscient Reader, Lookism", "Free weekly chapter drops on schedule", "Fast Pass (Coins) for advance releases"],
-            ["Tapas", "Kakao Entertainment", "Solo Leveling: Ragnarok, The Beginning After The End", "Wait-Until-Free (WUF) every 24h", "Ink currency for permanent chapter unlocks"],
-            ["Tappytoon", "Contents First", "Solo Leveling (Original), Return of the Blossoming Blade", "Daily Point unlocks & ad-supported keys", "Points / Tokens for instant chapter reads"],
+        "table": {
+          "headers": [
+            "Part",
+            "Arc Name",
+            "Chapter Range",
+            "Key Conflict / Significance"
           ],
-        },
+          "rows": [
+            [
+              "Part 1",
+              "Introduction / Bat Devil Arc",
+              "Chapters 1–12",
+              "Denji joins Public Safety; rescue of Power's cat Meowy"
+            ],
+            [
+              "Part 1",
+              "Eternity Devil Arc",
+              "Chapters 13–21",
+              "Hotel time-dilation trap; introduction of Division 4 dynamic"
+            ],
+            [
+              "Part 1",
+              "Katana Man Arc",
+              "Chapters 22–38",
+              "Coordinated assassination of devil hunters; MAPPA S1 finale"
+            ],
+            [
+              "Part 1",
+              "Bomb Girl Arc (Reze)",
+              "Chapters 39–52",
+              "Denji's romance with Reze; high-speed urban demolition"
+            ],
+            [
+              "Part 1",
+              "International Assassins Arc",
+              "Chapters 53–70",
+              "Global hitmen target Denji; descent into the Darkness Devil's Hell"
+            ],
+            [
+              "Part 1",
+              "Gun Devil & Control Devil Arcs",
+              "Chapters 71–97",
+              "Aki's tragic transformation; Makima's true nature exposed"
+            ],
+            [
+              "Part 2",
+              "Justice Devil & Dating Arcs",
+              "Chapters 98–122",
+              "Asa Mitaka's awakening; aquarium date with Denji"
+            ],
+            [
+              "Part 2",
+              "Falling Devil & Church Arcs",
+              "Chapters 123–155",
+              "Primal fear culinary raid; the Chainsaw Man worship cult"
+            ],
+            [
+              "Part 2",
+              "Tokyo Facility Raid & Aging Devil",
+              "Chapters 156+",
+              "Denji's dismemberment and rescue; devil conceptual erasure"
+            ]
+          ]
+        }
       },
       {
-        heading: "3. Wait-Until-Free vs. Fast Pass: How to Read Economically",
-        body: [
-          "Most platforms offer generous free tiers for patient readers. Under Naver WEBTOON's model, a completed series might employ 'Daily Pass' (one free chapter every 24 hours), while an ongoing series offers all historical chapters free with only the most recent 3–5 chapters requiring Fast Pass coins.",
-          "By tracking release countdowns on MangaPulse, readers know exactly when an advance chapter converts to free public access without needing to refresh multiple apps.",
-        ],
+        "heading": "3. Understanding Fujimoto's Biweekly Schedule",
+        "body": [
+          "Unlike Weekly Shonen Jump magazine titles that follow a strict weekly cadence, Chainsaw Man Part 2 publishes digitally on Shonen Jump+. Fujimoto alternates between weekly drops and biweekly pauses to preserve drafting quality and conduct cinematic storyboard experimentation.",
+          "MangaPulse tracks these release announcements directly from Shueisha's Jump+ editorial team, updating the live countdown clock immediately whenever a creative break week is scheduled."
+        ]
       },
-    ],
+      {
+        "heading": "4. Official Digital Simulpub Reading",
+        "body": [
+          "Official chapters drop Tuesdays at 15:00 UTC / 08:00 AM PDT simultaneously on MANGA Plus and the Viz Media Shonen Jump portal.",
+          "• Active Simulpub: The three latest chapters (e.g. Chapters 190, 191, 192) are always available 100% free on MANGA Plus without registration.",
+          "• Complete Vault Archive: Viz Media's $2.99/month digital subscription unlocks the complete 97-chapter Public Safety Arc and all accumulated Part 2 chapters with high-resolution digital double-page spreads."
+        ]
+      }
+    ]
   },
   {
-    slug: "dandadan-manga-guide-and-simulpub-timing",
-    title: "Dandadan Manga Guide: Yukinobu Tatsu's Style, Shonen Jump+ Schedule, and Anime Connections",
-    summary: "Exploring the manic brilliance of Yukinobu Tatsu's supernatural action romcom: panel choreography, assistant roots with Tatsuki Fujimoto, Science SARU anime adaptation, and Tuesday release timing.",
-    category: "Series Analysis",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 20, 2026",
-    readTime: "6 min read",
-    coverImage: "https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&auto=format&fit=crop",
-    tags: ["Dandadan", "Yukinobu Tatsu", "Shonen Jump+", "Science SARU"],
-    sections: [
-      {
-        heading: "1. The Genius of Yukinobu Tatsu",
-        body: [
-          "Before taking the manga world by storm with Dandadan in April 2021, creator Yukinobu Tatsu honed his craft as a key background and action assistant for two of modern manga's most celebrated innovators: Tatsuki Fujimoto (Chainsaw Man, Fire Punch) and Yuji Kaku (Hell's Paradise: Jigokuraku).",
-          "This apprenticeship is evident in every issue of Dandadan: the series effortlessly balances grotesque yokai body horror, retro sci-fi alien technology, breakneck martial arts choreography, and genuine teen romantic melodrama.",
-        ],
-      },
-      {
-        heading: "2. The Tuesday Simulpub Phenomenon",
-        body: [
-          "Serialized on Shueisha's digital platform Shonen Jump+, Dandadan consistently ranks among the top three most-read titles worldwide every Tuesday. The series has distinguished itself through astonishing artistic consistency—regularly delivering intricate, hand-inked double-page spreads on an unbroken weekly schedule.",
-        ],
-        callout: {
-          title: "Release Time",
-          text: "New Dandadan chapters release every Tuesday at 15:00 UTC / 00:00 JST Wednesday simultaneously on MANGA Plus with verified English localization.",
-        },
-      },
-      {
-        heading: "3. Official Reading Options",
-        body: [
-          "• Read on MANGA Plus: All new chapters are accessible free of charge on web browsers without creating an account.",
-          "• Physical Volumes: Published in North America by Viz Media, with collector editions featuring full-color title pages.",
-        ],
-      },
+    "slug": "one-piece-final-saga-reading-guide",
+    "title": "One Piece Final Saga Reading Guide: Egghead Island, Elbaf, and the Road to Laugh Tale",
+    "summary": "Navigate the climactic final era of Eiichiro Oda's record-breaking epic: the Void Century revelations, the 5 Elders, Elbaf lore, and where to catch up on official simulpubs.",
+    "category": "Reading Guide",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 22, 2026",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/30013-hbbRZqC5MjYh.jpg",
+    "tags": [
+      "One Piece",
+      "Eiichiro Oda",
+      "Final Saga",
+      "Egghead Island",
+      "Shonen Jump"
     ],
+    "sections": [
+      {
+        "heading": "1. The Dawn of the Final Saga",
+        "body": [
+          "Following the climactic raid on Onigashima in the Wano Country arc, Eiichiro Oda officially declared the start of One Piece's Final Saga with Chapter 1054 in July 2022. Rather than a single island arc, the Final Saga represents the systematic resolution of every narrative mystery planted over 28 years of continuous publication.",
+          "The saga marks a dramatic escalation in pacing: long-standing off-screen players like Shanks, Blackbeard, Cross Guild (Buggy, Crocodile, Mihawk), Monkey D. Dragon's Revolutionary Army, and the shadowy sovereign Imu are actively clashing across the Grand Line, dismantling the delicate balance of the Three Great Powers."
+        ]
+      },
+      {
+        "heading": "2. The Egghead Island Arc: Scientific Truths & The Void Century",
+        "body": [
+          "Beginning in Chapter 1058 and concluding around Chapter 1125, the Egghead Arc fundamentally shifted the geopolitical stakes of One Piece. Visiting Future Island Egghead, the Straw Hats allied with Dr. Vegapunk and his six satellite bodies, discovering that the futuristic technology was actually an archeological remnant of the highly advanced Ancient Kingdom erased 800 years ago during the Void Century.",
+          "Vegapunk's worldwide broadcast broadcasted the deepest secrets of the world: that the planet is steadily sinking beneath rising sea levels caused by ancient weapon activation, that Joy Boy was the Grand Line's first pirate, and that the war that ended the Void Century never truly ceased."
+        ]
+      },
+      {
+        "heading": "3. Arrival at Elbaf: The Giant Warrior Kingdom",
+        "body": [
+          "Following the Buster Call on Egghead, the Straw Hats sailed aboard the Great Eirik alongside Dorry and Brogy to Elbaf—the fabled Norse-inspired realm of giant warriors teased as far back as Little Garden (Chapter 115) and Enies Lobby.",
+          "Elbaf serves as the pivotal bridge to the fourth and final Road Poneglyph, holding ancient lore regarding Sun God Nika, Prince Loki, and the ancient warrior covenant necessary to challenge the World Government."
+        ],
+        "callout": {
+          "title": "Oda's 3-Weeks-On, 1-Week-Off Schedule",
+          "text": "Eiichiro Oda typically drafts chapters on a consistent 3-weeks-active, 1-week-creative-break rhythm. MangaPulse tracks editorial break notices directly from Weekly Shonen Jump magazine issue covers."
+        }
+      },
+      {
+        "heading": "4. Official Digital Simulpub Reading Options",
+        "body": [
+          "Official One Piece chapters release Sundays at 15:00 UTC (11:00 AM EDT / 00:00 JST Monday) exclusively on MANGA Plus by Shueisha and Viz Media.",
+          "• MANGA Plus: Read the three latest chapters 100% free with official professional translations without creating an account.",
+          "• Viz Shonen Jump App: The premier archive option in the United States and Canada, granting access to all 1,130+ chapters for $2.99/month."
+        ]
+      }
+    ]
   },
   {
-    slug: "digital-manga-licensing-and-scanlation-impact",
-    title: "How Digital Manga Licensing Works: The Economics of Official Simulpubs vs Pirate Aggregators",
-    summary: "A transparent look at the economics of digital manga publishing: translation rights, localization overhead, revenue distribution to mangaka, and why directory countdowns help funnel readers to legal platforms.",
-    category: "Industry Analysis",
-    author: "MangaPulse Editorial Staff",
-    publishedAt: "November 19, 2026",
-    readTime: "8 min read",
-    coverImage: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1200&auto=format&fit=crop",
-    tags: ["Licensing", "Publishing", "Industry Economics", "Copyright"],
-    sections: [
+    "slug": "where-to-legally-read-korean-manhwa-guide",
+    "title": "The Ultimate Guide to Reading Korean Webtoons & Manhwa Legally in 2026",
+    "summary": "A comprehensive breakdown of legal South Korean webtoon platforms: WEBTOON, Tapas, Tappytoon, Lezhin, and KakaoPage. Avoid pirate aggregators and support original creators.",
+    "category": "Platform Comparison",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 21, 2026",
+    "readTime": "10 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/105398-4UrEhdqZukrg.jpg",
+    "tags": [
+      "Manhwa",
+      "Webtoons",
+      "Tapas",
+      "Tappytoon",
+      "Legal Reading"
+    ],
+    "sections": [
       {
-        heading: "1. Anatomy of a Digital Licensing Deal",
-        body: [
-          "When a manga is licensed for international distribution, a complex legal and creative pipeline is set in motion. The process involves direct contracts between the Japanese master rights holder (e.g., Shueisha or Kodansha) and the localizing publisher (e.g., Viz Media or Kodansha USA).",
-          "Licensing fees, minimum guarantees, translation royalties, and digital rights management (DRM) agreements ensure that a percentage of every subscription dollar and purchased volume directly funds the original mangaka and their studio assistants.",
-        ],
+        "heading": "1. The Explosive Rise of Korean Webtoons",
+        "body": [
+          "South Korean webtoons have become a dominant global storytelling medium, inspiring multi-million-dollar anime adaptations (Solo Leveling, Tower of God, Omniscient Reader, Lookism) and international live-action Netflix sensations (Sweet Home, All of Us Are Dead, Moving).",
+          "Designed specifically for vertical scrolling on smartphones with vibrant full-color panels, webtoons operate on fundamentally different publishing pipelines than traditional Japanese black-and-white print manga."
+        ]
       },
       {
-        heading: "2. The Real Cost of Scraper Sites",
-        body: [
+        "heading": "2. Overview of the Top 5 Official Webtoon Platforms",
+        "body": [
+          "• 1. WEBTOON (Naver): The largest digital comic platform in the world. Houses flagship original serializations including Tower of God, I'm the Max-Level Newbie, True Beauty, and Lore Olympus. The majority of completed and ongoing series support free daily reading via the 'Daily Pass' mobile app system.",
+          "• 2. Tapas (Kakao Entertainment): Kakao's primary Western distribution arm. Specializes in hit action-fantasy and villainess regression manhwa, featuring Solo Leveling, A Returner's Magic Should Be Special, and The Beginning After the End.",
+          "• 3. Tappytoon: A major Korean publisher partnership hub featuring top titles like Solo Leveling, Solo Max-Level Newbie, and The Villainess Lives Again. Offers chapter rental models and free ticket rewards for ad watching.",
+          "• 4. Lezhin Comics: Renowned for premium mature, romance, thriller, and psychological series with high visual production standards.",
+          "• 5. Manta Comics: Operates a unique flat-rate 'all-you-can-read' subscription model for a low monthly fee ($4.99/mo), eliminating pay-per-chapter microtransactions for its entire catalogue."
+        ]
+      },
+      {
+        "heading": "3. Supporting Creators vs The Risk of Pirate Aggregators",
+        "body": [
+          "Unlike Japanese publishing houses that employ in-house editorial staff, Korean manhwa are produced by creative studios (such as REDICE Studio, YLab, and Studio Dragon) where colorists, sketch artists, line inducers, and 3D background modelers work under rigorous weekly deadlines.",
+          "Pirate scanlation aggregators siphon billions of pageviews away from legal apps, jeopardizing artist health compensation, studio viability, and licensing budgets. Reading on official apps directly funds the hard-working studio artists behind the canvas."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "dandadan-manga-guide-and-simulpub-timing",
+    "title": "Dandadan Manga Guide: Yōkai Folklore, Sci-Fi Aliens, and Tuesday Simulpub Release Timing",
+    "summary": "Everything you need to know about Yukinobu Tatsu's chaotic masterpiece: Momo and Okarun's relationship, supernatural power systems, urban legends, and Jump+ drop schedules.",
+    "category": "Series Analysis",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 20, 2026",
+    "readTime": "9 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/132029-V1x9JAh3G8QK.jpg",
+    "tags": [
+      "Dandadan",
+      "Yukinobu Tatsu",
+      "Shonen Jump+",
+      "Momo",
+      "Okarun"
+    ],
+    "sections": [
+      {
+        "heading": "1. The Creative Mastermind Behind Dandadan",
+        "body": [
+          "Before creating Dandadan in April 2021, Yukinobu Tatsu honed his craft as the principal lead assistant to Tatsuki Fujimoto on Chainsaw Man and Fire Punch, as well as Yuji Kaku on Hell's Paradise: Jigokuraku. This elite pedigree is immediately apparent in Dandadan's visual mastery.",
+          "Tatsu seamlessly synthesizes high-concept sci-fi (alien abductions, subterranean cloning facilities, mechanical battles) with traditional Japanese urban folklore (Turbo Granny, Acrobatic Silky, Evil Gun, Reiko Kashima), wrapped in the tender, awkward teenage romantic comedy of protagonists Momo Ayase and Ken 'Okarun' Takakura."
+        ]
+      },
+      {
+        "heading": "2. The Central Dynamic: Momo, Okarun, and the Lost Kintama",
+        "body": [
+          "The series kicks off when Momo (who believes in ghosts but rejects extraterrestrials) and Okarun (an occult enthusiast obsessed with UFOs who rejects spirits) wager each other to visit paranormal hotspots. When both phenomena prove horrifyingly real, Okarun is cursed by the legendary Turbo Granny, losing his spirit balls (golden spheres imbued with immense spiritual energy).",
+          "What follows is an exhilarating cross-country quest across Kamikoshi to reclaim Okarun's missing anatomy while defending Earth from invading alien syndicates (Serpoians, Kur, Subterraneans) alongside an eccentric found family of spirit-wielding high schoolers."
+        ]
+      },
+      {
+        "heading": "3. Weekly Release Schedule on Shonen Jump+",
+        "body": [
+          "Dandadan publishes on Shueisha's digital Shonen Jump+ platform in Japan and releases globally every Tuesday at 15:00 UTC (10:00 AM EST / 00:00 JST Wednesday).",
+          "Official chapters are published on MANGA Plus with free access to the three most recent chapters. English physical volumes are localized and published by Viz Media with full-color cover jackets and bonus author commentaries."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "digital-manga-licensing-and-scanlation-impact",
+    "title": "How Digital Manga Licensing Works: The Economics of Official Simulpubs vs Pirate Aggregators",
+    "summary": "A transparent look at the economics of digital manga publishing: translation rights, localization overhead, revenue distribution to mangaka, and why directory countdowns help funnel readers to legal platforms.",
+    "category": "Industry Analysis",
+    "author": "MangaPulse Editorial Staff",
+    "publishedAt": "November 19, 2026",
+    "readTime": "9 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/101517-FrJtb3Th3HtF.jpg",
+    "tags": [
+      "Licensing",
+      "Publishing",
+      "Industry Economics",
+      "Copyright"
+    ],
+    "sections": [
+      {
+        "heading": "1. Anatomy of a Digital Licensing Deal",
+        "body": [
+          "When a manga is licensed for international distribution, a complex legal and creative pipeline is set in motion. The process involves direct contracts between the Japanese master rights holder (e.g., Shueisha, Kodansha, or Kadokawa) and the localizing publisher (e.g., Viz Media, Kodansha USA, or Seven Seas).",
+          "Licensing fees, minimum guarantees, translation royalties, lettering adaptations, and digital rights management (DRM) agreements ensure that a percentage of every subscription dollar and purchased volume directly funds the original mangaka and their studio assistants."
+        ]
+      },
+      {
+        "heading": "2. The Real Cost of Scraper Sites",
+        "body": [
           "Pirate aggregator sites operate with virtually zero creative overhead: they scrape digital files from official servers or fan translations, inject predatory advertising networks, and generate profit without contributing a single cent to the creators who wrote and drew the stories.",
-          "This dynamic directly depresses production budgets for assistant staff, limits the likelihood of secondary adaptations (such as anime or live-action projects), and threatens the longevity of mid-tier and debut serializations that rely on strong early volume sales to survive serialization cuts.",
-        ],
+          "This dynamic directly depresses production budgets for assistant staff, limits the likelihood of secondary adaptations (such as anime or live-action projects), and threatens the longevity of mid-tier and debut serializations that rely on strong early volume sales to survive serialization cuts."
+        ]
       },
       {
-        heading: "3. The MangaPulse Independent Mission",
-        body: [
-          "MangaPulse operates strictly as an independent directory, release calendar, and reading tracker. By deliberately adopting a zero-image-hosting architecture and directing 100% of outbound traffic to verified publishers (MANGA Plus, Viz Media, Kodansha K Manga, WEBTOON, and Amazon), MangaPulse actively bridges the gap between excited fans and the legal platforms that sustain the manga industry.",
-        ],
-      },
-    ],
+        "heading": "3. The MangaPulse Independent Mission",
+        "body": [
+          "MangaPulse operates strictly as an independent directory, release calendar, and reading tracker. By deliberately adopting a zero-image-hosting architecture and directing 100% of outbound traffic to verified publishers (MANGA Plus, Viz Media, Kodansha K Manga, WEBTOON, and Amazon), MangaPulse actively bridges the gap between excited fans and the legal platforms that sustain the manga industry."
+        ]
+      }
+    ]
   },
   {
     "slug": "berserk-reading-order-and-arc-chronology-guide",
@@ -278,8 +412,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 25, 2026",
-    "readTime": "9 min read",
-    "coverImage": "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "12 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/30002-3TuoSMl20fUX.jpg",
     "tags": [
       "Berserk",
       "Reading Order",
@@ -289,34 +423,82 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     ],
     "sections": [
       {
-        "heading": "1. The Five Canonical Arcs of Berserk",
+        "heading": "1. The Architectural Structure of Kentaro Miura's Epic",
         "body": [
-          "Kentaro Miura's Berserk is widely hailed as the high watermark of grimdark fantasy storytelling. Spanning more than three decades of meticulous hand-drawn illustration, the overarching story is organized into five distinct canonical sagas: the Black Swordsman Arc (Prologue), Golden Age Arc, Conviction Arc, Millennium Falcon Arc, and Fantasia Arc.",
-          "Unlike standard chronological narratives, Berserk deliberately begins 'in media res' with an older, scarred Guts hunting Apostles with the Dragonslayer blade before jumping backward in time to examine his traumatic childhood and rise through Griffith's Band of the Hawk."
+          "Kentaro Miura's Berserk stands universally acknowledged as the pinnacle of dark fantasy manga. Over 364 chapters drawn with peerless hatching, anatomical precision, and existential weight, Miura created an indelible portrait of human resilience raging against preordained causality.",
+          "Unlike standard chronological stories, Berserk is framed across five distinct narrative movements: the Black Swordsman Arc (Prologue), the Golden Age Arc (Flashback), the Conviction Arc, the Millennium Falcon Arc, and the Fantasia Arc. Understanding why Miura structured the story non-linearly is the single most important key for new readers."
         ],
         "callout": {
-          "title": "Berserk Reading Order Rule #1",
+          "title": "Berserk Reading Order Golden Rule",
           "text": "Never skip the Black Swordsman Arc (Volumes 1–3 / Chapters 0A–0P). Even though the 1997 anime begins during the Golden Age, the manga's opening establishes the tragic thematic weight of the Brand of Sacrifice."
         }
       },
       {
-        "heading": "2. Anime Adaptations vs. The Manga Source Material",
+        "heading": "2. Arc-by-Arc Chronology & Chapter Directory",
         "body": [
-          "The legendary 1997 anime adaptation directed by Naohito Takahashi masterfully captures the emotional camaraderie and inevitable heartbreak of the Golden Age, yet cuts pivotal manga characters such as Skull Knight and Puck while stopping immediately after the Eclipse.",
-          "Conversely, the 2016/2017 CG anime attempts to cover the Conviction and early Millennium Falcon arcs, but skips the seminal 'Lost Children Chapter' entirely and suffers from compromised visual production. For the true narrative experience, reading the manga from Chapter 0A is universally recommended by the international community."
+          "Here is the complete canonical progression of Kentaro Miura's masterpiece:"
+        ],
+        "table": {
+          "headers": [
+            "Arc Name",
+            "Volume Range",
+            "Chapter Range",
+            "Key Conflict & Thematic Significance"
+          ],
+          "rows": [
+            [
+              "Black Swordsman Arc",
+              "Volumes 1–3",
+              "Chapters 0A–0P",
+              "Guts hunts Apostles in Koka Castle; introduction of the Behelit and God Hand"
+            ],
+            [
+              "Golden Age Arc",
+              "Volumes 3–14",
+              "Chapters 0P–094",
+              "The Band of the Hawk; Guts and Griffith's bond; the catastrophic Eclipse"
+            ],
+            [
+              "Conviction Arc",
+              "Volumes 14–21",
+              "Chapters 095–176",
+              "Lost Children Chapter; the Tower of Conviction; Mozgus; Griffith's rebirth"
+            ],
+            [
+              "Millennium Falcon Arc",
+              "Volumes 22–35",
+              "Chapters 177–307",
+              "Holy Demon War; the Berserker Armor; Ganishka; World Transformation"
+            ],
+            [
+              "Fantasia Arc",
+              "Volumes 35+",
+              "Chapters 308–364+",
+              "Elf Island (Skellig); Casca's memory restoration; Griffith's Falconia"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. The Critical Gaps in Anime Adaptations",
+        "body": [
+          "A frequent question among newcomers is whether watching the anime allows them to skip parts of the manga. The definitive answer is an emphatic NO.",
+          "The celebrated 1997 Nippon Television anime directed by Naohito Takahashi is a cinematic marvel of pacing and musical scoring (courtesy of Susumu Hirasawa), but it was forced by broadcast censors to omit Skull Knight, Puck the Elf, and the Black Swordsman prologue, leaving the narrative hanging immediately after the Eclipse with zero explanation of how Guts and Casca survived.",
+          "Furthermore, the 2016/2017 CG anime attempted to cover the Conviction and early Millennium Falcon arcs, but skipped the seminal 'Lost Children Chapter' (Volumes 14–16) entirely, depriving viewers of Rosine's tragic fairy metaphor and Guts' most grueling psychological crucible."
         ]
       },
       {
-        "heading": "3. Studio Gaga & Kouji Mori: Continuing Miura's Legacy",
+        "heading": "4. Studio Gaga & Kouji Mori: Continuing Miura's Vision",
         "body": [
-          "Following Kentaro Miura's tragic passing in May 2021, serialization resumed in Young Animal under the stewardship of Studio Gaga (Miura's dedicated team of studio assistants) and lifelong friend Kouji Mori, to whom Miura had confided the story's complete ending.",
-          "The continuation commits strictly to Miura's established dialogue notes and storyboard outlines, ensuring the saga reaches its intended conclusion without commercial filler."
+          "Following Kentaro Miura's untimely passing in May 2021 from acute aortic dissection, the manga community feared Berserk would remain forever unfinished. However, in June 2022, publisher Hakusensha announced that serialization would resume under the dedicated hands of Studio Gaga (Miura's team of studio assistants) and lifelong confidant Kouji Mori.",
+          "Mori is the sole person to whom Miura disclosed the entire narrative architecture—down to the exact final chapter, dialogue beats, and character resolutions—decades prior during their shared youth. Studio Gaga's continuation operates with extreme editorial discipline: if Miura did not explicitly describe a scene to Mori, it is not drawn."
         ]
       },
       {
-        "heading": "4. Where to Read and Collect Berserk Officially",
+        "heading": "5. Where to Read and Collect Berserk Officially",
         "body": [
-          "In North America and Europe, Dark Horse Comics publishes the official English translation in both standard paperbacks and prestigious oversized leatherette 'Deluxe Edition' hardcovers. Digital volumes are available legally on Dark Horse Digital, BookWalker, and Amazon Kindle."
+          "In North America and Europe, Dark Horse Comics publishes the official English localization. For physical collectors, the definitive way to experience the manga is Dark Horse's leatherette 'Berserk Deluxe Edition' oversized 7x10 hardcovers, which collect three volumes per tome with uncompressed original raster art.",
+          "Digital volumes are available through Dark Horse Digital, BookWalker, Comixology, and Amazon Kindle."
         ]
       }
     ]
@@ -328,8 +510,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 25, 2026",
-    "readTime": "8 min read",
-    "coverImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/105398-4UrEhdqZukrg.jpg",
     "tags": [
       "Solo Leveling",
       "Ragnarok",
@@ -342,22 +524,64 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         "heading": "1. The Bridge: Solo Leveling's Epilogue and Side Stories",
         "body": [
           "Following the climactic conclusion of Sung Jinwoo's battle against the Monarchs in Chapter 179 of the original webtoon, many casual readers mistakenly stopped before reading the official 21-chapter Side Story & Epilogue run (Chapters 180–200).",
-          "The Side Stories are essential canon: they depict Jinwoo resetting the timeline with the Cup of Reincarnation, marrying Cha Hae-In, living in a peaceful reconstructed world, and raising their son, Sung Suho, who inherits the latent powers of the Shadow Monarch."
-        ]
+          "The Side Stories are essential canon: they depict Jinwoo resetting the timeline with the Cup of Reincarnation, living in a peaceful reconstructed world without dimensional gates, marrying S-rank Hunter Cha Hae-In, and raising their son, Sung Suho, who inherits the latent powers of the Shadow Monarch.",
+          "In these chapters, Jinwoo realizes Suho's immature body cannot handle the immense gravitational weight of the Shadow Monarch's mana, choosing to temporarily seal Suho's memories and magical core until he matures."
+        ],
+        "callout": {
+          "title": "Canonical Reading Order",
+          "text": "Step 1: Solo Leveling Main Webtoon (Chapters 1–179) → Step 2: Canon Epilogue & Side Stories (Chapters 180–200) → Step 3: Solo Leveling: Ragnarok Webtoon (Chapter 1 onward)."
+        }
       },
       {
         "heading": "2. Enter Ragnarok: A New Cosmic Threat (The Itarim)",
         "body": [
-          "Solo Leveling: Ragnarok shifts focus from Jinwoo—who is engaged in an endless war across the dimensional boundary—to his college-aged son, Sung Suho. When extraterrestrial deities known as the 'Itarim' (Outer Gods from dead universes) seek to invade Earth to harvest its mana, Suho's sealed powers awaken.",
-          "Unlike his father, who started as an E-rank dagger assassin, Suho operates with hybrid abilities combining shadow summoning, beast transformation, and spectral telekinesis."
+          "Solo Leveling: Ragnarok shifts perspective from Jinwoo—who is engaged in an eternal war across the dimensional boundary alongside his shadow army—to his college-aged son, Sung Suho.",
+          "When extraterrestrial deities known as the 'Itarim' (Outer Gods from dead universes created after the Absolute Being's demise) seek to invade Earth to harvest its rich mana reserves, Suho's sealed powers awaken during a dungeon break at his university campus.",
+          "Unlike his father, who started as an E-rank dagger assassin, Suho operates with a versatile combat style: shadow summoning, beast transformation (from the Monarch of White Flames), and spectral telekinesis."
+        ]
+      },
+      {
+        "heading": "3. Key Factions & Power Scaling in Ragnarok",
+        "body": [
+          "Ragnarok significantly expands the cosmology established by original author Chugong:"
         ],
-        "callout": {
-          "title": "Reading Order Checklist",
-          "text": "1. Solo Leveling Main Webtoon (Ch. 1–179) → 2. Epilogue & Side Stories (Ch. 180–200) → 3. Solo Leveling: Ragnarok (Ch. 1+)."
+        "table": {
+          "headers": [
+            "Faction",
+            "Origin / Domain",
+            "Key Representatives",
+            "Role in Ragnarok"
+          ],
+          "rows": [
+            [
+              "The Shadow Monarch",
+              "Ruler of Death / Earth",
+              "Sung Jinwoo, Beru, Igris",
+              "Defending the outer cosmic dimensional rift against the Itarim"
+            ],
+            [
+              "The Itarim",
+              "Outer Deities from Dead Universes",
+              "Apostles of the Outer Gods",
+              "Invading multiple dimensions to absorb mana and replace the Absolute Being"
+            ],
+            [
+              "Sung Suho",
+              "Shadow Monarch Successor",
+              "Suho, Gray, Shadow Pets",
+              "Rebuilding Earth's Hunter defensive network and conquering dimensional dungeons"
+            ],
+            [
+              "Hunters Association",
+              "Humanity's Vanguard",
+              "Woo Jinchul, Cha Hae-In",
+              "Managing new dungeon outbreaks caused by Itarim spatial rifts"
+            ]
+          ]
         }
       },
       {
-        "heading": "3. Official Platforms for Legal Reading",
+        "heading": "4. Official Platforms for Legal Reading",
         "body": [
           "The complete Solo Leveling manhwa is officially licensed in English across Tapas, Tappytoon, and Pocket Comics. Yen Press publishes high-quality collector graphic novels and box sets under its Ize Press imprint. The Ragnarok webtoon adaptation releases on KakaoPage and Tapas."
         ]
@@ -371,8 +595,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 26, 2026",
-    "readTime": "8 min read",
-    "coverImage": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/101517-FrJtb3Th3HtF.jpg",
     "tags": [
       "Jujutsu Kaisen",
       "Culling Game",
@@ -382,23 +606,65 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     ],
     "sections": [
       {
-        "heading": "1. Where the Anime Leaves Off: Starting Chapter 138",
+        "heading": "1. The Anime-to-Manga Transition: Chapter 138",
         "body": [
-          "The conclusion of Jujutsu Kaisen Season 2 (The Shibuya Incident Arc) adapts the manga up to Chapter 137. Viewers wishing to continue immediately into the canon narrative should begin directly at Chapter 138, which initiates the Itadori Extermination Arc and sets the stage for the Culling Game.",
-          "Chapter 138 immediately introduces the political fallout in Tokyo, the Zen'in clan succession crisis, and Yuta Okkotsu's return to Japan as Yuji's designated executioner under a binding vow with the Jujutsu higher-ups."
+          "The conclusion of MAPPA's Jujutsu Kaisen Season 2 (The Shibuya Incident Arc) adapts the manga up through Chapter 137. Readers eager to know what happens next should begin directly at Chapter 138, which marks the start of the Itadori Extermination Arc and sets the stage for the Culling Game.",
+          "Chapter 138 immediately throws readers into the chaotic political aftermath of Shibuya: Gojo Satoru is sealed and declared an exile, Principal Yaga is sentenced to death, and Special Grade sorcerer Yuta Okkotsu returns from Africa under a binding vow to execute Yuji Itadori for Sukuna's atrocities."
         ]
       },
       {
-        "heading": "2. Decoding the Culling Game: Kenjaku's Master Rules",
+        "heading": "2. The Complete Post-Shibuya Arc Roadmap",
         "body": [
-          "Kenjaku's Culling Game is a nationwide death tournament engineered to optimize cursed energy across Japan and force humanity's merger with Master Tengen. Understanding the initial 8 rules is critical: players must declare participation within 19 days, kill fellow sorcerers to score points, and face cursed technique removal (death) if points stagnate.",
-          "Standout modern and ancient sorcerers—such as Kinji Hakari (Restless Gambler), Hiromi Higuruma (Deadly Sentencing), Hajime Kashimo, and Fumihiko Takaba—redefine high-level domain mechanics and strategic jujutsu combat."
+          "Here is the precise reading roadmap from Shibuya through the series climax:"
+        ],
+        "table": {
+          "headers": [
+            "Arc Name",
+            "Chapter Range",
+            "Key Events & Focus"
+          ],
+          "rows": [
+            [
+              "Itadori Extermination Arc",
+              "Chapters 138–143",
+              "Yuta hunts Yuji; Choso defends his brother; Megumi requests Yuji's help"
+            ],
+            [
+              "Perfect Preparation Arc",
+              "Chapters 144–158",
+              "Maki's massacre of the Zen'in Clan; recruiting Kinji Hakari at the fight club"
+            ],
+            [
+              "Culling Game: Tokyo Colonies",
+              "Chapters 159–175",
+              "Hiromi Higuruma's domain court; Megumi vs Reggie Star; Angel's revelation"
+            ],
+            [
+              "Culling Game: Sendai & Sakurajima",
+              "Chapters 176–198",
+              "Yuta's four-way battle; Maki reaches Toji's zero-cursed-energy enlightenment"
+            ],
+            [
+              "Shinjuku Showdown Arc",
+              "Chapters 221–271",
+              "Gojo vs Sukuna; Kashimo, Yuta, Higuruma, and Yuji's multi-wave assault"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Decoding the Culling Game: Kenjaku's 8 Master Rules",
+        "body": [
+          "Kenjaku's Culling Game is not merely a deathmatch—it is a massive cursed ritual designed to optimize cursed energy across Japan and force humanity's merger with Master Tengen.",
+          "Understanding the rules is crucial: 1. Players must declare participation within 19 days. 2. Failure results in cursed technique removal (death). 3. Non-players entering a barrier become players. 4. Killing sorcerers awards 5 points, killing civilians awards 1 point. 5. Spending 100 points allows a player to negotiate adding a new rule with the Game Master.",
+          "The high-stakes battles featuring modern prodigies (Hakari, Higuruma) and ancient resurrected sorcerers (Kashimo, Ryu Ishigoori, Takako Uro) deliver the most complex domain expansion interactions in modern manga."
         ]
       },
       {
-        "heading": "3. Official Reading Options: Weekly Simulpubs on MANGA Plus",
+        "heading": "4. Official Digital Simulpub Reading on MANGA Plus",
         "body": [
-          "All official chapters of Jujutsu Kaisen are translated and released simultaneously worldwide on Shueisha's MANGA Plus service and the Viz Media Shonen Jump portal every Sunday at 15:00 UTC (10:00 AM EST / 00:00 JST Monday). The three latest chapters are always 100% free to read without registration."
+          "All official chapters of Jujutsu Kaisen are published simultaneously worldwide on Shueisha's MANGA Plus service and the Viz Media Shonen Jump platform every Sunday at 15:00 UTC (10:00 AM EST / 00:00 JST Monday).",
+          "The three latest chapters are always 100% free to read without registration. Viz Media's $2.99/mo subscription provides access to the complete 271-chapter archive in high-resolution digital formatting."
         ]
       }
     ]
@@ -410,8 +676,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Series Analysis",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 26, 2026",
-    "readTime": "9 min read",
-    "coverImage": "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "12 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/119257-RtxJMRCunHXc.jpg",
     "tags": [
       "Omniscient Reader",
       "ORV",
@@ -423,21 +689,70 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
       {
         "heading": "1. The Premise: The Only Reader in an Apocalyptic Reality",
         "body": [
-          "Omniscient Reader's Viewpoint (ORV) tells the story of Dokja Kim, an unremarkable office contractor whose sole hobby was reading an obscure 3,149-chapter web novel titled 'Three Ways to Survive in a Ruined World' (TWSA). The instant the novel concludes, reality disintegrates as the fictional scenarios manifest in modern Seoul under the sadistic supervision of Dokbi stream broadcasters.",
-          "Armed with complete meta-knowledge of every scenario, item location, and character fate, Dokja manipulates the narrative stream while protecting the original novel's hardened protagonist, Yoo Joonghyuk."
+          "Omniscient Reader's Viewpoint (ORV) tells the story of Dokja Kim, an unremarkable office contractor whose sole solace in life was reading an obscure 3,149-chapter web novel titled 'Three Ways to Survive in a Ruined World' (TWSA). The instant the novel concludes, reality disintegrates as the fictional scenarios manifest in modern Seoul under the sadistic supervision of Dokbi stream broadcasters.",
+          "Armed with complete meta-knowledge of every scenario, item location, and character fate, Dokja manipulates the narrative stream while protecting the original novel's hardened protagonist, Yoo Joonghyuk.",
+          "What elevates ORV above conventional system regression stories is its profound philosophical meditation on the relationship between author, reader, and fictional protagonist."
         ]
       },
       {
         "heading": "2. Webtoon Adaptation vs. 551-Chapter Original Webnovel",
         "body": [
-          "Illustrated by Sleepy-C (REDICE Studio), the webtoon adaptation is celebrated for visual fidelity and dynamic action choreography. However, readers should note that the webtoon adapts approximately 1 to 1.3 webnovel chapters per webtoon episode.",
-          "The original novel, published on Munpia and completed across 551 chapters, contains deep philosophical internal monologues regarding author-reader symbiosis that are condensed visually in the comic format."
+          "Illustrated by Sleepy-C under REDICE Studio, the webtoon adaptation is celebrated for its breathtaking visual pacing and dynamic action choreography. However, readers should understand the structural conversion ratio:",
+          "• Chapter Conversion Ratio: The webtoon adapts approximately 1 to 1.3 webnovel chapters per webtoon episode. At episode 240, the comic covers roughly Chapter 210 of the 551-chapter webnovel.",
+          "• Internal Monologues: The original Munpia novel features extensive philosophical internal monologues regarding Dokja's psychological trauma and the protective nature of his 'Fourth Wall' skill that are necessarily streamlined visually in comic panels.",
+          "• Name Localization: Official translations maintain consistent naming conventions (Dokja Kim, Yoo Joonghyuk, Han Sooyoung, Shin Yoosung), unlike early unofficial fan translations."
         ]
       },
       {
-        "heading": "3. Where to Read Legally",
+        "heading": "3. Major Scenario Arcs Progression",
         "body": [
-          "The official English webtoon is serialized weekly on LINE Webtoon. The complete original webnovel is officially localized on Webnovel. Ize Press (Yen Press) publishes collector full-color physical webtoon volumes in English."
+          "Below is the strategic progression of key scenarios in the narrative:"
+        ],
+        "table": {
+          "headers": [
+            "Scenario / Arc",
+            "Webnovel Ch.",
+            "Webtoon Ep.",
+            "Core Narrative Objective"
+          ],
+          "rows": [
+            [
+              "Subway Car & Bridge",
+              "Ch. 1–15",
+              "Ep. 1–13",
+              "Initial survival; killing an organism to pass the 1st scenario"
+            ],
+            [
+              "Chungmuro & Green Zone",
+              "Ch. 16–35",
+              "Ep. 14–32",
+              "Securing landlord territory; alliance with Yoo Joonghyuk"
+            ],
+            [
+              "Absolute Throne Arc",
+              "Ch. 66–75",
+              "Ep. 63–72",
+              "Dokja destroys the Absolute Throne to refuse constellational enslavement"
+            ],
+            [
+              "Disaster of Floods (Shin Yoosung)",
+              "Ch. 93–108",
+              "Ep. 90–105",
+              "Taming the 5th scenario beast; confronting Shin Yoosung's future trauma"
+            ],
+            [
+              "Dark Castle & Demon Realm",
+              "Ch. 143–188",
+              "Ep. 140–185",
+              "73rd Demon King scenario; Dokja's heroic sacrifice and exile"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "4. Where to Read Legally",
+        "body": [
+          "The official English webtoon is serialized weekly on LINE Webtoon. The complete original webnovel is officially localized on Webnovel. Ize Press (Yen Press) publishes collector full-color physical webtoon volumes in English with special art inserts."
         ]
       }
     ]
@@ -449,8 +764,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Series Analysis",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 26, 2026",
-    "readTime": "8 min read",
-    "coverImage": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/30642-MeizzL2WDv6C.jpg",
     "tags": [
       "Vinland Saga",
       "Makoto Yukimura",
@@ -467,14 +782,54 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         ]
       },
       {
-        "heading": "2. From Revenge to Pacifism: The Farmland Turning Point",
+        "heading": "2. The Four Distinct Eras Table",
         "body": [
-          "While the first arc captivated readers with brutal combat and Askeladd's masterstroke political intrigue, the Slave Arc subverts standard action expectations. Stripped of his knives and enslaved on Ketil's farm, Thorfinn is forced to confront the hundreds of souls he slaughtered as an unthinking soldier.",
-          "Yukimura uses this quiet agricultural setting to deliver manga's most profound philosophical examination of guilt, introducing Thorfinn's vow of total non-violence and the realization that 'I have no enemies.'"
+          "Yukimura's narrative evolution is illustrated across the four major eras:"
+        ],
+        "table": {
+          "headers": [
+            "Saga / Arc Name",
+            "Chapter Range",
+            "Tone / Genre",
+            "Thorfinn's State & Philosophy"
+          ],
+          "rows": [
+            [
+              "1. War Arc (Prologue)",
+              "Chapters 1–54",
+              "Brutal Historical Action",
+              "Vengeance-driven teenage soldier consumed by Askeladd's duel obsession"
+            ],
+            [
+              "2. Slave Arc (Farmland)",
+              "Chapters 55–99",
+              "Psychological Drama",
+              "Traumatized slave on Ketil's farm; spiritual rebirth; 'I have no enemies'"
+            ],
+            [
+              "3. Eastern Expedition Arc",
+              "Chapters 100–166",
+              "Merchant Adventure & Baltic War",
+              "Trading narwhal horns to fund a pacifist settlement; confronting Jomsvikings"
+            ],
+            [
+              "4. Vinland Settlement Arc",
+              "Chapters 167–216+",
+              "Historical Tragedy & Realism",
+              "Founding Arnheid's Village in North America; native coexistence tensions"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. From Revenge to Pacifism: The Farmland Turning Point",
+        "body": [
+          "While the first arc captivated readers with brutal combat and Askeladd's masterstroke political intrigue, the Slave Arc subverts standard action expectations. Stripped of his daggers and enslaved on Ketil's farm, Thorfinn is forced to confront the hundreds of souls he slaughtered as an unthinking soldier.",
+          "Yukimura uses this quiet agricultural setting to deliver manga's most profound philosophical examination of guilt, introducing Thorfinn's vow of total non-violence and his quest to create a land free of slavery and war across the western sea."
         ]
       },
       {
-        "heading": "3. Official English Releases & Kodansha Licensing",
+        "heading": "4. Official English Releases & Kodansha Licensing",
         "body": [
           "In English, Kodansha USA publishes Vinland Saga in premium 2-in-1 hardcover editions as well as digital volume releases on BookWalker, Kindle, and Comixology. Active monthly chapters release via Kodansha's digital K Manga service."
         ]
@@ -488,8 +843,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 27, 2026",
-    "readTime": "9 min read",
-    "coverImage": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "12 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/85143-IKyCdaJKfa2M.jpg",
     "tags": [
       "Tower of God",
       "SIU",
@@ -502,20 +857,53 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         "heading": "1. The Architecture of the Tower: Rules of the Shinsu",
         "body": [
           "Created by Korean author SIU in 2010, Tower of God stands alongside Noblesse and God of High School as the foundational triumvirate of modern South Korean webtoons. The entire narrative takes place inside a colossal structure composed of at least 135 confirmed floors, each roughly the size of the North American continent.",
-          "Within the Tower, physical laws are dictated by Shinsu (Divine Water)—a versatile substance that acts as air, water, and energy. Residents who ascend are termed 'Regulars,' while those who successfully conquer the 134th floor become immortal 'Rankers.'"
+          "Within the Tower, physical laws are dictated by Shinsu (Divine Water)—a versatile substance that acts as air, water, and energy. Residents who ascend are termed 'Regulars,' while those who conquer the 134th floor become immortal 'Rankers.'"
         ]
       },
       {
-        "heading": "2. The Irregular Anomaly: Why Twenty-Fifth Baam Shakes the Hierarchy",
+        "heading": "2. The Season Breakdown Table",
         "body": [
-          "King Zahard and the 10 Great Family Heads established contracts with the Floor Guardians (Administrators) guaranteeing absolute rule over the Outer and Inner Towers. However, 'Irregulars'—beings who forced open the Tower's outer doors from the outside world without an invitation from Headon—are entirely exempt from Guardian contracts.",
+          "SIU organizes the 600+ chapter webtoon into three sweeping seasons:"
+        ],
+        "table": {
+          "headers": [
+            "Season",
+            "Episode Range",
+            "Focal Protagonist / Persona",
+            "Key Arc Milestones"
+          ],
+          "rows": [
+            [
+              "Season 1",
+              "Episodes 1–78",
+              "Twenty-Fifth Baam",
+              "The Floor of Tests, Crown Game, Hide-and-Seek, Rachel's Betrayal"
+            ],
+            [
+              "Season 2",
+              "Episodes 79–384",
+              "Jue Viole Grace (FUG Candidate)",
+              "20th Floor, Workshop Battle, Train City, Hell Train, Floor of Death, Hidden Floor"
+            ],
+            [
+              "Season 3",
+              "Episodes 385+",
+              "Baam (The Slayer Candidate)",
+              "Cage Arc, Wall of Coexistence, Nest War, Po Bidau vs Lo Po Bia Family War"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. The 10 Great Families & King Zahard",
+        "body": [
+          "King Zahard and the 10 Great Family Heads (Khun, Arie, Ha, Tu Perie, Eurasia, Po Bidau, Hendo Lok, Yeon, Ari, Lo Po Bia) established contracts with the Floor Guardians guaranteeing absolute rule over the Tower. However, 'Irregulars'—beings who forced open the Tower's outer doors from the outside world without an invitation from Headon—are entirely exempt from Guardian contracts.",
           "Baam's uncontainable shinsu absorption, innate resistance to spellcraft, and refusal to conform to Zahard's oppressive social hierarchy make him the ultimate threat to the established order."
         ]
       },
       {
-        "heading": "3. Season Breakdown and Reading Progression",
+        "heading": "4. Where to Read Legally",
         "body": [
-          "Season 1 (Episodes 1–78) follows the Floor of Tests and Rachel's betrayal. Season 2 (Episodes 79–384) introduces Jue Viole Grace, FUG, the Workshop Battle, and the Hell Train saga. Season 3 (Episodes 385+) escalates into full-scale war between Zahard's army and the Po Bidau and Lo Po Bia families.",
           "Official English translations are published weekly on LINE Webtoon, with official graphic novels localized by Ize Press (Yen Press)."
         ]
       }
@@ -528,8 +916,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Series Analysis",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 27, 2026",
-    "readTime": "9 min read",
-    "coverImage": "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "12 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/30026-JXfraiazLTQe.jpg",
     "tags": [
       "Hunter x Hunter",
       "Togashi",
@@ -541,25 +929,65 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
       {
         "heading": "1. The Voyage of the Black Whale 1",
         "body": [
-          "Following the Chimera Ant Arc and Chairman Election Arc, Yoshihiro Togashi transitioned Hunter x Hunter into what many critics consider the most cerebrally complex battle-shonen arc ever serialized: the Succession Contest Arc (Chapter 349 onward).",
+          "Following the Chimera Ant Arc and Chairman Election Arc, Yoshihiro Togashi transitioned Hunter x Hunter into what critics consider the most cerebrally complex battle-shonen arc ever serialized: the Succession Contest Arc (Chapter 349 onward).",
           "Set aboard the Black Whale 1—a gargantuan cruise vessel carrying 200,000 citizens toward the uncharted Dark Continent—the narrative follows a royal blood-sport between the 14 princes of the Kakin Empire, where only one may survive to inherit the throne."
         ]
       },
       {
-        "heading": "2. Guardian Spirit Beasts and Information Warfare",
+        "heading": "2. The 14 Princes of Kakin & Succession Battle Directory",
         "body": [
-          "Each prince receives a parasitic Guardian Spirit Beast powered by the deceased first king's Urn Ceremony. Crucially, princes cannot see their own beasts, requiring them to decipher their abilities through observation of their subordinates.",
-          "Togashi structures the arc not around physical brawl choreography, but intense information warfare, legal maneuvering, and contractual Nen conditions. Kurapika's 'Steal Chain' and 'Emperor Time' abilities carry catastrophic lifespan penalties that tick away with every second of tactical deliberation."
+          "Each prince receives a parasitic Guardian Spirit Beast powered by the deceased first king's Urn Ceremony:"
+        ],
+        "table": {
+          "headers": [
+            "Prince Rank",
+            "Prince Name",
+            "Spirit Beast / Nen Type",
+            "Key Bodyguard / Strategic Stance"
+          ],
+          "rows": [
+            [
+              "1st Prince",
+              "Benjamin",
+              "Militant / Transfer Technique",
+              "Commands Kakin Royal Army; absorbs deceased loyalists' Nen"
+            ],
+            [
+              "2nd Prince",
+              "Camilla",
+              "Counteractive 'Cat's Name'",
+              "Invites death to activate post-mortem resurrection by crushing the killer"
+            ],
+            [
+              "4th Prince",
+              "Tserriednich",
+              "Prodigious Specialist / Precognition",
+              "Parallel future sight (10 seconds); terrifying dual Guardian Beasts"
+            ],
+            [
+              "9th Prince",
+              "Halkenburg",
+              "Enhancement / Arrow Posse",
+              "Unstoppable collective Nen arrow backed by unanimous loyalist will"
+            ],
+            [
+              "14th Prince",
+              "Wobble",
+              "Infant (Spirit Beast Unmanifested)",
+              "Protected by Kurapika; focal point of the lower deck survival defense"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Kurapika's Strategic Masterclass: Emperor Time Penalties",
+        "body": [
+          "Togashi structures the arc not around physical brawl choreography, but intense information warfare, legal maneuvering, and contractual Nen conditions.",
+          "Kurapika's 'Steal Chain' allows him to temporarily drain an enemy's Nen technique, but using 'Emperor Time' (granting 100% mastery over all Nen affinities) carries a catastrophic toll: every single second spent in Emperor Time burns one hour of Kurapika's total human lifespan."
         ]
       },
       {
-        "heading": "3. The Underdeck Conflict: Phantom Troupe vs. Hisoka",
-        "body": [
-          "Concurrently on Tier 5, the surviving members of the Phantom Troupe hunt Hisoka Morow, who seeks to eradicate the Spiders after his resurrection in the Heavens Arena. Three warring mafia syndicates (Xi-Yu, Cha-R, and Heil-Ly) weaponize Nen across the ship's lower decks, creating an intricate three-way faction struggle."
-        ]
-      },
-      {
-        "heading": "4. Official Reading and Publication Navigation",
+        "heading": "4. Official English Releases & Weekly Shonen Jump Archiving",
         "body": [
           "Hunter x Hunter is published in Weekly Shonen Jump. Whenever Togashi delivers new chapter batches, they release simultaneously on MANGA Plus and Viz Media. Physical collected volumes (Volume 37 and 38) are officially distributed worldwide by Viz Media."
         ]
@@ -573,8 +1001,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Series Analysis",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 27, 2026",
-    "readTime": "8 min read",
-    "coverImage": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/106130-4UbnMTU80zur.jpg",
     "tags": [
       "Blue Lock",
       "Neo Egoist League",
@@ -591,14 +1019,56 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         ]
       },
       {
-        "heading": "2. The Five Football Philosophies",
+        "heading": "2. The Five European Philosophies & Club Breakdown",
         "body": [
-          "• Germany (Bastard München / Noel Noa): Supreme rationality, clinical efficiency, and numerical calculation.",
-          "• England (Manshine City / Chris Prince): Physical conditioning, explosive speed, and sports science optimization.",
-          "• Italy (Ubers / Marc Snuffy): Tactical organization, disciplined collective defense, and set-piece mastery.",
-          "• France (Paris X Gen / Julian Loki): Hyper-individualistic talent, hybrid styles, and mercenary speed.",
-          "• Spain (FC Barcha / Lavinho): Creative freedom, technical dribbling, and joyful artistic improvisation."
-        ]
+          "Each European team represents a distinct ideological extreme of modern football:"
+        ],
+        "table": {
+          "headers": [
+            "Stratum / Club",
+            "European League",
+            "Master Striker",
+            "Core Football Philosophy",
+            "Key Blue Lock Players"
+          ],
+          "rows": [
+            [
+              "Bastard München",
+              "German Bundesliga",
+              "Noel Noa",
+              "Logical Rationality & Numerical Efficiency",
+              "Yoichi Isagi, Michael Kaiser, Meguru Bachira (ex), Kurona"
+            ],
+            [
+              "Manshine City",
+              "English Premier League",
+              "Chris Prince",
+              "Physical Science, Speed & Muscular Power",
+              "Seishiro Nagi, Reo Mikage, Hyoma Chigiri"
+            ],
+            [
+              "Ubers",
+              "Italian Serie A",
+              "Marc Snuffy",
+              "Tactical Organization & Defensive Teamwork",
+              "Shoei Baro, Oliver Aiku, Jyubei Aryu, Ikki Niko"
+            ],
+            [
+              "Paris X Gen (PXG)",
+              "French Ligue 1",
+              "Julian Loki",
+              "Individual Ambition, Hybrid Talents & Speed",
+              "Rin Itoshi, Ryusei Shidou, Tabito Karasu, Aoshi Tokimitsu"
+            ],
+            [
+              "FC Barcha",
+              "Spanish La Liga",
+              "Lavinho",
+              "Creative Freedom, Technique & Street Dribbling",
+              "Meguru Bachira, Rensuke Kunigami (ex), Otoya"
+            ]
+          ]
+        }
       },
       {
         "heading": "3. Evolution of Ego: Meta-Vision & Direct Volley",
@@ -621,8 +1091,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 27, 2026",
-    "readTime": "8 min read",
-    "coverImage": "https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "11 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/63327-uaFaG1HAJ0tK.jpg",
     "tags": [
       "Tokyo Ghoul",
       "Sui Ishida",
@@ -639,14 +1109,54 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         ]
       },
       {
-        "heading": "2. Why Starting from Chapter 1 is Mandatory",
+        "heading": "2. Anime Adaptation vs Manga Canon Comparison",
+        "body": [
+          "To understand where the television broadcast diverged from Sui Ishida's canon writing, consult the breakdown below:"
+        ],
+        "table": {
+          "headers": [
+            "Anime Season",
+            "Episodes",
+            "Adapted Manga Range",
+            "Critical Deviations & Missing Canon"
+          ],
+          "rows": [
+            [
+              "Tokyo Ghoul (Season 1)",
+              "Episodes 1–12",
+              "Chapters 1–66",
+              "Rushed pacing; cut Dr. Kanou lab investigation and Touka/Kaneki training"
+            ],
+            [
+              "Tokyo Ghoul √A (Season 2)",
+              "Episodes 1–12",
+              "Anime Original Alternate",
+              "NON-CANON. Kaneki joins Aogiri Tree; completely erases Kaneki's anti-Aogiri faction"
+            ],
+            [
+              "Tokyo Ghoul:re (Part 1)",
+              "Episodes 1–12",
+              ":re Chapters 1–58",
+              "Assumes Root A never happened; confusing return of characters with zero setup"
+            ],
+            [
+              "Tokyo Ghoul:re (Part 2)",
+              "Episodes 13–24",
+              ":re Chapters 59–179",
+              "Crammed 121 chapters into 12 episodes (~10 chapters/ep); destroyed narrative clarity"
+            ]
+          ]
+        }
+      },
+      {
+        "heading": "3. Why Starting from Chapter 1 is Mandatory",
         "body": [
           "Because Root A was non-canon, when Studio Pierrot adapted Tokyo Ghoul:re in 2018, they treated the manga as if Root A had never occurred. Anime-only viewers were left baffled by sudden appearances of characters who were dead or omitted in Season 2.",
           "Furthermore, Ishida's breathtaking scratchboard inkwork, literary references to Franz Kafka and Hermann Hesse, and meticulous RC-cell biological lore were almost completely stripped out of the television broadcast."
         ]
       },
       {
-        "heading": "3. Official English Releases on Viz Media",
+        "heading": "4. Official English Releases on Viz Media",
         "body": [
           "Both complete series are licensed and published in official English translation by Viz Media. Deluxe 14-volume and 16-volume box sets are available at major retailers, and all digital chapters are accessible through the Viz Manga subscription library."
         ]
@@ -660,8 +1170,8 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
     "category": "Reading Guide",
     "author": "MangaPulse Editorial Staff",
     "publishedAt": "November 28, 2026",
-    "readTime": "7 min read",
-    "coverImage": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&auto=format&fit=crop",
+    "readTime": "10 min read",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/108556-iCiPfU0GU4OM.jpg",
     "tags": [
       "Spy x Family",
       "Tatsuya Endo",
@@ -678,11 +1188,44 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         ]
       },
       {
-        "heading": "2. The Forger Family Dynamic: Secrets in Plain Sight",
+        "heading": "2. The Operation Strix Architecture Table",
         "body": [
-          "To secure admission into the elite Eden Academy where Desmond's sons attend, Twilight adopts the persona of psychiatrist Loid Forger and forms an impromptu family: adopting Anya (a 6-year-old telepath escaping government laboratories) and marrying Yor Briar (a city hall clerk who moonlights as the lethal assassin 'Thorn Princess' for the Garden syndicate).",
-          "Anya is the sole character who knows everyone's secret identities, using her mind-reading abilities to steer her parents away from marital dissolution and global conflict."
-        ]
+          "Operation Strix requires careful coordination between three distinct secrets:"
+        ],
+        "table": {
+          "headers": [
+            "Persona / Agent",
+            "Cover Identity",
+            "Secret Reality",
+            "Mission Function in Operation Strix"
+          ],
+          "rows": [
+            [
+              "Twilight (Loid Forger)",
+              "Psychiatrist at Berlint General",
+              "Master Spy for WISE",
+              "Orchestrates family dynamic; plans entry to Eden Academy Imperial Scholars"
+            ],
+            [
+              "Yor Forger (Briar)",
+              "City Hall Clerk",
+              "The Thorn Princess (Garden Assassin)",
+              "Provides maternal cover; lethal combat defense against national security threats"
+            ],
+            [
+              "Anya Forger (Test Subject 007)",
+              "6-Year-Old Elementary Student",
+              "Telepathic Esper",
+              "Reads thoughts; bridges communication; pursues Stella Stars through social antics"
+            ],
+            [
+              "Bond Forger (Subject 8)",
+              "Pyrenean Mountain Dog",
+              "Precognitive Canine",
+              "Foresees impending family fatalities, alerting Anya to avert disaster"
+            ]
+          ]
+        }
       },
       {
         "heading": "3. Major Canon Story Arcs to Track",
@@ -692,5 +1235,5 @@ export const EDITORIAL_GUIDES: GuideArticle[] = [
         ]
       }
     ]
-  },
+  }
 ];

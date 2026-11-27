@@ -1,8 +1,6 @@
 /**
  * Custom Next.js Image Loader
- * Bypasses Vercel Image Optimization quota (1,000 images/month limit)
- * by serving assets directly from their origin CDNs (AniList, MangaDex, Kitsu, etc.)
- * Exactly matching the reference implementation.
+ * Bypasses image optimization quotas by serving assets directly from verified CDNs
  */
 
 export default function myImageLoader({ src, width, quality }) {
@@ -14,8 +12,6 @@ export default function myImageLoader({ src, width, quality }) {
     "anilist.co",
     "s4.anilist.co",
     "s5.anilist.co",
-    "mangadex.org",
-    "uploads.mangadex.org",
     "kitsu.app",
     "media.kitsu.app",
     "kitsu.io",
@@ -30,8 +26,6 @@ export default function myImageLoader({ src, width, quality }) {
     "images-na.ssl-images-amazon.com",
     "cdn.myanimelist.net",
     "myanimelist.net",
-    "static.wikia.nocookie.net",
-    "wikia.nocookie.net",
   ];
 
   if (DIRECT_DOMAINS.some((d) => src.includes(d))) {
