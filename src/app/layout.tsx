@@ -8,6 +8,7 @@ import { buildMetadata, SITE_URL } from "@/lib/seo";
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import CollectionPickerModal from "@/components/CollectionPickerModal";
+import FoundingPatronModal from "@/components/FoundingPatronModal";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PageVisitTracker from "@/components/PageVisitTracker";
 import { Analytics } from "@vercel/analytics/react";
@@ -167,6 +168,7 @@ export default function RootLayout({
           <Footer />
           <AuthModal />
           <CollectionPickerModal />
+          <FoundingPatronModal />
           <PWAInstallPrompt />
           <PageVisitTracker />
           <Analytics />
