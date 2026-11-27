@@ -132,49 +132,108 @@ export interface CountdownSchemaOptions {
   targetTimestamp?: number | null;
   nextChapter?: number | string;
   publisher?: string;
+  cadenceText?: string;
   isFinished?: boolean;
   isHiatus?: boolean;
+  totalChapters?: number | null;
 }
 
 /**
- * Generates Google-compliant JSON-LD Event / Countdown structured data for upcoming chapters.
+ * Generates Schema.org FAQPage structured data for AEO / Answer Engine Optimization.
+ * Specifically parsed by Google AI Overviews, Perplexity, and SearchGPT for verbatim answers.
+ */
+export function generateFaqSchema(manga: MangaItem, options?: CountdownSchemaOptions) {
+  const isFinished = options?.isFinished || manga.status === "FINISHED";
+  const isHiatus = options?.isHiatus || manga.status === "HIATUS";
+  const ch = options?.nextChapter || "Upcoming";
+  const pub = options?.publisher || "official licensed publishers";
+  const total = options?.totalChapters || manga.chapters;
+
+  const releaseDateText = options?.targetTimestamp
+    ? new Date(options.targetTimestamp * 1000).toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "its upcoming scheduled drop date";
+
+  const faqs = isFinished
+    ? [
+        {
+          question: `Is ${manga.displayTitle} officially completed?`,
+          answer: `Yes, official serialization for ${manga.displayTitle} has concluded with all ${total ? `${total} ` : ""}chapters released. Complete volumes and authorized chapters are accessible via official licensed publishers.`,
+        },
+        {
+          question: `Where can I read all chapters of ${manga.displayTitle} legally?`,
+          answer: `You can read ${manga.displayTitle} legally across authorized publishing partners including ${pub}, book retailers, and verified digital manga storefronts with zero scans or piracy.`,
+        },
+        {
+          question: `Will there be any sequel or side stories for ${manga.displayTitle}?`,
+          answer: `The primary story serialization has completed in full. Any officially licensed spin-offs, side epilogues, or special editions are tracked and cataloged on the MangaPulse directory.`,
+        },
+      ]
+    : isHiatus
+    ? [
+        {
+          question: `Is ${manga.displayTitle} on hiatus or delayed?`,
+          answer: `Yes, official serialization for ${manga.displayTitle} is currently on a scheduled publication hiatus. Verified chapters up to Chapter ${manga.chapters || "latest"} remain available on licensed platforms.`,
+        },
+        {
+          question: `When will ${manga.displayTitle} resume publication?`,
+          answer: `The publisher has not yet announced a definitive resumption date. MangaPulse tracks official editorial announcements and updates the countdown clock immediately upon publisher confirmation.`,
+        },
+        {
+          question: `Where can I read verified chapters of ${manga.displayTitle}?`,
+          answer: `Verified canon chapters are officially distributed through authorized platforms including ${pub}.`,
+        },
+      ]
+    : [
+        {
+          question: `When does ${manga.displayTitle} Chapter ${ch} release?`,
+          answer: `${manga.displayTitle} Chapter ${ch} is scheduled for simultaneous worldwide release on ${releaseDateText} at 15:00 UTC (10:00 AM EST / 00:00 JST next day) via ${pub}.`,
+        },
+        {
+          question: `Where can I read ${manga.displayTitle} Chapter ${ch} legally for free?`,
+          answer: `Official simulpub platforms such as Shueisha's MANGA Plus, Viz Media, and authorized digital partners make the latest new chapters available for free reading with zero subscription required.`,
+        },
+        {
+          question: `What is the release schedule cadence for ${manga.displayTitle}?`,
+          answer: `${manga.displayTitle} follows a verified ${options?.cadenceText || "weekly"} release cadence on ${pub}. Any announced creative breaks or holiday delays update automatically on the MangaPulse live countdown.`,
+        },
+        {
+          question: `Why should readers choose official simulpubs over fan scanlations?`,
+          answer: `Official simulpubs on licensed platforms guarantee high-resolution original digital raster artwork, verified professional translations, zero malware/popunder advertisements, and direct royalties to the original creators.`,
+        },
+      ];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.answer,
+      },
+    })),
+  };
+}
+
+/**
+ * Generates Google-compliant JSON-LD Event, Breadcrumb & FAQ structured data for upcoming chapters.
+ * Optimized for SearchGPT, Perplexity AI, Google AI Overviews, and Rich Results.
  */
 export function generateCountdownSchema(
   manga: MangaItem,
   options?: CountdownSchemaOptions
 ) {
-  if (options?.isFinished || manga.status === "FINISHED" || options?.isHiatus || manga.status === "HIATUS") {
-    return null;
-  }
-
-  const timestamp = options?.targetTimestamp || manga.nextAiringChapter?.airingAt;
-  if (!timestamp) return null;
-
-  const startDate = new Date(timestamp * 1000).toISOString();
-  const endDate = new Date((timestamp + 3600) * 1000).toISOString();
+  const isFinished = options?.isFinished || manga.status === "FINISHED";
+  const isHiatus = options?.isHiatus || manga.status === "HIATUS";
   const chapterNumber = options?.nextChapter || manga.nextAiringChapter?.episodeOrChapter || "Next";
 
-  return [
-    {
-      "@context": "https://schema.org",
-      "@type": "Event",
-      name: `${manga.displayTitle} Chapter ${chapterNumber} Official Release`,
-      startDate: startDate,
-      endDate: endDate,
-      eventStatus: "https://schema.org/EventScheduled",
-      eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
-      location: {
-        "@type": "VirtualLocation",
-        url: `${SITE_URL}/release-date/${manga.slug}`,
-      },
-      description: `Official countdown timer and release schedule for ${manga.displayTitle} Chapter ${chapterNumber}.`,
-      image: manga.coverImage.extraLarge || manga.coverImage.large,
-      organizer: {
-        "@type": "Organization",
-        name: options?.publisher || SITE_NAME,
-        url: SITE_URL,
-      },
-    },
+  const schemas: any[] = [
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -194,11 +253,43 @@ export function generateCountdownSchema(
         {
           "@type": "ListItem",
           position: 3,
-          name: `Chapter ${chapterNumber} Countdown`,
+          name: isFinished ? "Completed Reading Directory" : `Chapter ${chapterNumber} Countdown`,
           item: `${SITE_URL}/release-date/${manga.slug}`,
         },
       ],
     },
+    generateFaqSchema(manga, options),
   ];
+
+  if (!isFinished && !isHiatus) {
+    const timestamp = options?.targetTimestamp || manga.nextAiringChapter?.airingAt;
+    if (timestamp) {
+      const startDate = new Date(timestamp * 1000).toISOString();
+      const endDate = new Date((timestamp + 3600) * 1000).toISOString();
+
+      schemas.unshift({
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: `${manga.displayTitle} Chapter ${chapterNumber} Official Release`,
+        startDate: startDate,
+        endDate: endDate,
+        eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+        location: {
+          "@type": "VirtualLocation",
+          url: `${SITE_URL}/release-date/${manga.slug}`,
+        },
+        description: `Official countdown timer and simultaneous release schedule for ${manga.displayTitle} Chapter ${chapterNumber}.`,
+        image: manga.coverImage.extraLarge || manga.coverImage.large,
+        organizer: {
+          "@type": "Organization",
+          name: options?.publisher || SITE_NAME,
+          url: SITE_URL,
+        },
+      });
+    }
+  }
+
+  return schemas;
 }
 

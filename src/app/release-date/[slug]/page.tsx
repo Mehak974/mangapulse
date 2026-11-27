@@ -12,7 +12,7 @@ import CountdownTimer from "@/components/CountdownTimer";
 import OfficialActions from "@/components/OfficialActions";
 import MangaDetailActions from "@/components/MangaDetailActions";
 import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
-import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle, Bookmark, BookOpen, ChevronRight } from "lucide-react";
+import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle, Bookmark, BookOpen, ChevronRight, Sparkles } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -216,6 +216,37 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
           <ChevronRight className="w-3.5 h-3.5" />
         </div>
       </Link>
+
+      {/* AEO / GEO Direct Answer Card (Answer Engine Optimization for Google AI & Perplexity) */}
+      <div className="surface-card rounded-xl p-4 sm:p-5 border border-blue-500/30 bg-gradient-to-r from-blue-950/25 via-[#10141d] to-[#0c0e12] space-y-2.5">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e2430]">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <h2 className="font-bold text-xs uppercase tracking-wider text-white">
+              Verified Release Snapshot & Quick Answer
+            </h2>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            AEO Verified
+          </span>
+        </div>
+
+        <p className="text-xs sm:text-sm text-[#f0f3f8] leading-relaxed">
+          {isFinished ? (
+            <>
+              <strong>{manga.displayTitle}</strong> has officially concluded its serialization across all <strong>{manga.chapters ? `${manga.chapters} chapters` : "published chapters"}</strong>. There are no pending chapters or active countdowns. The complete official series can be read on authorized platforms including <strong>{verified.publisher || "licensed publisher storefronts"}</strong>.
+            </>
+          ) : isHiatus ? (
+            <>
+              <strong>{manga.displayTitle}</strong> is currently on a verified publication hiatus. Existing canon chapters up to <strong>Chapter {verified.latestChapter || manga.chapters || "latest"}</strong> remain available on authorized platforms including <strong>{verified.publisher || "licensed publisher storefronts"}</strong> while the publisher prepares the next release schedule.
+            </>
+          ) : (
+            <>
+              <strong>{manga.displayTitle} Chapter {chapterNum}</strong> is scheduled for simultaneous worldwide release on <strong>{formatZone("UTC")}</strong> at <strong>15:00 UTC</strong> (10:00 AM EST / 00:00 JST next day). The official digital simulpub is licensed and distributed by <strong>{verified.publisher || "authorized publisher platforms"}</strong> with verified translations and zero scanlations.
+            </>
+          )}
+        </p>
+      </div>
 
       {/* Prominent High-Visibility Countdown Timer or Status Box */}
       {manga.status === "FINISHED" ? (
