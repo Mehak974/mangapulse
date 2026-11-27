@@ -10,7 +10,9 @@ import { indexDiscoveredPages } from "@/lib/indexnow";
 import { recordVisitedPage } from "@/lib/visitedPages";
 import CountdownTimer from "@/components/CountdownTimer";
 import OfficialActions from "@/components/OfficialActions";
-import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle } from "lucide-react";
+import MangaDetailActions from "@/components/MangaDetailActions";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
+import { Clock, Globe, ArrowLeft, Calendar, HelpCircle, CheckCircle, Bookmark, BookOpen, ChevronRight } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -36,19 +38,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  const isFinished = manga.status === "FINISHED";
+  const verified = getVerifiedSchedule(manga.id, manga.displayTitle, manga.status, manga.chapters);
+  const isFinished = verified.isFinished || manga.status === "FINISHED";
+  const isHiatus = verified.isHiatus || manga.status === "HIATUS";
 
-  const chapterNum =
-    manga.nextAiringChapter?.episodeOrChapter ||
-    (manga.chapters ? manga.chapters + 1 : "Upcoming");
+  const chapterNum = verified.nextChapter || manga.nextAiringChapter?.episodeOrChapter || (manga.chapters ? manga.chapters + 1 : "Upcoming");
 
-  const title = isFinished
-    ? `${manga.displayTitle} — All Chapters Released & Reading Directory`
-    : `${manga.displayTitle} Chapter ${chapterNum} Release Date & Live Countdown`;
+  let title = "";
+  let description = "";
 
-  const description = isFinished
-    ? `Official serialization for ${manga.displayTitle} has completed with all ${manga.chapters ? `${manga.chapters} ` : ""}chapters released. Read legally on authorized platforms with zero scans.`
-    : `Confirmed release schedule and exact worldwide countdown for ${manga.displayTitle} Chapter ${chapterNum}. Official simultaneous drop times for JST, EST, GMT, and where to read on Manga Plus.`;
+  if (isFinished) {
+    const total = (verified.isVerifiedInDb && (verified.totalChapters || verified.latestChapter)) ? (verified.totalChapters || verified.latestChapter) : manga.chapters;
+    title = `${manga.displayTitle} — All ${total ? `${total} ` : ""}Chapters Released & Official Reading Guide`;
+    description = `Official serialization for ${manga.displayTitle} has concluded with all ${total ? `${total} ` : ""}chapters released. Complete volume guide, reading order, and authorized legal platforms.`;
+  } else if (isHiatus) {
+    title = `${manga.displayTitle} — Publication Hiatus & Next Chapter Release Status`;
+    description = `Current publication status and hiatus updates for ${manga.displayTitle}. Verified latest chapter ${verified.latestChapter || manga.chapters || ""} and official release updates.`;
+  } else {
+    title = `${manga.displayTitle} Chapter ${chapterNum} Release Date & Live Countdown`;
+    description = `Confirmed release schedule and exact worldwide countdown for ${manga.displayTitle} Chapter ${chapterNum}. Official simultaneous drop times (${verified.cadenceText}) for UTC, EST, JST, and where to read on ${verified.publisher || "authorized platforms"}.`;
+  }
 
   return buildMetadata({
     title,
@@ -74,11 +83,17 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
     recordVisitedPage(`/release-date/${titleSlug}`, { title: `${manga.displayTitle} Release Countdown` });
   }
 
+  const verified = getVerifiedSchedule(manga.id, manga.displayTitle, manga.status, manga.chapters);
+  const isFinished = verified.isFinished || manga.status === "FINISHED";
+  const isHiatus = verified.isHiatus || manga.status === "HIATUS";
+
   const chapterNum =
+    verified.nextChapter ||
     manga.nextAiringChapter?.episodeOrChapter ||
     (manga.chapters ? manga.chapters + 1 : "Upcoming");
 
   const airingTimestamp =
+    verified.targetTimestamp ||
     manga.nextAiringChapter?.airingAt ||
     Math.floor(Date.now() / 1000) + 86400 * 3;
 
@@ -105,7 +120,13 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
     { zone: "India Standard Time (IST)", abbr: "New Delhi", time: formatZone("Asia/Kolkata") },
   ];
 
-  const countdownSchema = generateCountdownSchema(manga);
+  const countdownSchema = generateCountdownSchema(manga, {
+    targetTimestamp: airingTimestamp,
+    nextChapter: chapterNum,
+    publisher: verified.publisher,
+    isFinished,
+    isHiatus,
+  });
 
   return (
     <div className="max-w-4xl mx-auto px-4 lg:px-8 py-8 space-y-8">
@@ -158,6 +179,44 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
         </p>
       </div>
 
+      {/* High-Conversion Tracking Action Bar */}
+      <div className="surface-card rounded-xl p-4 sm:p-5 border border-[#2a3344] bg-[#10141d] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="text-sm font-bold text-white flex items-center gap-2">
+            <Bookmark className="w-4 h-4 text-blue-400" />
+            <span>Track {manga.displayTitle} in Your Library</span>
+          </div>
+          <p className="text-xs text-[#94a1b5] mt-1">
+            Save reading progress, get live chapter release countdowns, and organize into custom collections.
+          </p>
+        </div>
+        <MangaDetailActions manga={manga} />
+      </div>
+
+      {/* Direct Interactive Chapter Tracker Jump */}
+      <Link
+        href={`/manga/${manga.slug}#tracker`}
+        className="flex items-center justify-between p-4 rounded-xl bg-[#0c0e12] border border-[#1e2430] hover:border-blue-500/50 hover:bg-[#13171f] transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
+            <BookOpen className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="font-bold text-xs sm:text-sm text-white group-hover:text-blue-400 transition-colors">
+              Interactive Chapter Reading Tracker
+            </div>
+            <div className="text-[11px] text-[#94a1b5]">
+              Log read chapters, calculate unread backlog, and track reading streaks
+            </div>
+          </div>
+        </div>
+        <div className="px-3 py-1.5 rounded-lg bg-[#1a1f2a] group-hover:bg-blue-600 text-[#94a1b5] group-hover:text-white border border-[#2a3344] group-hover:border-blue-500 text-xs font-semibold font-mono transition-colors flex items-center gap-1.5">
+          <span>Open Tracker</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </div>
+      </Link>
+
       {/* Prominent High-Visibility Countdown Timer or Status Box */}
       {manga.status === "FINISHED" ? (
         <div className="surface-card rounded-xl p-6 border border-emerald-500/30 bg-emerald-500/5 text-center space-y-2">
@@ -181,11 +240,13 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
         <CountdownTimer
           targetTimestamp={airingTimestamp}
           chapterNumber={typeof chapterNum === "number" ? chapterNum : undefined}
+          cadenceLabel={verified.cadenceText}
+          sourcePublisher={verified.publisher}
         />
       )}
 
       {/* Complete Worldwide Timezone Schedule Table (Releasing series only) */}
-      {manga.status === "RELEASING" && (
+      {!isFinished && !isHiatus && (
         <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
             <div className="flex items-center gap-2">

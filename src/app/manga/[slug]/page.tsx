@@ -11,6 +11,7 @@ import { recordVisitedPage } from "@/lib/visitedPages";
 import MangaDetailActions from "@/components/MangaDetailActions";
 import MangaDetailTabs from "@/components/MangaDetailTabs";
 import { getOfficialLinksForManga } from "@/lib/officialLinks";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 import { Star, ShieldCheck } from "lucide-react";
 
 interface PageProps {
@@ -37,13 +38,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
 
-  const nextChapter = manga.nextAiringChapter?.episodeOrChapter;
-  const description = nextChapter
-    ? `Track ${manga.displayTitle} Chapter ${nextChapter} release countdown, schedule, and official where to read directory for Manga Plus, Viz Media, and licensed publishers.`
-    : `Track ${manga.displayTitle} official release schedule, chapter countdowns, volume release dates, and official where to read directory. Zero scanlations or image hosting.`;
+  const verified = getVerifiedSchedule(manga.id, manga.displayTitle, manga.status, manga.chapters);
+  const isFinished = verified.isFinished || manga.status === "FINISHED";
+  const nextChapter = verified.nextChapter || manga.nextAiringChapter?.episodeOrChapter;
+  const total = (verified.isVerifiedInDb && (verified.totalChapters || verified.latestChapter)) ? (verified.totalChapters || verified.latestChapter) : manga.chapters;
+
+  let title = "";
+  let description = "";
+
+  if (isFinished) {
+    title = `${manga.displayTitle} — All ${total ? `${total} ` : ""}Chapters & Official Reading Directory`;
+    description = `Complete reading directory for ${manga.displayTitle}. Official serialization concluded across ${total ? `${total} ` : ""}chapters. Find licensed publishers, volumes, and legal reading links.`;
+  } else {
+    title = nextChapter
+      ? `${manga.displayTitle} Chapter ${nextChapter} Countdown & Release Schedule`
+      : `${manga.displayTitle} — Official Release Schedule & Chapter Directory`;
+    description = nextChapter
+      ? `Track ${manga.displayTitle} Chapter ${nextChapter} release countdown, schedule, and official where to read directory for ${verified.publisher || "licensed publishers"}.`
+      : `Track ${manga.displayTitle} official release schedule, chapter countdowns, volume release dates, and official where to read directory. Zero scanlations or image hosting.`;
+  }
 
   return buildMetadata({
-    title: `${manga.displayTitle} — Chapter Countdown & Official Where to Read`,
+    title,
     description,
     path: `/manga/${slug}`,
     image: manga.coverImage.extraLarge || manga.coverImage.large || undefined,
@@ -76,8 +92,15 @@ export default async function MangaDetailPage({ params }: PageProps) {
     ? (manga.averageScore / 20).toFixed(1)
     : null;
 
+  const verified = getVerifiedSchedule(manga.id, manga.displayTitle, manga.status, manga.chapters);
   const bookSchema = generateBookSchema(manga);
-  const countdownSchema = generateCountdownSchema(manga);
+  const countdownSchema = generateCountdownSchema(manga, {
+    targetTimestamp: verified.targetTimestamp,
+    nextChapter: verified.nextChapter,
+    publisher: verified.publisher,
+    isFinished: verified.isFinished,
+    isHiatus: verified.isHiatus,
+  });
   const officialLinks = getOfficialLinksForManga(manga);
 
   return (

@@ -1,4 +1,5 @@
 import { MangaItem } from "@/types/manga";
+import { getVerifiedSchedule } from "@/lib/mangaScheduleDb";
 
 export interface GeneratedSeriesEditorial {
   headline: string;
@@ -97,9 +98,15 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
   const primaryGenre = genres[0] || "Action";
   const secondaryGenre = genres[1] || "Adventure";
   const genreList = genres.slice(0, 3).join(", ");
+  const verified = getVerifiedSchedule(manga.id, title, manga.status, manga.chapters);
+  const totalChapters = (verified.isVerifiedInDb && (verified.totalChapters || verified.latestChapter))
+    ? (verified.totalChapters || verified.latestChapter)
+    : manga.chapters;
+  const isFinished = verified.isFinished || manga.status === "FINISHED";
+  const isHiatus = verified.isHiatus || manga.status === "HIATUS";
+  const effectiveStatus = isFinished ? "FINISHED" : isHiatus ? "HIATUS" : (manga.status || "RELEASING");
+
   const year = manga.startDate?.year || "recent years";
-  const chapters = manga.chapters;
-  const status = manga.status || "RELEASING";
   const score = manga.averageScore ? (manga.averageScore / 20).toFixed(1) : null;
 
   // 1. Check if a curated bespoke editorial review exists
@@ -110,9 +117,9 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
 
   // Status phrasing
   let statusPhrase = "actively releasing new simulpub chapters";
-  if (status === "FINISHED") {
-    statusPhrase = chapters ? `complete across ${chapters} published chapters` : "concluded in its official serialization";
-  } else if (status === "HIATUS") {
+  if (effectiveStatus === "FINISHED") {
+    statusPhrase = totalChapters ? `complete across ${totalChapters} published chapters` : "concluded in its official serialization";
+  } else if (effectiveStatus === "HIATUS") {
     statusPhrase = "currently on an official publication hiatus";
   }
 
@@ -158,10 +165,10 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
   const highlights = [
     { label: "Original Format", value: originText },
     { label: "Primary Genres", value: genreList },
-    { label: "Serialization Status", value: status === "RELEASING" ? "Active Simulpub" : status === "FINISHED" ? "Completed" : "Hiatus" },
-    { label: "Total Chapters", value: chapters ? `${chapters} Chapters` : "Ongoing" },
+    { label: "Serialization Status", value: effectiveStatus === "RELEASING" ? "Active Simulpub" : effectiveStatus === "FINISHED" ? "Completed" : "Hiatus" },
+    { label: "Total Chapters", value: totalChapters ? `${totalChapters} Chapters` : "Ongoing" },
     { label: "Reader Rating", value: score ? `${score} / 5.0` : "Community Rated" },
-    { label: "Legal Access", value: isKorean ? "WEBTOON / Tapas / Retailers" : "MANGA Plus / Viz / Kodansha" },
+    { label: "Legal Access", value: verified.publisher || (isKorean ? "WEBTOON / Tapas / Retailers" : "MANGA Plus / Viz / Kodansha") },
   ];
 
   return {

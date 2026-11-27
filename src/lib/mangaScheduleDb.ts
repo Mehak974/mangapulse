@@ -1138,9 +1138,9 @@ export function getScheduledDropsForDate(date: Date = new Date()): ScheduledDrop
  * Resolves verified schedule and accurate chapter metadata for any manga item.
  */
 export function getVerifiedSchedule(
-  id: number,
-  title: string,
-  mediaStatus?: string,
+  id?: number | null,
+  title?: string | null,
+  mediaStatus?: string | null,
   totalChapters?: number | null
 ): {
   isFinished: boolean;
@@ -1154,10 +1154,11 @@ export function getVerifiedSchedule(
   cadenceText: string;
   publisher: string;
 } {
-  const titleLower = title.toLowerCase();
+  const cleanId = id || 0;
+  const titleLower = (title || "").toLowerCase();
 
   // 1. Direct ID match
-  let found = VERIFIED_SCHEDULES.find((s) => s.id === id);
+  let found = cleanId > 0 ? VERIFIED_SCHEDULES.find((s) => s.id === cleanId) : undefined;
 
   // 2. Title matching
   if (!found) {

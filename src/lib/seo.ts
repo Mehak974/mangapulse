@@ -80,55 +80,125 @@ export function buildMetadata({
  * Generates Google-compliant JSON-LD Book structured data.
  */
 export function generateBookSchema(manga: MangaItem) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Book",
-    name: manga.displayTitle,
-    alternateName: manga.title.romaji || manga.title.native || undefined,
-    description: manga.description || `Official release tracker and publisher directory for ${manga.displayTitle}.`,
-    image: manga.coverImage.extraLarge || manga.coverImage.large,
-    inLanguage: manga.countryOfOrigin === "JP" ? "ja" : manga.countryOfOrigin === "KR" ? "ko" : "en",
-    numberOfPages: manga.chapters ? `${manga.chapters} chapters` : undefined,
-    genre: manga.genres,
-    aggregateRating: manga.averageScore
-      ? {
-          "@type": "AggregateRating",
-          ratingValue: (manga.averageScore / 20).toFixed(1), // 5-star scale
-          bestRating: "5",
-          worstRating: "1",
-          ratingCount: manga.popularity || 100,
-        }
-      : undefined,
-  };
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      name: manga.displayTitle,
+      alternateName: manga.title.romaji || manga.title.native || undefined,
+      description: manga.description || `Official release tracker and publisher directory for ${manga.displayTitle}.`,
+      image: manga.coverImage.extraLarge || manga.coverImage.large,
+      inLanguage: manga.countryOfOrigin === "JP" ? "ja" : manga.countryOfOrigin === "KR" ? "ko" : "en",
+      numberOfPages: manga.chapters ? `${manga.chapters} chapters` : undefined,
+      genre: manga.genres,
+      aggregateRating: manga.averageScore
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: (manga.averageScore / 20).toFixed(1), // 5-star scale
+            bestRating: "5",
+            worstRating: "1",
+            ratingCount: manga.popularity || 100,
+          }
+        : undefined,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Browse Directory",
+          item: `${SITE_URL}/browse`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: manga.displayTitle,
+          item: `${SITE_URL}/manga/${manga.slug}`,
+        },
+      ],
+    },
+  ];
+}
+
+export interface CountdownSchemaOptions {
+  targetTimestamp?: number | null;
+  nextChapter?: number | string;
+  publisher?: string;
+  isFinished?: boolean;
+  isHiatus?: boolean;
 }
 
 /**
  * Generates Google-compliant JSON-LD Event / Countdown structured data for upcoming chapters.
  */
-export function generateCountdownSchema(manga: MangaItem) {
-  if (!manga.nextAiringChapter) return null;
+export function generateCountdownSchema(
+  manga: MangaItem,
+  options?: CountdownSchemaOptions
+) {
+  if (options?.isFinished || manga.status === "FINISHED" || options?.isHiatus || manga.status === "HIATUS") {
+    return null;
+  }
 
-  const releaseDate = new Date(manga.nextAiringChapter.airingAt * 1000).toISOString();
-  const chapterNumber = manga.nextAiringChapter.episodeOrChapter;
+  const timestamp = options?.targetTimestamp || manga.nextAiringChapter?.airingAt;
+  if (!timestamp) return null;
 
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: `${manga.displayTitle} Chapter ${chapterNumber} Release`,
-    startDate: releaseDate,
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
-    location: {
-      "@type": "VirtualLocation",
-      url: `${SITE_URL}/release-date/${manga.slug}`,
+  const startDate = new Date(timestamp * 1000).toISOString();
+  const endDate = new Date((timestamp + 3600) * 1000).toISOString();
+  const chapterNumber = options?.nextChapter || manga.nextAiringChapter?.episodeOrChapter || "Next";
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: `${manga.displayTitle} Chapter ${chapterNumber} Official Release`,
+      startDate: startDate,
+      endDate: endDate,
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+      location: {
+        "@type": "VirtualLocation",
+        url: `${SITE_URL}/release-date/${manga.slug}`,
+      },
+      description: `Official countdown timer and release schedule for ${manga.displayTitle} Chapter ${chapterNumber}.`,
+      image: manga.coverImage.extraLarge || manga.coverImage.large,
+      organizer: {
+        "@type": "Organization",
+        name: options?.publisher || SITE_NAME,
+        url: SITE_URL,
+      },
     },
-    description: `Official countdown timer and release schedule for ${manga.displayTitle} Chapter ${chapterNumber}.`,
-    image: manga.coverImage.extraLarge || manga.coverImage.large,
-    organizer: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: SITE_URL,
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: manga.displayTitle,
+          item: `${SITE_URL}/manga/${manga.slug}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: `Chapter ${chapterNumber} Countdown`,
+          item: `${SITE_URL}/release-date/${manga.slug}`,
+        },
+      ],
     },
-  };
+  ];
 }
 

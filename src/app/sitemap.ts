@@ -5,6 +5,7 @@ import { SITE_URL } from "@/lib/seo";
 import { getAllDelistedSlugs } from "@/lib/mangaOverrides";
 import { getVisitedPages } from "@/lib/visitedPages";
 import { EDITORIAL_GUIDES } from "@/data/guidesData";
+import { VERIFIED_SCHEDULES } from "@/lib/mangaScheduleDb";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -178,6 +179,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "hourly",
         priority: 0.8,
       });
+    }
+  }
+
+  // 3.5 Ensure all verified publication schedules are indexed at highest priority (0.95)
+  for (const vs of VERIFIED_SCHEDULES) {
+    const slugCandidates: string[] = [];
+    if (vs.slugMatch) slugCandidates.push(...vs.slugMatch);
+    if (vs.titleMatch) {
+      vs.titleMatch.forEach((t) => {
+        const s = slugify(t);
+        if (s && !slugCandidates.includes(s)) slugCandidates.push(s);
+      });
+    }
+
+    for (const slug of slugCandidates) {
+      if (delistedSet.has(slug.toLowerCase())) continue;
+
+      // Pure slug
+      addRoute({
+        url: `${baseUrl}/manga/${slug}`,
+        lastModified: now,
+        changeFrequency: "daily",
+        priority: 0.95,
+      });
+      addRoute({
+        url: `${baseUrl}/release-date/${slug}`,
+        lastModified: now,
+        changeFrequency: "hourly",
+        priority: 0.95,
+      });
+
+      // ID-based slug if ID is known
+      if (vs.id) {
+        addRoute({
+          url: `${baseUrl}/manga/${slug}-${vs.id}`,
+          lastModified: now,
+          changeFrequency: "daily",
+          priority: 0.9,
+        });
+        addRoute({
+          url: `${baseUrl}/release-date/${slug}-${vs.id}`,
+          lastModified: now,
+          changeFrequency: "hourly",
+          priority: 0.9,
+        });
+      }
     }
   }
 
