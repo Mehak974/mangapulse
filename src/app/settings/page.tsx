@@ -18,6 +18,7 @@ import {
   AlertCircle,
   LogOut,
   Sparkles,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserPreferences, UserProfile } from "@/types/manga";
@@ -39,6 +40,7 @@ export default function SettingsPage() {
     isSupabaseConfigured,
     updateProfile,
     logout,
+    deleteAccount,
     library,
     collections,
     requestNotificationPermission,
@@ -65,6 +67,35 @@ export default function SettingsPage() {
   const [pushNotifications, setPushNotifications] = useState(true);
   const [weeklyGoal, setWeeklyGoal] = useState(15);
   const [cadenceAlerts, setCadenceAlerts] = useState(true);
+
+  // Delete Account State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim() !== "DELETE" || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const res = await deleteAccount();
+      if (res.success) {
+        setDeleteSuccess(true);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+      } else {
+        setDeleteError(res.error || "Failed to delete account. Please try again.");
+      }
+    } catch (err: any) {
+      setDeleteError(err?.message || "An unexpected error occurred.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Initialize from current user profile
   useEffect(() => {
@@ -793,11 +824,54 @@ export default function SettingsPage() {
                         <button
                           type="button"
                           onClick={() => logout()}
-                          className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-2 transition-colors"
+                          className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
                         >
                           <LogOut className="w-3.5 h-3.5" />
                           <span>Sign Out from MangaPulse</span>
                         </button>
+                      </div>
+                    )}
+
+                    {/* DANGER ZONE: ACCOUNT DELETION */}
+                    {isLoggedIn && (
+                      <div className="mt-8 pt-6 border-t border-red-500/20 space-y-4">
+                        <div className="flex items-center gap-2 text-red-400">
+                          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                          <h3 className="text-xs font-bold uppercase tracking-wider font-mono">
+                            Danger Zone — Account Deletion
+                          </h3>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="space-y-1">
+                            <div className="text-xs font-bold text-white">Permanently Delete Account</div>
+                            <p className="text-[11px] text-[#94a1b5] max-w-lg leading-relaxed">
+                              Once deleted, your account cannot be recovered. All your saved manga library items, custom collections, reading chapter progress, and notes will be permanently erased.
+                            </p>
+                          </div>
+
+                          {user?.role === "ADMIN" ||
+                          user?.email?.toLowerCase() === "mehakiqbal974@gmail.com" ||
+                          user?.email?.toLowerCase() === "mehakiqbal978@gmail.com" ? (
+                            <span className="px-3 py-1.5 rounded-lg bg-neutral-800 text-[#717d93] text-[11px] font-semibold border border-neutral-700 whitespace-nowrap">
+                              Root Admin Protected
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteConfirmText("");
+                                setDeleteError(null);
+                                setDeleteSuccess(false);
+                                setDeleteModalOpen(true);
+                              }}
+                              className="px-4 py-2 rounded-lg bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Delete Account</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -830,6 +904,86 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-[#0e121a] border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-7 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Delete Account</h3>
+                  <p className="text-xs text-[#94a1b5]">Irreversible permanent deletion</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(false)}
+                className="text-[#94a1b5] hover:text-white p-1 rounded-lg hover:bg-[#1a202c] cursor-pointer"
+                aria-label="Close dialog"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#94a1b5] leading-relaxed">
+              Are you sure you want to delete <strong className="text-white">{user?.email || user?.username}</strong>?
+              All your tracked manga chapters, custom folders, reading activity, and account data will be permanently wiped from our database.
+            </p>
+
+            {deleteError && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                {deleteError}
+              </div>
+            )}
+
+            {deleteSuccess ? (
+              <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold text-center">
+                Account deleted successfully. Redirecting to home...
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-mono text-[#94a1b5] uppercase tracking-wider block">
+                    Type <span className="text-red-400 font-bold">DELETE</span> to confirm:
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="DELETE"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#080a0f] border border-[#2a3344] focus:border-red-500 text-white font-mono text-xs outline-none"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModalOpen(false)}
+                    disabled={isDeleting}
+                    className="px-4 py-2 rounded-lg bg-[#1a202c] hover:bg-[#252e3e] text-[#94a1b5] hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteConfirmText.trim() !== "DELETE" || isDeleting}
+                    className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isDeleting ? "Deleting..." : "Permanently Delete"}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

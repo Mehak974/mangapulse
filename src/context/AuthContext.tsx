@@ -42,6 +42,7 @@ interface AuthContextType {
   signup: (email: string, pass: string, username: string) => Promise<{ success: boolean; error?: string }>;
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<{ success: boolean; error?: string }>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<UserProfile | null>;
   refreshProfile: () => Promise<void>;
   applySupporterUpgrade: (tier: string) => Promise<void>;
@@ -533,6 +534,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteAccount = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    if (!supabase || !user?.id) return { success: false, error: "Not authenticated" };
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) return { success: false, error: "Active session token missing" };
+
+      const res = await fetch("/api/auth/delete-account", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        return { success: false, error: data.error || "Failed to delete account" };
+      }
+
+      const uid = user.id;
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(`mangapulse_library_${uid}`);
+        localStorage.removeItem(`mangapulse_collections_${uid}`);
+        localStorage.removeItem(`mangapulse_notifications_${uid}`);
+        localStorage.removeItem(`mangapulse_activities_${uid}`);
+        localStorage.removeItem(`mangapulse_founding_patron_claimed_${uid}`);
+        localStorage.removeItem(`mangapulse_founding_patron_dismissed_${uid}`);
+        localStorage.removeItem("mangapulse_user");
+        localStorage.removeItem("mangapulse_library");
+        localStorage.removeItem("mangapulse_collections");
+      }
+
+      await logout();
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Failed to delete account" };
+    }
+  }, [user?.id]);
+
   const updateProfile = async (updates: Partial<UserProfile>) => {
     // Entitlement security: Strip privileged supporter and role fields so client cannot elevate itself
     const sanitized = { ...updates };
@@ -831,6 +872,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         signInWithGoogle,
         logout,
+        deleteAccount,
         updateProfile,
         refreshProfile,
         applySupporterUpgrade,
