@@ -554,9 +554,12 @@ export default function LibraryPage() {
                         {displaySettings.showCover && (
                           <div className="relative aspect-[3/4.2] w-full rounded bg-black overflow-hidden mb-2">
                             <img
-                              src={m.manga_cover}
+                              src={m.manga_cover || "/placeholder-cover.png"}
                               alt={m.manga_title}
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = "/placeholder-cover.png";
+                              }}
                             />
                           </div>
                         )}
@@ -653,9 +656,12 @@ export default function LibraryPage() {
                               className="w-9 h-12 rounded bg-black overflow-hidden border border-[#2a3344]"
                             >
                               <img
-                                src={it.manga_cover}
+                                src={it.manga_cover || "/placeholder-cover.png"}
                                 alt=""
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = "/placeholder-cover.png";
+                                }}
                               />
                             </div>
                           ))
@@ -737,9 +743,12 @@ export default function LibraryPage() {
                       <Link href={`/manga/${entry.manga_slug}`} className="flex-shrink-0">
                         <div className="w-16 h-24 relative rounded-lg overflow-hidden bg-black border border-[#1e2430]">
                           <img
-                            src={entry.manga_cover}
+                            src={entry.manga_cover || "/placeholder-cover.png"}
                             alt={entry.manga_title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = "/placeholder-cover.png";
+                            }}
                           />
                         </div>
                       </Link>

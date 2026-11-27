@@ -155,7 +155,7 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
 
   // Reading Recommendation
   let defaultReadingRecommendation = "";
-  if (status === "FINISHED") {
+  if (effectiveStatus === "FINISHED") {
     defaultReadingRecommendation = `Ideal for readers seeking a completed ${primaryGenre} journey from start to finish without hiatus interruptions. Available in complete volume runs and digital simulpub archives.`;
   } else {
     defaultReadingRecommendation = `Highly recommended for fans who enjoy tracking weekly or bi-weekly chapter drops and engaging in community theory discussions as new canon developments unfold.`;

@@ -172,7 +172,7 @@ export default async function HomePage() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-16 relative rounded bg-[#0c0e12] overflow-hidden flex-shrink-0 border border-[#1e2430]">
                     <img
-                      src={manga.coverImage.medium || manga.coverImage.large || ""}
+                      src={manga.coverImage.medium || manga.coverImage.large || "/placeholder-cover.png"}
                       alt={manga.displayTitle}
                       className="w-full h-full object-cover"
                     />

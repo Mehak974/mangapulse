@@ -2,8 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    loader: "custom",
-    loaderFile: "./src/utils/imageLoader.js",
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "**" },

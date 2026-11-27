@@ -81,8 +81,13 @@ export function getPromoStats(
   const foundingRemaining = Math.max(0, 9 - foundingClaims);
   const newRemaining = Math.max(0, 11 - newClaims);
 
-  const remaining = isFoundingCohort ? foundingRemaining : newRemaining;
-  const isEligible = Boolean(userId && !isAdmin && !hasClaimed && remaining > 0);
+  // For founding cohort users, they are always eligible to see their celebratory patron modal unless dismissed/claimed locally
+  // For new users, they are eligible if open slots remain and they haven't claimed yet
+  const isEligible = isFoundingCohort
+    ? !isAdmin
+    : Boolean(userId && !isAdmin && !hasClaimed && newRemaining > 0);
+
+  const remaining = isFoundingCohort ? 9 : newRemaining;
 
   return {
     totalSlots: TOTAL_FOUNDING_SLOTS,
@@ -94,6 +99,7 @@ export function getPromoStats(
     hasClaimed,
     isAdmin,
     isFoundingCohort,
+    alreadyGranted: isFoundingCohort,
   };
 }
 

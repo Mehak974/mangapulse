@@ -40,7 +40,7 @@ export default function FoundingPatronModal() {
         if (data && typeof data.remainingSlots === "number") {
           setRemainingSlots(data.remainingSlots);
           setIsFounding(Boolean(data.isFoundingCohort));
-          if (data.isEligible && data.remainingSlots > 0) {
+          if (data.isEligible) {
             // Delay slightly after mount for a smooth arrival experience
             const timer = setTimeout(() => setIsOpen(true), 600);
             return () => clearTimeout(timer);
@@ -123,16 +123,14 @@ export default function FoundingPatronModal() {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
-              {isFounding
-                ? "Welcome Back! Claim Your 1-Month VIP Patron Mode"
-                : "Congratulations! You Fall Under Our Special Promotion"}
+              Congratulations! You Fall Under Our Special Promotion
             </h2>
 
             <p className="text-xs sm:text-sm text-[#94a1b5] leading-relaxed max-w-md">
               {isFounding ? (
                 <>
-                  As one of MangaPulse&apos;s first 9 registered pioneers, you helped launch the platform! Enjoy{" "}
-                  <strong className="text-white">1st Month Free Upgrade</strong> to VIP Manga Patron with zero credit card required.
+                  As one of MangaPulse&apos;s first 9 registered pioneers, you are eligible for{" "}
+                  <strong className="text-white">1st Month Free Upgrade</strong> to VIP Manga Patron! Enjoy your exclusive founding perks with zero credit card required.
                 </>
               ) : (
                 <>
@@ -223,7 +221,9 @@ export default function FoundingPatronModal() {
                 <span>
                   {isClaiming
                     ? "Activating VIP Patron..."
-                    : "Enjoy Patron Mode — Activate 1st Month Free"}
+                    : isFounding
+                    ? "Enjoy Patron Mode 👑"
+                    : "Enjoy Patron Mode — Claim 1st Month Free"}
                 </span>
               </button>
 
