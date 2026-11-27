@@ -123,31 +123,39 @@ export default function MangaDetailTabs({
           {/* Official Actions */}
           <OfficialActions links={manga.officialLinks} mangaTitle={manga.displayTitle} />
 
-          {/* Editorial Series Overview & Plot Synopsis */}
+          {/* Editorial Series Overview or Verified Story Premise */}
           <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2430]">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-blue-400" />
-                <h2 className="font-bold text-white text-sm">Editorial Overview & Story Synopsis</h2>
+                <h2 className="font-bold text-white text-sm">
+                  {editorial.isBespoke ? "Staff Editorial Review & Overview" : "Story Synopsis & Series Overview"}
+                </h2>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                Editorial Review
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                editorial.isBespoke
+                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                  : "text-blue-400 bg-blue-500/10 border-blue-500/20"
+              }`}>
+                {editorial.isBespoke ? "Editorial Review" : "Verified Synopsis"}
               </span>
             </div>
 
-            {/* Editorial Lead Hook & Narrative Analysis */}
-            <div className="space-y-2.5 text-xs sm:text-sm text-[#cbd5e1] leading-relaxed">
-              <p className="font-semibold text-white text-sm sm:text-base leading-snug">
-                {editorial.hook}
-              </p>
-              <p className="text-[#94a1b5] leading-relaxed">
-                {editorial.editorialAnalysis}
-              </p>
-            </div>
+            {/* If human-curated bespoke editorial exists, show editorial review */}
+            {editorial.isBespoke && editorial.editorialAnalysis && (
+              <div className="space-y-2.5 text-xs sm:text-sm text-[#cbd5e1] leading-relaxed">
+                <p className="font-semibold text-white text-sm sm:text-base leading-snug">
+                  {editorial.hook}
+                </p>
+                <p className="text-[#94a1b5] leading-relaxed">
+                  {editorial.editorialAnalysis}
+                </p>
+              </div>
+            )}
 
-            {/* Cleaned Story Premise */}
+            {/* Clean Story Premise */}
             {editorial.synopsis && (
-              <div className="pt-3 border-t border-[#1e2430] space-y-1.5">
+              <div className={`space-y-1.5 ${editorial.isBespoke ? "pt-3 border-t border-[#1e2430]" : ""}`}>
                 <h3 className="font-bold text-xs uppercase font-mono tracking-wider text-[#94a1b5]">
                   Story Premise & Setting
                 </h3>
@@ -201,24 +209,53 @@ export default function MangaDetailTabs({
             latestChapter={manga.nextAiringChapter?.episodeOrChapter}
           />
 
-          {/* Cadence & Simulpub Policies breakdown */}
-          <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-3">
-            <h3 className="font-bold text-white text-sm">Official Simulpub & Release Cadence</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg">
-                <div className="font-bold text-white mb-0.5">Simultaneous Release Time</div>
-                <div className="text-[#94a1b5]">
-                  Chapters are translated and released simultaneously worldwide with the Japanese magazine drop at 00:00 JST / 15:00 UTC.
+          {/* Cadence & Simulpub Policies breakdown (Dynamic per publisher/country) */}
+          {(() => {
+            const isKorean = manga.countryOfOrigin === "KR";
+            const isShueisha =
+              (manga.officialLinks || []).some(
+                (l) => l.name.toLowerCase().includes("manga plus") || l.name.toLowerCase().includes("shueisha")
+              ) ||
+              (editorial.highlights.find((h) => h.label === "Legal Access")?.value || "").includes("MANGA Plus");
+
+            return (
+              <div className="surface-card rounded-xl p-5 border border-[#2a3344] space-y-3">
+                <h3 className="font-bold text-white text-sm">
+                  {isKorean
+                    ? "Official Webtoon Digital Release & Cadence"
+                    : isShueisha
+                    ? "Official Shueisha Simulpub & Cadence"
+                    : "Official Publishing & Release Cadence"}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg">
+                    <div className="font-bold text-white mb-0.5">
+                      {isKorean ? "Digital Episode Drop Timing" : "Simultaneous Release Time"}
+                    </div>
+                    <div className="text-[#94a1b5]">
+                      {isKorean
+                        ? "New episodes are published digitally in accordance with South Korean studio schedules (e.g., Naver Webtoon / KakaoPage) with simultaneous or fast-track authorized English releases."
+                        : isShueisha
+                        ? "Chapters are translated and released simultaneously worldwide with the Japanese magazine drop at 00:00 JST / 15:00 UTC."
+                        : "Official digital chapters and tankōbon volumes are released in coordination with Japanese serializations via licensed publishing storefronts."}
+                    </div>
+                  </div>
+                  <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg">
+                    <div className="font-bold text-white mb-0.5">
+                      {isKorean ? "Where to Read Legally" : "Where to Read & Purchase"}
+                    </div>
+                    <div className="text-[#94a1b5]">
+                      {isKorean
+                        ? "Official English digital releases are licensed on authorized platforms including LINE Webtoon, Tapas, and Tappytoon. Authorized mobile apps often support daily free reading passes."
+                        : isShueisha
+                        ? "MANGA Plus by Shueisha and Viz Media provide the 3 latest chapters 100% free with no subscription required on both web and mobile."
+                        : "Available through authorized publisher portals including Kodansha K Manga, BookWalker, and digital volume storefronts like Amazon Kindle."}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="p-3 bg-[#0c0e12] border border-[#1e2430] rounded-lg">
-                <div className="font-bold text-white mb-0.5">Where to Read Free</div>
-                <div className="text-[#94a1b5]">
-                  MANGA Plus by Shueisha provides the 3 latest chapters 100% free with no subscription required on both web and mobile.
-                </div>
-              </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Readers Also Track (6 recommendations) inside Overview */}
           {recommendations.length > 0 && (

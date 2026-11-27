@@ -175,7 +175,11 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
             ? `Official serialization for ${manga.displayTitle} has completed. Read all released chapters legally on authorized publisher platforms.`
             : manga.status === "HIATUS"
             ? `Official serialization for ${manga.displayTitle} is currently on hiatus. Read verified chapters and track status updates on official platforms.`
-            : `The upcoming chapter of ${manga.displayTitle} is scheduled for simultaneous worldwide digital release on authorized publisher platforms including Shueisha MANGA Plus and Viz Media.`}
+            : manga.countryOfOrigin === "KR"
+            ? `The upcoming chapter of ${manga.displayTitle} is scheduled for official digital release on authorized webtoon platforms including ${verified.publisher || "LINE Webtoon, Tapas, and KakaoPage"}.`
+            : (verified.publisher.includes("MANGA Plus") || verified.publisher.includes("Shueisha"))
+            ? `The upcoming chapter of ${manga.displayTitle} is scheduled for simultaneous worldwide digital release on authorized publisher platforms including Shueisha MANGA Plus and Viz Media.`
+            : `The upcoming chapter of ${manga.displayTitle} is scheduled for official digital release on authorized publisher platforms including ${verified.publisher || "licensed publisher storefronts and K Manga"}.`}
         </p>
       </div>
 
@@ -242,7 +246,7 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
             </>
           ) : (
             <>
-              <strong>{manga.displayTitle} Chapter {chapterNum}</strong> is scheduled for simultaneous worldwide release on <strong>{formatZone("UTC")}</strong> at <strong>15:00 UTC</strong> (10:00 AM EST / 00:00 JST next day). The official digital simulpub is licensed and distributed by <strong>{verified.publisher || "authorized publisher platforms"}</strong> with verified translations and zero scanlations.
+              <strong>{manga.displayTitle} Chapter {chapterNum}</strong> is scheduled for simultaneous worldwide release on <strong>{formatZone("UTC")}</strong> at <strong>15:00 UTC</strong> (10:00 AM EST / {manga.countryOfOrigin === "KR" ? "00:00 KST" : "00:00 JST"} next day). The official digital simulpub is licensed and distributed by <strong>{verified.publisher || (manga.countryOfOrigin === "KR" ? "LINE Webtoon / Tapas" : "authorized publisher platforms")}</strong> with verified translations and zero scanlations.
             </>
           )}
         </p>
@@ -332,7 +336,11 @@ export default async function ReleaseDateCountdownPage({ params }: PageProps) {
             <div>
               {manga.status === "FINISHED"
                 ? `Yes, official serialization for ${manga.displayTitle} has concluded with all ${manga.chapters ? `${manga.chapters} ` : ""}chapters released. You can read the complete series on authorized publisher directories linked above.`
-                : `Shueisha's official MANGA Plus service provides the latest 3 chapters free of charge with simultaneous English translation. You do not need to register an account or provide payment information.`}
+                : manga.countryOfOrigin === "KR"
+                ? `Official digital webtoon platforms such as LINE Webtoon, Tapas, and Tappytoon host authorized English releases. Readers can access serialized episodes legally, with many series supporting daily free pass unlocks on official mobile apps.`
+                : (verified.publisher.includes("MANGA Plus") || verified.publisher.includes("Shueisha"))
+                ? `Shueisha's official MANGA Plus service provides the latest 3 chapters free of charge with simultaneous English translation. You do not need to register an account or provide payment information.`
+                : `Official chapters are licensed and distributed across authorized platforms including ${verified.publisher || "official publisher apps and authorized digital storefronts"}.`}
             </div>
           </div>
 

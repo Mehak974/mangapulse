@@ -97,7 +97,9 @@ export default function CountdownTimer({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
           <span className="text-xs uppercase tracking-wider font-bold text-white font-mono">
-            {chapterNumber ? `Chapter ${chapterNumber} Official Simulpub` : "Next Chapter Release"}
+            {chapterNumber && chapterNumber > 0
+              ? `Chapter ${chapterNumber} Official Simulpub`
+              : "Upcoming Chapter Release"}
           </span>
           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
             {cadenceLabel}

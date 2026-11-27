@@ -262,6 +262,24 @@ export const VERIFIED_SCHEDULES: VerifiedSchedule[] = [
 
   // --- Webtoons / Manhwa (Naver / Kakao) ---
   {
+    id: 137280,
+    titleMatch: [
+      "i'm the max-level newbie",
+      "im the max-level newbie",
+      "max-level newbie",
+      "na honja manleb nyubi",
+      "solo max-level newbie",
+    ],
+    slugMatch: ["im-the-max-level-newbie", "solo-max-level-newbie"],
+    latestChapter: 180,
+    nextChapter: 181,
+    cadence: "weekly",
+    magazine: "Naver Webtoon",
+    dropDayOfWeek: 5, // Friday
+    dropHourUTC: 15, // 00:00 KST Saturday
+    publisher: "LINE Webtoon & REDICE Studio",
+  },
+  {
     id: 85143,
     titleMatch: ["tower of god", "sinui tap"],
     latestChapter: 635,
@@ -1305,7 +1323,7 @@ export function getVerifiedSchedule(
     isHiatus: false,
     isVerifiedInDb: false,
     latestChapter: estimatedCurrent,
-    nextChapter: estimatedCurrent > 0 ? estimatedCurrent + 1 : 1,
+    nextChapter: estimatedCurrent > 0 ? estimatedCurrent + 1 : 0,
     targetTimestamp: Math.floor(targetDate.getTime() / 1000),
     magazine: "Weekly Serialization",
     cadenceText: "Weekly Simulpub",

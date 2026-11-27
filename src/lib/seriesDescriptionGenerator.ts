@@ -5,17 +5,38 @@ export interface GeneratedSeriesEditorial {
   headline: string;
   hook: string;
   synopsis: string;
-  editorialAnalysis: string;
+  editorialAnalysis?: string;
   simulpubGuide: string;
   readingRecommendation: string;
   highlights: { label: string; value: string }[];
+  isBespoke: boolean;
 }
 
 /**
  * Hand-curated bespoke editorial reviews for top series.
- * Any series not listed here automatically uses the intelligent auto-generator below.
+ * Any series not listed here automatically uses clean factual metadata (no spun boilerplate).
  */
 export const BESPOKE_EDITORIAL_REVIEWS: Record<string, Partial<GeneratedSeriesEditorial>> = {
+  "im-the-max-level-newbie": {
+    headline: "I'm the Max-Level Newbie: High-Stakes Tower Climbing & Gaming Intel Mastery",
+    hook: "I'm the Max-Level Newbie (나 혼자 만렙 뉴비) is an explosive South Korean action webtoon written by WAN.G and illustrated by swing baton (REDICE Studio), adapted from the original novel by Maslow.",
+    editorialAnalysis:
+      "When the hyper-difficult VR game 'Tower of Trials' manifests in reality, threatening humanity with catastrophic floor boss raids, only Jinhyuk—the sole veteran content creator who spent 11 years beating the impossible game—understands its secret mechanics. What separates this series from conventional regression manhwa is Jinhyuk's ruthless strategic intellect, deep meta-knowledge exploits, and REDICE Studio's trademark cinematic action art.",
+    simulpubGuide:
+      "Official English episodes release weekly on LINE Webtoon. In South Korea, serialized chapters are published on Naver Webtoon and Naver Series on Fridays. Official print editions are licensed by partner publishers.",
+    readingRecommendation:
+      "Recommended for fans of Solo Leveling, Omniscient Reader's Viewpoint, Pick Me Up, and Second Life Ranker who love cunning protagonists who outmaneuver impossible tower scenarios with pure game knowledge.",
+  },
+  "137280": {
+    headline: "I'm the Max-Level Newbie: High-Stakes Tower Climbing & Gaming Intel Mastery",
+    hook: "I'm the Max-Level Newbie (나 혼자 만렙 뉴비) is an explosive South Korean action webtoon written by WAN.G and illustrated by swing baton (REDICE Studio), adapted from the original novel by Maslow.",
+    editorialAnalysis:
+      "When the hyper-difficult VR game 'Tower of Trials' manifests in reality, threatening humanity with catastrophic floor boss raids, only Jinhyuk—the sole veteran content creator who spent 11 years beating the impossible game—understands its secret mechanics. What separates this series from conventional regression manhwa is Jinhyuk's ruthless strategic intellect, deep meta-knowledge exploits, and REDICE Studio's trademark cinematic action art.",
+    simulpubGuide:
+      "Official English episodes release weekly on LINE Webtoon. In South Korea, serialized chapters are published on Naver Webtoon and Naver Series on Fridays. Official print editions are licensed by partner publishers.",
+    readingRecommendation:
+      "Recommended for fans of Solo Leveling, Omniscient Reader's Viewpoint, Pick Me Up, and Second Life Ranker who love cunning protagonists who outmaneuver impossible tower scenarios with pure game knowledge.",
+  },
   "gachiakuta": {
     headline: "Gachiakuta: Grimy Cyberpunk-Infused Dark Fantasy and High-Octane Action",
     hook: "Gachiakuta is an electrifying dark fantasy and action manga written and illustrated by Kei Urana, featuring graffiti-inspired graffiti designs and urban grunge aesthetics with graffiti art assistance by Ando Hideyoshi.",
@@ -143,12 +164,10 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
     ? ` The series currently maintains a notable ${score} / 5.0 reader rating on verified international tracking indices.`
     : "";
 
-  const defaultEditorialAnalysis = `${title} distinguishes itself within the ${primaryGenre} and ${secondaryGenre} spaces through its creative visual execution and narrative momentum. ${thematicInsight}${scoreComment}`;
-
   // Automated Simulpub & Licensing Guide
   let defaultSimulpubGuide = "";
   if (isKorean) {
-    defaultSimulpubGuide = `${title} is officially licensed and distributed internationally across authorized webtoon platforms including WEBTOON, Tapas, and Tappytoon. Official digital episodes release in accordance with Korean publisher schedules, while physical translations are curated by licensed publishing houses.`;
+    defaultSimulpubGuide = `${title} is officially licensed and distributed internationally across authorized digital webtoon platforms including LINE Webtoon, Tapas, and Tappytoon. Official digital episodes release in accordance with South Korean publishing schedules, while physical translations are curated by licensed publishing houses such as Yen Press (Ize Press).`;
   } else {
     defaultSimulpubGuide = `Official English releases for ${title} are published simultaneously with Japanese magazine serialization via authorized platforms such as MANGA Plus by Shueisha, Viz Media, and Kodansha K Manga. Verified physical volumes, tankōbon collector editions, and Kindle releases are distributed worldwide by major licensed publishers.`;
   }
@@ -168,16 +187,20 @@ export function generateEditorialSeriesDescription(manga: Partial<MangaItem>): G
     { label: "Serialization Status", value: effectiveStatus === "RELEASING" ? "Active Simulpub" : effectiveStatus === "FINISHED" ? "Completed" : "Hiatus" },
     { label: "Total Chapters", value: totalChapters ? `${totalChapters} Chapters` : "Ongoing" },
     { label: "Reader Rating", value: score ? `${score} / 5.0` : "Community Rated" },
-    { label: "Legal Access", value: verified.publisher || (isKorean ? "WEBTOON / Tapas / Retailers" : "MANGA Plus / Viz / Kodansha") },
+    { label: "Legal Access", value: verified.publisher || (isKorean ? "LINE Webtoon / Tapas / Retailers" : "MANGA Plus / Viz / Kodansha") },
   ];
+
+  // Check if human-curated bespoke editorial exists
+  const isBespoke = Boolean(bespoke?.editorialAnalysis);
 
   return {
     headline: bespoke?.headline || defaultHeadline,
     hook: bespoke?.hook || defaultHook,
-    synopsis: cleanSynopsis || `${title} follows a gripping narrative driven by ${genreList} themes. Follow the official legal links to discover the full story.`,
-    editorialAnalysis: bespoke?.editorialAnalysis || defaultEditorialAnalysis,
+    synopsis: cleanSynopsis || `${title} follows a narrative driven by ${genreList} themes. Follow the official legal links to discover the full story.`,
+    editorialAnalysis: bespoke?.editorialAnalysis,
     simulpubGuide: bespoke?.simulpubGuide || defaultSimulpubGuide,
     readingRecommendation: bespoke?.readingRecommendation || defaultReadingRecommendation,
     highlights,
+    isBespoke,
   };
 }

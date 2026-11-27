@@ -57,34 +57,54 @@ export default function PrivacyPolicyPage() {
           <li><strong className="text-white">Outbound Links:</strong> Our directory links directly to official publishers (MANGA Plus by Shueisha, Viz Media, Kodansha). Once you click an outbound link, you are governed by the respective publisher's privacy policy.</li>
         </ul>
 
-        <h2 className="text-lg font-bold text-white">4. Cookies and Advertising Partners</h2>
+        <h2 className="text-lg font-bold text-white">4. Cookies and Advertising Partners (Google AdSense Disclosures)</h2>
         <p>
           We use strictly necessary functional session cookies and local storage tokens to keep you logged in and preserve your tracker filters and theme preferences.
         </p>
         <p>
-          <strong className="text-white">Google Advertising & Third-Party Cookies:</strong> Third-party vendors, including Google, use cookies to serve ads based on a user&apos;s prior visits to this website or other websites. Google&apos;s use of advertising cookies enables it and its partners to serve ads to our users based on their visit to MangaPulse and/or other sites on the Internet.
+          <strong className="text-white">Google AdSense & DoubleClick DART Cookies:</strong> Google, as a third-party vendor, uses cookies to serve advertisements on MangaPulse. Google&apos;s use of the DoubleClick DART cookie enables it and its partner advertising networks to serve personalized ads to our users based on their visits to MangaPulse and other sites across the Internet.
         </p>
         <p>
-          Users may opt out of personalized advertising by visiting{" "}
-          <a
-            href="https://www.google.com/settings/ads"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline font-medium"
-          >
-            Google Ads Settings
-          </a>
-          . Alternatively, you can opt out of a third-party vendor&apos;s use of cookies for personalized advertising by visiting{" "}
-          <a
-            href="https://www.aboutads.info/choices/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline font-medium"
-          >
-            aboutads.info
-          </a>
-          .
+          <strong className="text-white">Third-Party Advertising Vendors:</strong> Third-party ad networks or ad servers may also use cookies, JavaScript, or Web Beacons in their respective advertisements and links that appear on MangaPulse. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content you see. MangaPulse has no access to or control over these cookies used by third-party advertisers.
         </p>
+        <p>
+          <strong className="text-white">User Opt-Out Choices:</strong> Users may opt out of personalized advertising at any time through the following consumer choice tools:
+        </p>
+        <ul className="list-disc pl-5 space-y-1.5 text-xs text-[#cbd5e1]">
+          <li>
+            <strong>Google Ads Settings:</strong> You can manage or opt out of Google&apos;s personalized advertising by visiting{" "}
+            <a
+              href="https://www.google.com/settings/ads"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline font-medium"
+            >
+              Google Ads Settings
+            </a>.
+          </li>
+          <li>
+            <strong>Digital Advertising Alliance (DAA):</strong> You can opt out of collection and use of information for web viewing data and interest-based advertising across participating ad networks via{" "}
+            <a
+              href="https://www.aboutads.info/choices/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline font-medium"
+            >
+              aboutads.info/choices
+            </a>.
+          </li>
+          <li>
+            <strong>Network Advertising Initiative (NAI):</strong> You can opt out of interest-based advertising by visiting the{" "}
+            <a
+              href="https://www.networkadvertising.org/choices/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline font-medium"
+            >
+              Network Advertising Initiative Consumer Opt-Out
+            </a>.
+          </li>
+        </ul>
 
         <h2 className="text-lg font-bold text-white">5. Your Data Rights (GDPR & CCPA)</h2>
         <p>
